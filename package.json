@@ -1,0 +1,62 @@
+{
+  "name": "rsud",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "start": "react-native start",
+    "test": "jest",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@expo/vector-icons": "^10.0.6",
+    "@fortawesome/fontawesome-svg-core": "^1.2.27",
+    "@fortawesome/free-solid-svg-icons": "^5.12.1",
+    "@fortawesome/react-native-fontawesome": "^0.2.3",
+    "@react-native-community/masked-view": "^0.1.7",
+    "@react-navigation/native": "^5.0.9",
+    "native-base": "^2.13.8",
+    "react": "16.9.0",
+    "react-native": "0.61.5",
+    "react-native-dashboard": "0.0.4",
+    "react-native-fast-image": "^8.1.2",
+    "react-native-gesture-handler": "^1.6.0",
+    "react-native-image-header": "^1.0.1",
+    "react-native-image-slider-box": "^1.0.12",
+    "react-native-image-slider-show": "^1.0.3",
+    "react-native-modal": "^11.5.4",
+    "react-native-modals": "^0.19.9",
+    "react-native-navigation-bar": "^0.2.1",
+    "react-native-reanimated": "^1.7.0",
+    "react-native-router-flux": "^4.2.0",
+    "react-native-safe-area-context": "^0.7.3",
+    "react-native-screens": "^2.2.0",
+    "react-native-select-two": "^1.1.0",
+    "react-native-slideshow": "^1.0.1",
+    "react-native-step-indicator": "0.0.11",
+    "react-native-svg": "^12.0.3",
+    "react-native-vector-icons": "^6.6.0",
+    "react-navigation": "^4.2.2",
+    "react-navigation-stack": "^2.2.3",
+    "react-redux": "^7.2.0",
+    "redux": "^4.0.5",
+    "redux-force": "^0.1.10",
+    "redux-form": "^8.3.1",
+    "redux-persist": "^5.6.12",
+    "redux-thunk": "^2.3.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.8.6",
+    "@babel/runtime": "^7.8.4",
+    "@react-native-community/eslint-config": "^0.0.7",
+    "babel-jest": "^25.1.0",
+    "eslint": "^6.8.0",
+    "jest": "^25.1.0",
+    "metro-react-native-babel-preset": "^0.58.0",
+    "react-test-renderer": "16.9.0"
+  },
+  "jest": {
+    "preset": "react-native"
+  }
+}
