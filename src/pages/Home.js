@@ -37,6 +37,7 @@ class Profile extends Component {
             inClickInfo: false,
             inClickShuttle:false,
             inClickFaq:false,
+            inClickPengaduan:false,
 
 
         };
@@ -88,6 +89,13 @@ class Profile extends Component {
         Actions.faq();
         setTimeout(function () {
             this.setState({inClickFaq: false});
+        }.bind(this), 2000);
+    };
+    onClickButtonPengaduan = () => {
+        this.setState({inClickPengaduan: true});
+        Actions.pengaduan();
+        setTimeout(function () {
+            this.setState({inClickPengaduan: false});
         }.bind(this), 2000);
     };
     render() {
@@ -316,7 +324,7 @@ class Profile extends Component {
                                             }}>FAQ</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
-                                        onPress={!this.state.inClickJadwal ? this.onClickButtonJadwal : null}
+                                        onPress={!this.state.inClickPengaduan ? this.onClickButtonPengaduan : null}
                                         style={{
                                             marginRight: 2,
                                             width: '25%',

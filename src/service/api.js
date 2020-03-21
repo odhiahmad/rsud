@@ -1,4 +1,4 @@
-const BASE_URL = "http://192.168.0.105:80/api";
+const BASE_URL = "http://192.168.100.2/api";
 
 export const baseApi = BASE_URL
 

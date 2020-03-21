@@ -1,33 +1,81 @@
-import React, { Component } from "react"
-import { View, Text, StyleSheet } from "react-native"
-import Select2 from "react-native-select-two"
+import React, {Component} from 'react';
+import {View} from 'react-native';
+import MultiSelect from 'react-native-multiple-select';
 
-const mockData = [
-    { id: 1, name: "React Native Developer", checked: true }, // set default checked for render option item
-    { id: 2, name: "Android Developer" },
-    { id: 3, name: "iOS Developer" }
-]
+const items = [{
+    id: '92iijs7yta',
+    name: 'Ondo',
+}, {
+    id: 'a0s0a8ssbsd',
+    name: 'Ogun',
+}, {
+    id: '16hbajsabsd',
+    name: 'Calabar',
+}, {
+    id: 'nahs75a5sg',
+    name: 'Lagos',
+}, {
+    id: '667atsas',
+    name: 'Maiduguri',
+}, {
+    id: 'hsyasajs',
+    name: 'Anambra',
+}, {
+    id: 'djsjudksjd',
+    name: 'Benue',
+}, {
+    id: 'sdhyaysdj',
+    name: 'Kaduna',
+}, {
+    id: 'suudydjsjd',
+    name: 'Abuja',
+}];
 
-// create a component
-class Pengaduan extends Component {
+
+class MultiSelectExample extends Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            selectedItems: [],
+        };
+    }
+
+    onSelectedItemsChange = selectedItems => {
+        this.setState({selectedItems});
+    };
     render() {
+        const {selectedItems} = this.state;
         return (
-            <View style={styles.container}>
-                <Select2
-                    isSelectSingle
-                    style={{ borderRadius: 5 }}
-                    colorTheme="blue"
-                    popupTitle="Select item"
-                    title="Select item"
-                    data={mockData}
-                    onSelect={data => {
-                        this.setState({ data })
+            <View style={{flex: 1}}>
+                <MultiSelect
+                    hideTags
+                    items={items}
+                    uniqueKey="id"
+                    ref={(component) => {
+                        this.multiSelect = component;
                     }}
-                    onRemoveItem={data => {
-                        this.setState({ data })
-                    }}
+                    onSelectedItemsChange={this.onSelectedItemsChange}
+                    selectedItems={selectedItems}
+                    selectText="Pick Items"
+                    searchInputPlaceholderText="Search Items..."
+                    onChangeInput={(text) => console.log(text)}
+                    altFontFamily="ProximaNova-Light"
+                    tagRemoveIconColor="#CCC"
+                    tagBorderColor="#CCC"
+                    tagTextColor="#CCC"
+                    selectedItemTextColor="#CCC"
+                    selectedItemIconColor="#CCC"
+                    itemTextColor="#000"
+                    displayKey="name"
+                    searchInputStyle={{color: '#CCC'}}
+                    submitButtonColor="#CCC"
+                    submitButtonText="Submit"
                 />
+                <View>
+                    {this.multiSelect.getSelectedItemsExt(selectedItems)}
+                </View>
             </View>
-        )
+        );
     }
 }

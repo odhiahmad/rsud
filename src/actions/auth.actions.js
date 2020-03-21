@@ -9,7 +9,7 @@ export const createNewUser = (payload) => {
           });
           const response = await fetchApi("/user/create", "POST", payload, 200);
 
-          if(response.success) {
+          if(response.success === true) {
             dispatch({
                 type: "CREAT_USER_SUCCESS"
             });
@@ -23,7 +23,7 @@ export const createNewUser = (payload) => {
             });
 
             return response;
-          } else {
+          } else if(response.success === false) {
             throw response;
           }
 
@@ -39,7 +39,6 @@ export const createNewUser = (payload) => {
 
 export const loginUser = (payload) => {
     return async (dispatch) => {
-
         try {
           dispatch({
             type: "LOGIN_USER_LOADING"
@@ -47,8 +46,6 @@ export const loginUser = (payload) => {
           const response = await fetchApi("/user/login", "POST", payload, 200);
 
           if(response.success) {
-
-
             dispatch({
                 type: "LOGIN_USER_SUCCESS",
             });

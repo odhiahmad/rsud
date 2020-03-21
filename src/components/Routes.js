@@ -17,7 +17,7 @@ import FormPendaftaran from '../pages/daftar-online/form-pendaftaran';
 import Faq from '../pages/Faq';
 import Pengaduan from '../pages/Pengaduan'
 import InformasiIndex from '../pages/informasi/index';
-
+import LupaPassword from '../pages/LupaPassword';
 import JadwalPoliklinikIndex from '../pages/jadwal-poliklinik/index';
 import {Icon} from 'native-base';
 import GrayScreen from '../pages/GrayScreen';
@@ -134,6 +134,7 @@ export default class Routes extends Component<{}> {
                     <Scene key="root" hideNavBar={true} initial={!this.props.isLoggedIn}>
                         <Scene key="login" component={Login} initial={true}/>
                         <Scene key="signup" component={Signup} title="Register"/>
+                        <Scene key="lupapassword" component={LupaPassword} title="Lupa Password"/>
                     </Scene>
                     <Scene key="app" hideNavBar={true} initial={this.props.isLoggedIn}>
                         <Scene

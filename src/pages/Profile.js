@@ -3,9 +3,10 @@ import {StyleSheet, Text, View, TouchableOpacity, SafeAreaView, ScrollView, Imag
 import {connect} from 'react-redux';
 import {Icon} from 'native-base';
 import {logoutUser} from '../actions/auth.actions';
-import {fetchApi} from '../service/api';
+import {baseApi, fetchApi} from '../service/api';
 import Loader from "../components/Loader";
 type Props = {}
+
 
 class Profile extends Component <{}> {
     constructor(){
@@ -14,11 +15,31 @@ class Profile extends Component <{}> {
             data:null,
             loaded:false,
             error:null,
+            isLoading: true,
+            dataProfil: null,
         }
     }
-    baseURL = 'http://192.168.0.101:80/api/user'
-    getData = (ev)=>{
-        let url = this.baseURL + '/user/get'
+
+    componentDidMount() {
+
+        return fetch(baseApi + '/user/user', {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization':'Bearer '+this.props.getUser.userDetails.token
+            }
+        }).then((response) => response.json()).then((responseJson) => {
+            this.setState({
+                isLoading: false,
+                dataProfil: responseJson.user,
+            });
+
+            console.log(responseJson.user)
+        })
+            .catch((error) => {
+                console.log(error);
+            });
     }
 
     logoutUser = () => {
@@ -28,8 +49,8 @@ class Profile extends Component <{}> {
 
 
     render() {
-        const {getUser: {userDetails}} = this.props;
-        console.log(this.props.token)
+        const userDetails = this.state.dataProfil
+        console.log(this.props.getUser.userDetails.token)
 
             return (
 
@@ -44,7 +65,7 @@ class Profile extends Component <{}> {
                                 <Text style={styles.description}>Lorem ipsum dolor sit amet, saepe sapientem eu nam. Qui ne assum electram expetendis, omittam deseruisse consequuntur ius an,</Text>
 
                                 <TouchableOpacity style={styles.buttonContainer} onPress={this.logoutUser}>
-                                    <Text>Keluar </Text><Icon type="FontAwesome" name="sign-out"/>
+                                    <Text style={{color:'#ffffff'}}>Keluar </Text><Icon type="FontAwesome" name="sign-out"/>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -58,8 +79,8 @@ class Profile extends Component <{}> {
 
 const styles = StyleSheet.create({
     header:{
-        backgroundColor: "#00BFFF",
-        height:200,
+        backgroundColor: "#1da30b",
+        height:120,
     },
     avatar: {
         width: 130,
@@ -70,7 +91,7 @@ const styles = StyleSheet.create({
         marginBottom:10,
         alignSelf:'center',
         position: 'absolute',
-        marginTop:130
+        marginTop:50
     },
     name1:{
         fontSize:22,
@@ -110,7 +131,7 @@ const styles = StyleSheet.create({
         marginBottom:20,
         width:250,
         borderRadius:30,
-        backgroundColor: "#00BFFF",
+        backgroundColor: "#1da30b",
     },
 });
 mapStateToProps = (state) => ({

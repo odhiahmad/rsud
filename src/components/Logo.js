@@ -3,16 +3,16 @@ import {
   StyleSheet,
   Text,
   View,
-   Image 
+   Image
 } from 'react-native';
 
 export default class Logo extends Component<{}> {
 	render(){
 		return(
 			<View style={styles.container}>
-				<Image  style={{width:40, height: 70}}
-          			source={require('../images/logo.png')}/>
-          		<Text style={styles.logoText}>Welcome to My app.</Text>	
+				<Image  style={{width:250, height: 60}}
+          			source={require('../images/logo/logo-hitam.jpg')}/>
+          		<Text style={styles.logoText}>Aplikasi Smart Hospital.</Text>
   			</View>
 			)
 	}
@@ -27,6 +27,6 @@ const styles = StyleSheet.create({
   logoText : {
   	marginVertical: 15,
   	fontSize:18,
-  	color:'rgba(255, 255, 255, 0.7)'
+  	color:'rgba(80, 87, 79, 0.7)'
   }
 });

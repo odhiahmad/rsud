@@ -1,175 +1,337 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import {
-  StyleSheet,
-  Text,
-  View,
-  StatusBar ,
-  TouchableOpacity,
-  Alert
+    NetInfo,
+    StyleSheet,
+    Text,
+    View,
+    StatusBar,
+    TouchableOpacity,
+    Alert, TextInput, ScrollView,
 } from 'react-native';
-import { Field, reduxForm } from 'redux-form';
-import {connect} from "react-redux";
-import {compose} from "redux";
-
 import Logo from '../components/Logo';
 import Form from '../components/Form';
-import InputText from "../components/InputText";
-import {createNewUser} from "../actions/auth.actions";
-import Loader from "../components/Loader";
-import {ErrorUtils} from "../utils/auth.utils";
-
+import InputText from '../components/InputText';
+import ValidationComponent from 'react-native-form-validator';
+import Loader from '../components/Loader';
+import {baseApi} from '../service/api';
 import {Actions} from 'react-native-router-flux';
 
-
+import AwesomeAlert from 'react-native-awesome-alerts';
+import email from 'react-native-email';
+import PasswordInputText from 'react-native-hide-show-password-input';
+import {
+    Col, Row, Grid,
+    Item,
+    H2,
+    Spinner,
+    Root,
+    Container,
+    Header,
+    Content,
+    Button,
+    ListItem,
+    Icon,
+    Left,
+    Body,
+    Right,
+    Switch,
+    ActionSheet,
+    Card, CardItem,
+} from 'native-base';
 const styles = StyleSheet.create({
-  container : {
-    backgroundColor:'#455a64',
-    flex: 1,
-    alignItems:'center',
-    justifyContent :'center'
-  },
-  signupTextCont: {
-  	flexGrow: 1,
-    alignItems:'flex-end',
-    justifyContent :'center',
-    paddingVertical:16,
-    flexDirection:'row'
-  },
-  signupText: {
-  	color:'rgba(255,255,255,0.6)',
-  	fontSize:16
-  },
-  signupButton: {
-  	color:'#ffffff',
-  	fontSize:16,
-  	fontWeight:'500'
-  },
-  button: {
-    width:300,
-    backgroundColor:'#1c313a',
-    borderRadius: 25,
-    marginVertical: 10,
-    paddingVertical: 13
-  },
-  buttonText: {
-    fontSize:16,
-    fontWeight:'500',
-    color:'#ffffff',
-    textAlign:'center'
-  },
-  errorText: {
-      color: "#ffffff",
-      fontSize:14,
-      paddingHorizontal:16,
-      paddingBottom: 8
-  },
-  inputBox: {
-    width:300,
-    backgroundColor:'rgba(255, 255,255,0.2)',
-    borderRadius: 25,
-    paddingHorizontal:16,
-    fontSize:16,
-    color:'#ffffff',
-    marginVertical: 10
-  }
+    container: {
+
+        flex: 3,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    signupTextCont: {
+        justifyContent: 'center',
+        flexDirection: 'row',
+    },
+    lupaPasswordTextCont: {
+        flexGrow: 1,
+        justifyContent: 'center',
+        flexDirection: 'row',
+    },
+    signupText: {
+        color: 'rgba(80, 87, 79,0.6)',
+        fontSize: 16,
+    },
+    signupButton: {
+        color: '#50574f',
+        fontSize: 16,
+        fontWeight: '500',
+    },
+    inputBox: {
+        width: 300,
+        backgroundColor: 'rgba(29, 163, 11,0.8)',
+        borderRadius: 25,
+        paddingHorizontal: 16,
+        fontSize: 16,
+        color: '#ffffff',
+        marginVertical: 10,
+    },
+    button: {
+        width: 300,
+        backgroundColor: '#1c313a',
+        borderRadius: 25,
+        marginVertical: 10,
+        paddingVertical: 13,
+    },
+    buttonText: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: '#ffffff',
+        textAlign: 'center',
+    },
+    errorText: {
+        color: '#ffffff',
+        fontSize: 14,
+        paddingHorizontal: 16,
+        paddingBottom: 8,
+    },
 });
 
-class Signup extends Component<{}> {
+const nilaiTambahA = Math.floor(Math.random() * 10)
+const nilaiTambahB = Math.floor(Math.random() * 10)
+const jumlah = nilaiTambahA +  nilaiTambahB
+const tampilan = 'Hasil dari '+  nilaiTambahA +' + '+  nilaiTambahB
 
-  goBack() {
-      Actions.pop();
-  }
+console.log(tampilan)
 
-  createNewUser = async (values) => {
-      try {
-          const response =  await this.props.dispatch(createNewUser(values));
-          if (!response.success) {
-              throw response;
-          }
-      } catch (error) {
-          const newError = new ErrorUtils(error, "Signup Error");
-          newError.showAlert();
-      }
-  }
+class Signup extends ValidationComponent {
 
-  onSubmit = (values) => {
-      this.createNewUser(values);
-  }
+    goBack() {
+        Actions.pop();
+    }
 
-  renderTextInput = (field) => {
-        const {meta: {touched, error}, label, secureTextEntry, maxLength, keyboardType, placeholder, input: {onChange, ...restInput}} = field;
+    lupapassword() {
+        Actions.lupapassword();
+    }
+
+    constructor(props) {
+        super(props);
+        this.toggleSwitch = this.toggleSwitch.bind(this);
+        this.state = {
+            showPassword: true,
+            nama: '',
+            email: '',
+            emailValidasi: '',
+            password: '',
+            passwordKonfirmasi: '',
+            angka:'',
+            showAlert: false,
+            message: '',
+            loading:false,
+        };
+    }
+
+    componentDidMount() {
+
+
+        console.log(this.state.tampilan)
+    }
+
+    showAlert = () => {
+        this.setState({
+            showAlert: true,
+        });
+    };
+
+    hideAlert = () => {
+        this.setState({
+            showAlert: false,
+        });
+    };
+
+    _onSubmit() {
+        this.validate({
+            nama: {minlength: 4, maxlength: 20, required: true},
+            email: {email: true,required: true},
+            emailValidasi: {email: true,required: true},
+            password: {minlength: 5, required: true},
+            passwordKonfirmasi: {minlength: 5, required: true},
+            angka: {minlength: 1, required: true,numbers:true},
+        });
+
+        if (this.state.email === this.state.emailValidasi) {
+            if (this.state.password === this.state.passwordKonfirmasi) {
+                if (this.isFormValid()) {
+                    if(parseInt(this.state.angka) === jumlah){
+                        this.state.loading = true
+                        fetch(baseApi + '/user/create', {
+                            method: 'POST',
+                            headers: {
+                                Accept: 'application/json',
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                nama: this.state.nama,
+                                email: this.state.email,
+                                password: this.state.password,
+                            }),
+
+                        }).then((response) => response.json()).then((responseJson) => {
+                            this.state.message = responseJson.message;
+                            this.state.loading = false
+                            this.showAlert();
+
+                        }).catch((error) => {
+                            console.log(error);
+                            this.state.message = error;
+                            this.showAlert();
+
+                        });
+                    }else{
+                        this.state.message = 'Jumlah yang anda masukan tidak sama';
+                        this.showAlert();
+                    }
+
+                }
+            } else {
+                this.state.message = 'Password konfirmasi tidak sama';
+                this.showAlert();
+            }
+
+        } else {
+            this.state.message = 'Email atau Password konfirmasi tidak sama';
+            this.showAlert();
+
+        }
+
+    }
+
+    toggleSwitch() {
+        this.setState({ showPassword: !this.state.showPassword });
+    }
+
+    render() {
+        const {showAlert} = this.state;
+        const {onChange} = this.props;
+
         return (
-            <View>
-              <InputText
-                  onChangeText={onChange}
-                  maxLength={maxLength}
-                  placeholder={placeholder}
-                  keyboardType={keyboardType}
-                  secureTextEntry={secureTextEntry}
-                  label={label}
-                  {...restInput} />
-            {(touched && error) && <Text style={styles.errorText}>{error}</Text>}
+            <View style={styles.container}>
+                {/*{this.state.loading === true ? <Loader/> : ''}*/}
+                <ScrollView style={{marginVertical: 15, backgroundColor: 'white'}}>
+                    <Logo/>
+                    <TextInput
+                        ref="nama"
+                        onChangeText={(nama) => this.setState({nama})}
+                        style={styles.inputBox}
+                        underlineColorAndroid="rgba(0,0,0,0)"
+                        placeholder="Nama"
+                        placeholderTextColor="rgba(255,255,255,0.8)"
+                        selectionColor="#999999"
+                    />
+                    {this.isFieldInError('nama') && this.getErrorsInField('nama').map(errorMessage => <Text>{errorMessage}</Text>) }
+                    <TextInput
+                        ref="email"
+                        onChangeText={(email) => this.setState({email})}
+                        style={styles.inputBox}
+                        underlineColorAndroid="rgba(0,0,0,0)"
+                        placeholder="Email"
+                        placeholderTextColor="rgba(255,255,255,0.8)"
+                        selectionColor="#999999"
+                    />
+                    {this.isFieldInError('email') && this.getErrorsInField('email').map(errorMessage => <Text>{errorMessage}</Text>) }
+                    <TextInput
+                        ref="emailValidasi"
+                        onChangeText={(emailValidasi) => this.setState({emailValidasi})}
+                        style={styles.inputBox}
+                        underlineColorAndroid="rgba(0,0,0,0)"
+                        placeholder="Ulangi Email"
+                        placeholderTextColor="rgba(255,255,255,0.8)"
+                        selectionColor="#999999"
+                    />
+                    {this.isFieldInError('emailValidasi') && this.getErrorsInField('emailValidasi').map(errorMessage => <Text>{errorMessage}</Text>) }
+                    <TextInput
+                        ref="password"
+                        onChangeText={(password) => this.setState({password})}
+                        style={styles.inputBox}
+                        underlineColorAndroid="rgba(0,0,0,0)"
+                        placeholder="Password"
+                        placeholderTextColor="rgba(255,255,255,0.8)"
+                        selectionColor="#999999"
+                        secureTextEntry={this.state.showPassword}
+                    />
+                    {this.isFieldInError('password') && this.getErrorsInField('password').map(errorMessage => <Text>{errorMessage}</Text>) }
+
+                    <TextInput
+                        ref="passwordKonfirmasi"
+                        onChangeText={(passwordKonfirmasi) => this.setState({passwordKonfirmasi})}
+                        style={styles.inputBox}
+                        underlineColorAndroid="rgba(0,0,0,0)"
+                        placeholder="Password Konfirmasi"
+                        placeholderTextColor="rgba(255,255,255,0.8)"
+                        selectionColor="#999999"
+                        secureTextEntry={this.state.showPassword}
+                    />
+                    {this.isFieldInError('passwordKonfirmasi') && this.getErrorsInField('passwordKonfirmasi').map(errorMessage => <Text>{errorMessage}</Text>) }
+                    <ListItem icon>
+                        <Left>
+                            <Text>Lihat Password</Text>
+                        </Left>
+                        <Body>
+
+                        </Body>
+                        <Right><Switch
+                            onValueChange={this.toggleSwitch}
+                            value={!this.state.showPassword}
+                        /></Right>
+                    </ListItem>
+                    <TextInput
+                        editable={false}
+                        ref="tampilan"
+                        onChangeText={(tampilan) => this.setState({tampilan})}
+                        defaultValue={tampilan}
+                        style={styles.inputBox}
+                        underlineColorAndroid="rgba(0,0,0,0)"
+                        placeholderTextColor="rgba(255,255,255,0.8)"
+                        selectionColor="#999999"
+                    />
+                    <TextInput
+                        ref="angka"
+                        onChangeText={(angka) => this.setState({angka})}
+                        style={styles.inputBox}
+                        underlineColorAndroid="rgba(0,0,0,0)"
+                        placeholder="Masukan Jumlah diatas"
+                        placeholderTextColor="rgba(255,255,255,0.8)"
+                        selectionColor="#999999"
+                    />
+                    {this.isFieldInError('angka') && this.getErrorsInField('angka').map(errorMessage => <Text>{errorMessage}</Text>) }
+                    <TouchableOpacity style={styles.button} onPress={this._onSubmit.bind(this)}>
+                        <Text style={styles.buttonText}>Buat Akun</Text>
+                    </TouchableOpacity>
+                    <Text>
+
+                    </Text>
+                    <View style={styles.signupTextCont}>
+                        <Text style={styles.signupText}>Sudah mempunyai akun, silahkan?</Text>
+                        <TouchableOpacity onPress={this.goBack}><Text style={styles.signupButton}> Sign
+                            in</Text></TouchableOpacity>
+
+                    </View>
+
+                    <AwesomeAlert
+                        show={showAlert}
+                        showProgress={false}
+                        title="Notifikasi"
+                        message={this.state.message}
+                        closeOnTouchOutside={true}
+                        closeOnHardwareBackPress={false}
+                        showCancelButton={true}
+                        showConfirmButton={true}
+                        confirmText=" Keluar "
+                        confirmButtonColor="#DD6B55"
+                        onConfirmPressed={() => {
+                            this.hideAlert();
+                        }}
+                    />
+                </ScrollView>
             </View>
         );
-  }
-
-	render() {
-    const { handleSubmit, createUser} = this.props;
-		return(
-			<View style={styles.container}>
-        {createUser.isLoading && <Loader />}
-				<Logo/>
-        <Field
-            name="name"
-            placeholder="Name"
-            component={this.renderTextInput} />
-        <Field
-            name="email"
-            placeholder="Email"
-            component={this.renderTextInput} />
-        <Field
-            name="password"
-            placeholder="Password"
-            secureTextEntry={true}
-            component={this.renderTextInput} />
-        <TouchableOpacity style={styles.button} onPress={handleSubmit(this.onSubmit)}>
-          <Text style={styles.buttonText}>Signup</Text>
-        </TouchableOpacity>
-				<View style={styles.signupTextCont}>
-					<Text style={styles.signupText}>Already have an account?</Text>
-					<TouchableOpacity onPress={this.goBack}><Text style={styles.signupButton}> Sign in</Text></TouchableOpacity>
-				</View>
-			</View>
-			)
-	}
+    }
 }
 
-const validate = (values) => {
-    const errors = {};
-    if(!values.name) {
-        errors.name = "Name is required"
-    }
-    if(!values.email) {
-        errors.email = "Email is required"
-    }
-    if(!values.password) {
-        errors.password = "Name is required"
-    }
-    return errors;
-};
-
-mapStateToProps = (state) => ({
-    createUser: state.authReducer.createUser
-})
-
-mapDispatchToProps = (dispatch) => ({
-    dispatch
-});
-
-export default compose(
-  connect(mapStateToProps, mapDispatchToProps),
-  reduxForm({
-    form: "register",
-    validate
-  })
-)(Signup);
+export default Signup;

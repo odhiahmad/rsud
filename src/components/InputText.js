@@ -29,7 +29,7 @@ const defaultProps = {
 const styles = StyleSheet.create({
   inputBox: {
     width:300,
-    backgroundColor:'rgba(255, 255,255,0.2)',
+    backgroundColor:'rgba(29, 163, 11,0.8)',
     borderRadius: 25,
     paddingHorizontal:16,
     fontSize:16,
