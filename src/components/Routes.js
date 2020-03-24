@@ -4,12 +4,15 @@ import {Text,Image, Dimensions, View, BackHandler, TouchableOpacity, Animated} f
 
 
 import Login from '../pages/Login';
-import Signup from '../pages/Signup';
+import Signup from '../pages/daftar-akun/Signup';
 import Profile from '../pages/Profile';
 import Home from '../pages/Home';
 import Notifikasi from '../pages/Notifikasi';
 
 import BedMonitoringIndex from '../pages/bed-monitoring/index';
+import MenuPilihan from '../pages/daftar-akun/MenuPilihan';
+import SignupMr from '../pages/daftar-akun/SignupMr';
+import SignupMrDua from '../pages/daftar-akun/SignupMrDua';
 import ShuttleBus from '../pages/shuttle-bus/ShuttleBus'
 import ShuttleBusDetail from '../pages/shuttle-bus/ShuttleBusDetail';
 import DaftarOnlineIndex from '../pages/daftar-online/index';
@@ -19,6 +22,7 @@ import Pengaduan from '../pages/Pengaduan'
 import InformasiIndex from '../pages/informasi/index';
 import LupaPassword from '../pages/LupaPassword';
 import JadwalPoliklinikIndex from '../pages/jadwal-poliklinik/index';
+import News from '../pages/news/index'
 import {Icon} from 'native-base';
 import GrayScreen from '../pages/GrayScreen';
 
@@ -133,6 +137,9 @@ export default class Routes extends Component<{}> {
                 <Scene>
                     <Scene key="root" hideNavBar={true} initial={!this.props.isLoggedIn}>
                         <Scene key="login" component={Login} initial={true}/>
+                        <Scene key="menupilihan" component={MenuPilihan}/>
+                        <Scene key="signupmr" component={SignupMr}/>
+                        <Scene key="singupmr2" component={SignupMrDua}/>
                         <Scene key="signup" component={Signup} title="Register"/>
                         <Scene key="lupapassword" component={LupaPassword} title="Lupa Password"/>
                     </Scene>
@@ -144,13 +151,11 @@ export default class Routes extends Component<{}> {
                         >
                             <Scene key="beranda" title="Beranda" icon={TabIcon}>
                                 <Scene
-
                                     renderLeftButton={Logo}
                                     key="home"
                                     component={Home}
                                     title=""
                                 />
-
                                 <Scene
                                     key="daftaronline"
                                     component={DaftarOnlineIndex}
@@ -195,6 +200,12 @@ export default class Routes extends Component<{}> {
                                     key="pengaduan"
                                     component={Pengaduan}
                                     title="Pengaduan Masyarakat"
+                                />
+                                <Scene
+                                    key="news"
+                                    component={News}
+                                    hideNavBar={true}
+
                                 />
                             </Scene>
                             <Scene key="notifikasi" component={Notifikasi} title="Riwayat" icon={TabIcon}>

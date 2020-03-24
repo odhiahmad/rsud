@@ -38,6 +38,7 @@ class Profile extends Component {
             inClickShuttle:false,
             inClickFaq:false,
             inClickPengaduan:false,
+            inClickNews:false,
 
 
         };
@@ -96,6 +97,13 @@ class Profile extends Component {
         Actions.pengaduan();
         setTimeout(function () {
             this.setState({inClickPengaduan: false});
+        }.bind(this), 2000);
+    };
+    onClickButtonNews = () => {
+        this.setState({inClickNews: true});
+        Actions.news();
+        setTimeout(function () {
+            this.setState({inClickNews: false});
         }.bind(this), 2000);
     };
     render() {
@@ -324,7 +332,7 @@ class Profile extends Component {
                                             }}>FAQ</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
-                                        onPress={!this.state.inClickPengaduan ? this.onClickButtonPengaduan : null}
+                                        // onPress={!this.state.inClickPengaduan ? this.onClickButtonPengaduan : null}
                                         style={{
                                             marginRight: 2,
                                             width: '25%',
@@ -359,7 +367,7 @@ class Profile extends Component {
                                             }}>Pengaduan Masyarakat</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
-                                        onPress={!this.state.inClickBed ? this.onClickButtonBed : null}
+                                        onPress={!this.state.inClickNews ? this.onClickButtonNews : null}
                                         style={{
                                             marginRight: 2,
                                             width: '25%',

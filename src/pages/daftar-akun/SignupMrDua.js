@@ -8,12 +8,13 @@ import {
     TouchableOpacity,
     Alert, TextInput, ScrollView,
 } from 'react-native';
-import Logo from '../components/Logo';
-import Form from '../components/Form';
-import InputText from '../components/InputText';
+import LoaderModal from '../../components/LoaderModal';
+import Logo from '../../components/Logo';
+import Form from '../../components/Form';
+import InputText from '../../components/InputText';
 import ValidationComponent from 'react-native-form-validator';
-import Loader from '../components/Loader';
-import {baseApi} from '../service/api';
+import Loader from '../../components/Loader';
+import {baseApi} from '../../service/api';
 import {Actions} from 'react-native-router-flux';
 
 import AwesomeAlert from 'react-native-awesome-alerts';
@@ -38,6 +39,7 @@ import {
     ActionSheet,
     Card, CardItem,
 } from 'native-base';
+
 const styles = StyleSheet.create({
     container: {
 
@@ -93,14 +95,14 @@ const styles = StyleSheet.create({
     },
 });
 
-const nilaiTambahA = Math.floor(Math.random() * 10)
-const nilaiTambahB = Math.floor(Math.random() * 10)
-const jumlah = nilaiTambahA +  nilaiTambahB
-const tampilan = 'Hasil dari '+  nilaiTambahA +' + '+  nilaiTambahB
+const nilaiTambahA = Math.floor(Math.random() * 10);
+const nilaiTambahB = Math.floor(Math.random() * 10);
+const jumlah = nilaiTambahA + nilaiTambahB;
+const tampilan = 'Hasil dari ' + nilaiTambahA + ' + ' + nilaiTambahB;
 
-console.log(tampilan)
+console.log(tampilan);
 
-class Signup extends ValidationComponent {
+class SignupMrDua extends ValidationComponent {
 
     goBack() {
         Actions.pop();
@@ -120,17 +122,16 @@ class Signup extends ValidationComponent {
             emailValidasi: '',
             password: '',
             passwordKonfirmasi: '',
-            angka:'',
+            angka: '',
             showAlert: false,
             message: '',
-            loading:false,
+            loading: false,
         };
     }
 
     componentDidMount() {
 
 
-        console.log(this.state.tampilan)
     }
 
     showAlert = () => {
@@ -146,20 +147,21 @@ class Signup extends ValidationComponent {
     };
 
     _onSubmit() {
+        this.state.loading = true;
         this.validate({
             nama: {minlength: 4, maxlength: 20, required: true},
-            email: {email: true,required: true},
-            emailValidasi: {email: true,required: true},
+            email: {email: true, required: true},
+            emailValidasi: {email: true, required: true},
             password: {minlength: 5, required: true},
             passwordKonfirmasi: {minlength: 5, required: true},
-            angka: {minlength: 1, required: true,numbers:true},
+            angka: {minlength: 1, required: true, numbers: true},
         });
+        if (this.isFormValid()) {
+            if (this.state.email === this.state.emailValidasi) {
+                if (this.state.password === this.state.passwordKonfirmasi) {
+                    if (parseInt(this.state.angka) === jumlah) {
 
-        if (this.state.email === this.state.emailValidasi) {
-            if (this.state.password === this.state.passwordKonfirmasi) {
-                if (this.isFormValid()) {
-                    if(parseInt(this.state.angka) === jumlah){
-                        this.state.loading = true
+
                         fetch(baseApi + '/user/create', {
                             method: 'POST',
                             headers: {
@@ -174,28 +176,36 @@ class Signup extends ValidationComponent {
 
                         }).then((response) => response.json()).then((responseJson) => {
                             this.state.message = responseJson.message;
-                            this.state.loading = false
+                            this.state.loading = false;
                             this.showAlert();
 
                         }).catch((error) => {
+                            this.state.loading = false;
                             console.log(error);
                             this.state.message = error;
                             this.showAlert();
 
                         });
-                    }else{
+                    } else {
+                        this.state.loading = false;
                         this.state.message = 'Jumlah yang anda masukan tidak sama';
                         this.showAlert();
                     }
 
+                } else {
+                    this.state.loading = false;
+                    this.state.message = 'Password konfirmasi tidak sama';
+                    this.showAlert();
                 }
             } else {
-                this.state.message = 'Password konfirmasi tidak sama';
+                this.state.loading = false;
+                this.state.message = 'Email atau Password konfirmasi tidak sama';
                 this.showAlert();
             }
 
         } else {
-            this.state.message = 'Email atau Password konfirmasi tidak sama';
+            this.state.loading = false;
+            this.state.message = 'Isi semua';
             this.showAlert();
 
         }
@@ -203,16 +213,19 @@ class Signup extends ValidationComponent {
     }
 
     toggleSwitch() {
-        this.setState({ showPassword: !this.state.showPassword });
+        this.setState({showPassword: !this.state.showPassword});
     }
 
     render() {
         const {showAlert} = this.state;
         const {onChange} = this.props;
+        const loader = <Loader/>;
 
         return (
             <View style={styles.container}>
-                {/*{this.state.loading === true ? <Loader/> : ''}*/}
+                <LoaderModal
+                    loading={this.state.loading}/>
+                {/*{this.state.loading === true ? <View><Loader/></View> : ''}*/}
                 <ScrollView style={{marginVertical: 15, backgroundColor: 'white'}}>
                     <Logo/>
                     <TextInput
@@ -224,7 +237,8 @@ class Signup extends ValidationComponent {
                         placeholderTextColor="rgba(255,255,255,0.8)"
                         selectionColor="#999999"
                     />
-                    {this.isFieldInError('nama') && this.getErrorsInField('nama').map(errorMessage => <Text>{errorMessage}</Text>) }
+                    {this.isFieldInError('nama') && this.getErrorsInField('nama').map(errorMessage =>
+                        <Text>{errorMessage}</Text>)}
                     <TextInput
                         ref="email"
                         onChangeText={(email) => this.setState({email})}
@@ -234,7 +248,8 @@ class Signup extends ValidationComponent {
                         placeholderTextColor="rgba(255,255,255,0.8)"
                         selectionColor="#999999"
                     />
-                    {this.isFieldInError('email') && this.getErrorsInField('email').map(errorMessage => <Text>{errorMessage}</Text>) }
+                    {this.isFieldInError('email') && this.getErrorsInField('email').map(errorMessage =>
+                        <Text>{errorMessage}</Text>)}
                     <TextInput
                         ref="emailValidasi"
                         onChangeText={(emailValidasi) => this.setState({emailValidasi})}
@@ -244,7 +259,8 @@ class Signup extends ValidationComponent {
                         placeholderTextColor="rgba(255,255,255,0.8)"
                         selectionColor="#999999"
                     />
-                    {this.isFieldInError('emailValidasi') && this.getErrorsInField('emailValidasi').map(errorMessage => <Text>{errorMessage}</Text>) }
+                    {this.isFieldInError('emailValidasi') && this.getErrorsInField('emailValidasi').map(errorMessage =>
+                        <Text>{errorMessage}</Text>)}
                     <TextInput
                         ref="password"
                         onChangeText={(password) => this.setState({password})}
@@ -255,7 +271,8 @@ class Signup extends ValidationComponent {
                         selectionColor="#999999"
                         secureTextEntry={this.state.showPassword}
                     />
-                    {this.isFieldInError('password') && this.getErrorsInField('password').map(errorMessage => <Text>{errorMessage}</Text>) }
+                    {this.isFieldInError('password') && this.getErrorsInField('password').map(errorMessage =>
+                        <Text>{errorMessage}</Text>)}
 
                     <TextInput
                         ref="passwordKonfirmasi"
@@ -267,7 +284,8 @@ class Signup extends ValidationComponent {
                         selectionColor="#999999"
                         secureTextEntry={this.state.showPassword}
                     />
-                    {this.isFieldInError('passwordKonfirmasi') && this.getErrorsInField('passwordKonfirmasi').map(errorMessage => <Text>{errorMessage}</Text>) }
+                    {this.isFieldInError('passwordKonfirmasi') && this.getErrorsInField('passwordKonfirmasi').map(errorMessage =>
+                        <Text>{errorMessage}</Text>)}
                     <ListItem icon>
                         <Left>
                             <Text>Lihat Password</Text>
@@ -299,7 +317,8 @@ class Signup extends ValidationComponent {
                         placeholderTextColor="rgba(255,255,255,0.8)"
                         selectionColor="#999999"
                     />
-                    {this.isFieldInError('angka') && this.getErrorsInField('angka').map(errorMessage => <Text>{errorMessage}</Text>) }
+                    {this.isFieldInError('angka') && this.getErrorsInField('angka').map(errorMessage =>
+                        <Text>{errorMessage}</Text>)}
                     <TouchableOpacity style={styles.button} onPress={this._onSubmit.bind(this)}>
                         <Text style={styles.buttonText}>Buat Akun</Text>
                     </TouchableOpacity>
@@ -320,7 +339,7 @@ class Signup extends ValidationComponent {
                         message={this.state.message}
                         closeOnTouchOutside={true}
                         closeOnHardwareBackPress={false}
-                        showCancelButton={true}
+                        showCancelButton={false}
                         showConfirmButton={true}
                         confirmText=" Keluar "
                         confirmButtonColor="#DD6B55"
@@ -334,4 +353,4 @@ class Signup extends ValidationComponent {
     }
 }
 
-export default Signup;
+export default SignupMrDua;
