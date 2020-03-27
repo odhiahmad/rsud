@@ -95,17 +95,13 @@ const styles = StyleSheet.create({
     },
 });
 
-const nilaiTambahA = Math.floor(Math.random() * 10);
-const nilaiTambahB = Math.floor(Math.random() * 10);
-const jumlah = nilaiTambahA + nilaiTambahB;
-const tampilan = 'Hasil dari ' + nilaiTambahA + ' + ' + nilaiTambahB;
 
-console.log(tampilan);
+
 
 class SignupMr extends ValidationComponent {
 
     goBack() {
-        Actions.pop();
+        Actions.login();
     }
 
     lupapassword() {
@@ -116,9 +112,12 @@ class SignupMr extends ValidationComponent {
         super(props);
         this.toggleSwitch = this.toggleSwitch.bind(this);
         this.state = {
+            nama:'',
+            success:'',
             showPassword: true,
-            nama: '',
-            email: '',
+            nomorMr: '',
+            nomr:'',
+            tahunLahir: '',
             emailValidasi: '',
             password: '',
             passwordKonfirmasi: '',
@@ -126,6 +125,9 @@ class SignupMr extends ValidationComponent {
             showAlert: false,
             message: '',
             loading: false,
+            halamanSelanjutnya:false,
+            nilaiTambahA: Math.floor(Math.random() * 10),
+            nilaiTambahB: Math.floor(Math.random() * 10),
         };
     }
 
@@ -141,67 +143,74 @@ class SignupMr extends ValidationComponent {
     };
 
     hideAlert = () => {
-        this.setState({
-            showAlert: false,
-        });
+
+        if(this.state.halamanSelanjutnya === true){
+            this.setState({
+                showAlert: false,
+            });
+            console.log(this.state.nomr),
+            Actions.singupmr2({
+                nomorMr: this.state.nomr,
+                tahunLahir:this.state.tahunLahir,
+                success:this.state.success,
+                nama:this.state.nama
+            })
+        }else{
+            this.setState({
+                showAlert: false,
+            });
+        }
+
     };
 
     _onSubmit() {
+
+
         this.state.loading = true;
         this.validate({
-            nama: {minlength: 4, maxlength: 20, required: true},
-            email: {email: true, required: true},
-            emailValidasi: {email: true, required: true},
-            password: {minlength: 5, required: true},
-            passwordKonfirmasi: {minlength: 5, required: true},
+            nomorMr: {minlength: 6, maxlength: 6,numbers: true, required: true},
+            tahunLahir: {minlength: 4, maxlength: 4,numbers: true, required: true},
             angka: {minlength: 1, required: true, numbers: true},
         });
         if (this.isFormValid()) {
-            if (this.state.email === this.state.emailValidasi) {
-                if (this.state.password === this.state.passwordKonfirmasi) {
-                    if (parseInt(this.state.angka) === jumlah) {
+            if (parseInt(this.state.angka) === this.state.nilaiTambahA + this.state.nilaiTambahB) {
+                this.state.nilaiTambahA =  Math.floor(Math.random() * 10);
+                this.state.nilaiTambahB = Math.floor(Math.random() * 10);
+                fetch(baseApi + '/user/konfirmasiNomorMr', {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        nomorMr: this.state.nomorMr,
+                        tahunLahir: this.state.tahunLahir,
+                    }),
 
+                }).then((response) => response.json()).then((responseJson) => {
+                    this.state.message = responseJson.message;
+                    this.state.loading = false;
 
-                        fetch(baseApi + '/user/create', {
-                            method: 'POST',
-                            headers: {
-                                Accept: 'application/json',
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                nama: this.state.nama,
-                                email: this.state.email,
-                                password: this.state.password,
-                            }),
-
-                        }).then((response) => response.json()).then((responseJson) => {
-                            this.state.message = responseJson.message;
-                            this.state.loading = false;
-                            this.showAlert();
-
-                        }).catch((error) => {
-                            this.state.loading = false;
-                            console.log(error);
-                            this.state.message = error;
-                            this.showAlert();
-
-                        });
-                    } else {
-                        this.state.loading = false;
-                        this.state.message = 'Jumlah yang anda masukan tidak sama';
+                    if(responseJson.success === true){
+                        this.state.nomr = responseJson.nomorMr
+                        this.state.nama = responseJson.nama
+                        this.state.success = responseJson.success
+                        this.state.message = responseJson.message;
+                        this.state.halamanSelanjutnya = true
+                        this.showAlert();
+                    }else{
+                        this.state.message = responseJson.message;
+                        this.state.halamanSelanjutnya = false
                         this.showAlert();
                     }
 
-                } else {
-                    this.state.loading = false;
-                    this.state.message = 'Password konfirmasi tidak sama';
-                    this.showAlert();
-                }
+                })
             } else {
                 this.state.loading = false;
-                this.state.message = 'Email atau Password konfirmasi tidak sama';
+                this.state.message = 'Jumlah yang anda masukan tidak sama';
                 this.showAlert();
             }
+
 
         } else {
             this.state.loading = false;
@@ -229,80 +238,30 @@ class SignupMr extends ValidationComponent {
                 <ScrollView style={{marginVertical: 15, backgroundColor: 'white'}}>
                     <Logo/>
                     <TextInput
-                        ref="nama"
-                        onChangeText={(nama) => this.setState({nama})}
+                        ref="nomorMr"
+                        onChangeText={(nomorMr) => this.setState({nomorMr})}
                         style={styles.inputBox}
                         underlineColorAndroid="rgba(0,0,0,0)"
-                        placeholder="Nama"
+                        placeholder="Nomor MR"
                         placeholderTextColor="rgba(255,255,255,0.8)"
                         selectionColor="#999999"
                     />
-                    {this.isFieldInError('nama') && this.getErrorsInField('nama').map(errorMessage =>
+                    {this.isFieldInError('nomorMr') && this.getErrorsInField('nomorMr').map(errorMessage =>
                         <Text>{errorMessage}</Text>)}
                     <TextInput
-                        ref="email"
-                        onChangeText={(email) => this.setState({email})}
+                        ref="tahunLahir"
+                        onChangeText={(tahunLahir) => this.setState({tahunLahir})}
                         style={styles.inputBox}
                         underlineColorAndroid="rgba(0,0,0,0)"
-                        placeholder="Email"
+                        placeholder="Tahun Lahir"
                         placeholderTextColor="rgba(255,255,255,0.8)"
                         selectionColor="#999999"
                     />
-                    {this.isFieldInError('email') && this.getErrorsInField('email').map(errorMessage =>
+                    {this.isFieldInError('tahunLahir') && this.getErrorsInField('tahunLahir').map(errorMessage =>
                         <Text>{errorMessage}</Text>)}
-                    <TextInput
-                        ref="emailValidasi"
-                        onChangeText={(emailValidasi) => this.setState({emailValidasi})}
-                        style={styles.inputBox}
-                        underlineColorAndroid="rgba(0,0,0,0)"
-                        placeholder="Ulangi Email"
-                        placeholderTextColor="rgba(255,255,255,0.8)"
-                        selectionColor="#999999"
-                    />
-                    {this.isFieldInError('emailValidasi') && this.getErrorsInField('emailValidasi').map(errorMessage =>
-                        <Text>{errorMessage}</Text>)}
-                    <TextInput
-                        ref="password"
-                        onChangeText={(password) => this.setState({password})}
-                        style={styles.inputBox}
-                        underlineColorAndroid="rgba(0,0,0,0)"
-                        placeholder="Password"
-                        placeholderTextColor="rgba(255,255,255,0.8)"
-                        selectionColor="#999999"
-                        secureTextEntry={this.state.showPassword}
-                    />
-                    {this.isFieldInError('password') && this.getErrorsInField('password').map(errorMessage =>
-                        <Text>{errorMessage}</Text>)}
-
-                    <TextInput
-                        ref="passwordKonfirmasi"
-                        onChangeText={(passwordKonfirmasi) => this.setState({passwordKonfirmasi})}
-                        style={styles.inputBox}
-                        underlineColorAndroid="rgba(0,0,0,0)"
-                        placeholder="Password Konfirmasi"
-                        placeholderTextColor="rgba(255,255,255,0.8)"
-                        selectionColor="#999999"
-                        secureTextEntry={this.state.showPassword}
-                    />
-                    {this.isFieldInError('passwordKonfirmasi') && this.getErrorsInField('passwordKonfirmasi').map(errorMessage =>
-                        <Text>{errorMessage}</Text>)}
-                    <ListItem icon>
-                        <Left>
-                            <Text>Lihat Password</Text>
-                        </Left>
-                        <Body>
-
-                        </Body>
-                        <Right><Switch
-                            onValueChange={this.toggleSwitch}
-                            value={!this.state.showPassword}
-                        /></Right>
-                    </ListItem>
                     <TextInput
                         editable={false}
-                        ref="tampilan"
-                        onChangeText={(tampilan) => this.setState({tampilan})}
-                        defaultValue={tampilan}
+                        defaultValue={"Hasil dari "+this.state.nilaiTambahA +" + " + this.state.nilaiTambahB}
                         style={styles.inputBox}
                         underlineColorAndroid="rgba(0,0,0,0)"
                         placeholderTextColor="rgba(255,255,255,0.8)"
@@ -341,7 +300,7 @@ class SignupMr extends ValidationComponent {
                         closeOnHardwareBackPress={false}
                         showCancelButton={false}
                         showConfirmButton={true}
-                        confirmText=" Keluar "
+                        confirmText=" Ok "
                         confirmButtonColor="#DD6B55"
                         onConfirmPressed={() => {
                             this.hideAlert();

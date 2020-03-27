@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         fontSize: 16,
         color: '#ffffff',
-        marginVertical: 10,
+        marginVertical: 5,
     },
     button: {
         width: 300,
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     },
 });
 
-class Signup extends ValidationComponent {
+class Step2 extends ValidationComponent {
 
     goBack() {
         Actions.login();
@@ -243,7 +243,6 @@ class Signup extends ValidationComponent {
                     loading={this.state.loading}/>
                 {/*{this.state.loading === true ? <View><Loader/></View> : ''}*/}
                 <ScrollView style={{marginVertical: 15, backgroundColor: 'white'}}>
-                    <Logo/>
                     <TextInput
                         ref="nama"
                         onChangeText={(nama) => this.setState({nama})}
@@ -364,4 +363,4 @@ class Signup extends ValidationComponent {
     }
 }
 
-export default Signup;
+export default Step2;

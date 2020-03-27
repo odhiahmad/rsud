@@ -50,6 +50,7 @@ export const loginUser = (payload) => {
                     type: 'LOGIN_USER_SUCCESS',
                 });
                 dispatch({
+                    status:response.status,
                     type: 'AUTH_USER_SUCCESS',
                     token: response.token,
                 });
@@ -73,7 +74,7 @@ export const loginUser = (payload) => {
 };
 
 
-export const logoutUser = () => {
+export const logoutUser = (userId) => {
     return async (dispatch, getState) => {
         const state = getState();
         try {
@@ -93,6 +94,7 @@ export const logoutUser = () => {
                     },
                     body: JSON.stringify({
                         token: tokenData,
+                        id:userId
                     }),
 
                 }).then((response) => response.json()).then((responseJson) => {

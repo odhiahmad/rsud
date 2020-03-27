@@ -94,6 +94,8 @@ export default class ShuttleBusDetail extends Component {
         this.setState({currentPosition: position});
     }
 
+
+
     render() {
         if (this.state.isLoading) {
             return (
@@ -109,17 +111,24 @@ export default class ShuttleBusDetail extends Component {
                 labels.push(this.state.dataSource[i].rute);
             }
             var today = new Date();
-            var time = today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
+            var time = null;
+            if(today.getHours() > 9){
+                 time = today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
+            }else{
+                 time = '0'+today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
+            }
+
 
             console.log(time);
+
 
             var posisiSekarang = 0;
             for (let i = 0; i < labels.length; i++) {
                 if (i === 0) {
-                    posisiSekarang = 0;
+                    posisiSekarang = i;
 
                 } else {
-                    if ((time >= this.state.dataSource[i - 1].jam) && (time <= this.state.dataSource[i].jam)) {
+                    if ((time >= this.state.dataSource[i-1].jam) && (time <= this.state.dataSource[i].jam)) {
                         posisiSekarang += i;
                     }
                 }

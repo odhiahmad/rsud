@@ -25,6 +25,7 @@ import JadwalPoliklinikIndex from '../pages/jadwal-poliklinik/index';
 import News from '../pages/news/index'
 import {Icon} from 'native-base';
 import GrayScreen from '../pages/GrayScreen';
+import LengkapiPendaftaran from '../pages/daftar-akun/LengkapiPendaftaran';
 
 let {width, height} = Dimensions.get('window');
 
@@ -145,6 +146,17 @@ export default class Routes extends Component<{}> {
                     </Scene>
                     <Scene key="app" hideNavBar={true} initial={this.props.isLoggedIn}>
                         <Scene
+                            initial={this.props.status === true}
+                            key="pendaftaran"
+                        >
+                            <Scene
+                                title="Lengkapi Data Diri"
+                                key="LengkapiPendaftaran"
+                                component={LengkapiPendaftaran}
+                            />
+                        </Scene>
+                        <Scene
+                            initial={this.props.status === false}
                             key="tabbar"
                             tabs={true}
                             tabBarStyle={{backgroundColor: '#FFFFFF'}}

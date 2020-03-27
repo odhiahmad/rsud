@@ -95,17 +95,13 @@ const styles = StyleSheet.create({
     },
 });
 
-const nilaiTambahA = Math.floor(Math.random() * 10);
-const nilaiTambahB = Math.floor(Math.random() * 10);
-const jumlah = nilaiTambahA + nilaiTambahB;
-const tampilan = 'Hasil dari ' + nilaiTambahA + ' + ' + nilaiTambahB;
 
-console.log(tampilan);
+
 
 class SignupMrDua extends ValidationComponent {
 
     goBack() {
-        Actions.pop();
+        Actions.login();
     }
 
     lupapassword() {
@@ -117,21 +113,29 @@ class SignupMrDua extends ValidationComponent {
         this.toggleSwitch = this.toggleSwitch.bind(this);
         this.state = {
             showPassword: true,
-            nama: '',
+            nama: this.props.nama,
             email: '',
             emailValidasi: '',
             password: '',
             passwordKonfirmasi: '',
             angka: '',
+            nomorMr: this.props.nomorMr,
+            tahunLahir:this.props.tahunLahir,
+            success:this.props.success,
             showAlert: false,
             message: '',
             loading: false,
+            nilaiTambahA: Math.floor(Math.random() * 10),
+            nilaiTambahB: Math.floor(Math.random() * 10),
+            statusLogin:false,
         };
     }
 
     componentDidMount() {
 
-
+        if(this.state.success === false){
+            Actions.signupmr()
+        }
     }
 
     showAlert = () => {
@@ -141,9 +145,16 @@ class SignupMrDua extends ValidationComponent {
     };
 
     hideAlert = () => {
-        this.setState({
-            showAlert: false,
-        });
+        if(this.state.statusLogin === true){
+            Actions.login()
+            this.setState({
+                showAlert: false,
+            });
+        }else{
+            this.setState({
+                showAlert: false,
+            });
+        }
     };
 
     _onSubmit() {
@@ -159,9 +170,10 @@ class SignupMrDua extends ValidationComponent {
         if (this.isFormValid()) {
             if (this.state.email === this.state.emailValidasi) {
                 if (this.state.password === this.state.passwordKonfirmasi) {
-                    if (parseInt(this.state.angka) === jumlah) {
-
-
+                    if (parseInt(this.state.angka) === this.state.nilaiTambahA + this.state.nilaiTambahB) {
+                        this.state.nilaiTambahA =  Math.floor(Math.random() * 10);
+                        this.state.nilaiTambahB = Math.floor(Math.random() * 10);
+                        console.log(this.state.nomorMr)
                         fetch(baseApi + '/user/create', {
                             method: 'POST',
                             headers: {
@@ -172,12 +184,25 @@ class SignupMrDua extends ValidationComponent {
                                 nama: this.state.nama,
                                 email: this.state.email,
                                 password: this.state.password,
+                                nomorMr: this.state.nomorMr,
+                                tahunLahir: this.state.tahunLahir,
                             }),
 
                         }).then((response) => response.json()).then((responseJson) => {
-                            this.state.message = responseJson.message;
-                            this.state.loading = false;
-                            this.showAlert();
+
+
+                            if(responseJson.success === true){
+                                this.state.statusLogin = true
+                                this.state.message = responseJson.message;
+                                this.state.loading = false;
+                                this.showAlert();
+                            }else{
+                                this.state.statusLogin = false
+                                this.state.loading = false;
+                                this.state.message = responseJson.message;
+                                this.showAlert();
+                            }
+
 
                         }).catch((error) => {
                             this.state.loading = false;
@@ -229,6 +254,8 @@ class SignupMrDua extends ValidationComponent {
                 <ScrollView style={{marginVertical: 15, backgroundColor: 'white'}}>
                     <Logo/>
                     <TextInput
+                        editable={false}
+                        defaultValue={this.state.nama}
                         ref="nama"
                         onChangeText={(nama) => this.setState({nama})}
                         style={styles.inputBox}
@@ -300,9 +327,7 @@ class SignupMrDua extends ValidationComponent {
                     </ListItem>
                     <TextInput
                         editable={false}
-                        ref="tampilan"
-                        onChangeText={(tampilan) => this.setState({tampilan})}
-                        defaultValue={tampilan}
+                        defaultValue={"Hasil dari "+this.state.nilaiTambahA +" + " + this.state.nilaiTambahB}
                         style={styles.inputBox}
                         underlineColorAndroid="rgba(0,0,0,0)"
                         placeholderTextColor="rgba(255,255,255,0.8)"
