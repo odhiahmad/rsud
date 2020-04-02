@@ -5,6 +5,7 @@ import {logoutUser} from '../actions/auth.actions';
 import {baseApi, fetchApi} from '../service/api';
 import Loader from '../components/Loader';
 import {Actions} from 'react-native-router-flux';
+import AwesomeAlert from 'react-native-awesome-alerts';
 import {
     Container,
     Header,
@@ -20,8 +21,10 @@ import {
     Col,
     Row,
     Grid,
+    Fab,
 } from 'native-base';
 import LoaderModal from '../components/LoaderModal';
+
 
 type Props = {}
 
@@ -30,6 +33,7 @@ class Profile extends Component <{}> {
     constructor() {
         super();
         this.state = {
+            showAlert: false,
             data: null,
             loaded: false,
             error: null,
@@ -37,6 +41,7 @@ class Profile extends Component <{}> {
             dataProfil: null,
             inClick: false,
             dataUser: null,
+            active: false,
         };
     }
 
@@ -64,17 +69,29 @@ class Profile extends Component <{}> {
     }
 
     logoutUser = () => {
-
         this.setState({inClick: true});
         this.props.dispatch(logoutUser(this.state.dataProfil.id));
         setTimeout(function () {
             this.setState({inClick: false});
         }.bind(this), 2000);
+    };
+
+    showAlert = () => {
+        this.setState({
+            showAlert: true,
+        });
+    };
+
+    hideAlert = () => {
+
+        this.setState({
+            showAlert: false,
+        });
 
     };
 
-
     render() {
+        const {showAlert} = this.state;
         const userDetails = this.state.dataProfil;
         const userProfil = this.state.dataUser;
         console.log(this.props.getUser.userDetails.token);
@@ -115,8 +132,31 @@ class Profile extends Component <{}> {
                             </Button>
                         </Left>
                         <Body>
+                            <Text>{userProfil != null ? userProfil.nama : ''}</Text>
+                        </Body>
+                    </ListItem>
+                    <ListItem icon>
+                        <Left>
+                            <Button style={{backgroundColor: '#FF9501'}}>
+                                <Icon active name="home"/>
+                            </Button>
+                        </Left>
+                        <Body>
                             <Text>{userProfil != null ? userProfil.alamat : ''}</Text>
                         </Body>
+                    </ListItem>
+                    <ListItem icon>
+                        <Left>
+                            <Button style={{backgroundColor: '#FF9501'}}>
+                                <Icon active name="card"/>
+                            </Button>
+                        </Left>
+                        <Body>
+                            <Text>No BPJS</Text>
+                        </Body>
+                        <Right>
+                            <Text>{userProfil != null ? userProfil.no_bpjs : ''}</Text>
+                        </Right>
                     </ListItem>
                     <ListItem icon>
                         <Left>
@@ -125,10 +165,18 @@ class Profile extends Component <{}> {
                             </Button>
                         </Left>
                         <Body>
-                            <Text>No BPJS</Text>
+                            <Text>Penanggung Jawab</Text>
                         </Body>
                         <Right>
-                            <Text>{userProfil != null ? userProfil.no_bpjs : ''}</Text>
+                            <Text>{userProfil != null ? userProfil.penanggung_jawab : ''}</Text>
+                        </Right>
+                    </ListItem>
+                    <ListItem icon>
+                        <Body>
+                            <Text>Agama</Text>
+                        </Body>
+                        <Right>
+                            <Text>{userProfil != null ? userProfil.agama : ''}</Text>
                         </Right>
                     </ListItem>
                 </View>,
@@ -159,20 +207,62 @@ class Profile extends Component <{}> {
             <Container>
                 <Content>
                     <View style={styles.container}>
+
+                        {/*<Fab*/}
+                        {/*    active={this.state.active}*/}
+                        {/*    direction="up"*/}
+                        {/*    containerStyle={{bottom: 65}}*/}
+                        {/*    style={styles.fab}*/}
+                        {/*    position="bottomRight"*/}
+                        {/*    onPress={() => this.setState({active: !this.state.active})}*/}
+                        {/*>*/}
+                        {/*    <Icon name="md-share"/>*/}
+                        {/*    <Button style={{backgroundColor: '#3B5998'}}>*/}
+                        {/*        <Icon name="logo-facebook"/>*/}
+                        {/*    </Button>*/}
+                        {/*    <Button style={{backgroundColor: '#34AF23'}}>*/}
+                        {/*        <Icon name="logo-whatsapp"/>*/}
+                        {/*    </Button>*/}
+                        {/*</Fab>*/}
                         <Image style={styles.header} source={require('../images/background.jpg')}/>
                         <Image style={styles.avatar} source={require('../images/profile.png')}/>
-                        <View style={{marginBottom:50,marginTop: 0, justifyContent: 'center'}}>
-                            {listView}
-                            {listViewProfil}
-                        </View>
-                        <Grid>
-                            <Col style={{height: 80}}></Col>
-                            <Col style={{ width:160,height: 80}}><Button full success onPress={!this.state.inClick ? this.logoutUser : null}>
-                                <Icon type="FontAwesome" name='sign-out' />
+                        <View style={{marginBottom: 10, marginTop: 70, justifyContent: 'center'}}>
+                        <Grid style={{marginBottom: 10, marginTop: 5}}>
+                            <Col style={{height: 50}}></Col>
+                            <Col style={{width: 165, height: 50,marginRight:5}}><Button  full rounded warning onPress={this.showAlert}>
+                                <Icon type="FontAwesome" name='edit'/>
+                                <Text style={{color: '#ffffff'}}> Edit Profil </Text>
+                            </Button></Col>
+                            <Col style={{width: 160, height: 50}}><Button full success rounded onPress={this.showAlert}>
+                                <Icon type="FontAwesome" name='sign-out'/>
                                 <Text style={{color: '#ffffff'}}> Keluar </Text>
                             </Button></Col>
-                            <Col style={{height: 80}}></Col>
+                            <Col style={{height: 50}}></Col>
                         </Grid>
+
+                            {listViewProfil}
+
+                            <AwesomeAlert
+                                show={showAlert}
+                                showProgress={false}
+                                title="Notifikasi"
+                                message="Apakah anda yakin ingin keluar"
+                                closeOnTouchOutside={true}
+                                closeOnHardwareBackPress={false}
+                                showCancelButton={true}
+                                showConfirmButton={true}
+                                confirmText="Ya"
+                                cancelText="Tidak"
+                                confirmButtonColor="#DD6B55"
+                                onConfirmPressed={() => {
+                                    this.logoutUser();
+                                }}
+                                onCancelPressed={() => {
+                                    this.hideAlert();
+                                }}
+                            />
+                        </View>
+
 
                     </View>
                 </Content>
@@ -186,18 +276,18 @@ class Profile extends Component <{}> {
 const styles = StyleSheet.create({
 
     header: {
-        height: 200,
+        height: 170,
     },
     avatar: {
-        width: 130,
-        height: 130,
-        borderRadius: 63,
+        width: 150,
+        height: 150,
+        borderRadius: 80,
         borderWidth: 4,
         borderColor: 'white',
         marginBottom: 10,
         alignSelf: 'center',
         position: 'absolute',
-        marginTop: 30,
+        marginTop: 90,
     },
     name1: {
         fontSize: 22,

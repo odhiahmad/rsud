@@ -3,10 +3,12 @@ import { reducer as formReducer } from 'redux-form'
 
 import authReducer from "./auth.reducer";
 import userReducer from "./user.reducer";
+import bpjsReducer from "./bpjs.reducer";
 
 const reducers = {
     authReducer,
     userReducer,
+    bpjsReducer,
     form: formReducer
 };
 

@@ -21,6 +21,8 @@ const getUser = (state = {}, action) => {
             errors: null
           }
 
+
+
       case "GET_USER_FAIL":
           return {
             isLoading: false,

@@ -23,9 +23,11 @@ import InformasiIndex from '../pages/informasi/index';
 import LupaPassword from '../pages/LupaPassword';
 import JadwalPoliklinikIndex from '../pages/jadwal-poliklinik/index';
 import News from '../pages/news/index'
-import {Icon} from 'native-base';
+import {Icon,Container, Header, Fab, Button} from 'native-base';
 import GrayScreen from '../pages/GrayScreen';
 import LengkapiPendaftaran from '../pages/daftar-akun/LengkapiPendaftaran';
+import LengkapiPendaftaranHalamanDepan from '../pages/daftar-akun/LengkapiPendaftaranHalamanDepan';
+import {connect} from 'react-redux';
 
 let {width, height} = Dimensions.get('window');
 
@@ -77,7 +79,7 @@ const Logo = () => {
     );
 };
 
-export default class Routes extends Component<{}> {
+class Routes extends Component<{}> {
 
     constructor(props) {
         super(props);
@@ -87,52 +89,10 @@ export default class Routes extends Component<{}> {
 
         };
     }
-
-    // componentWillMount() {
-    //     BackHandler.addEventListener('hardwareBackPress', this.handleBackButton.bind(this));
-    // }
-    //
-    // componentWillUnmount() {
-    //     BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton.bind(this));
-    // }
-    //
-    // _spring() {
-    //     this.setState({backClickCount: 1}, () => {
-    //         Animated.sequence([
-    //             Animated.spring(
-    //                 this.springValue,
-    //                 {
-    //                     toValue: -.15 * height,
-    //                     friction: 5,
-    //                     duration: 300,
-    //                     useNativeDriver: true,
-    //                 },
-    //             ),
-    //             Animated.timing(
-    //                 this.springValue,
-    //                 {
-    //                     toValue: 100,
-    //                     duration: 300,
-    //                     useNativeDriver: true,
-    //                 },
-    //             ),
-    //
-    //         ]).start(() => {
-    //             this.setState({backClickCount: 0});
-    //         });
-    //     });
-    //
-    // }
-    //
-    //
-    // handleBackButton = () => {
-    //     this.state.backClickCount == 1 ? BackHandler.exitApp() : this._spring();
-    //
-    //     return true;
-    // };
-
     render() {
+        console.log(this.props.getUser.status)
         return (
+
             // navigationBarStyle={{ backgroundColor: '#81b71a' }}
             <Router >
                 <Scene>
@@ -146,7 +106,7 @@ export default class Routes extends Component<{}> {
                     </Scene>
                     <Scene key="app" hideNavBar={true} initial={this.props.isLoggedIn}>
                         <Scene
-                            initial={this.props.status === true}
+                            initial={this.props.getUser.status === true}
                             key="pendaftaran"
                         >
                             <Scene
@@ -156,7 +116,7 @@ export default class Routes extends Component<{}> {
                             />
                         </Scene>
                         <Scene
-                            initial={this.props.status === false}
+                            initial={this.props.getUser.status === false}
                             key="tabbar"
                             tabs={true}
                             tabBarStyle={{backgroundColor: '#FFFFFF'}}
@@ -224,7 +184,7 @@ export default class Routes extends Component<{}> {
 
                             </Scene>
                             {/* Tab and it's scenes */}
-                            <Scene key="profil" title="Profil" icon={TabIcon}>
+                            <Scene key="profil" title="Profil" renderRightButton={InboxIcon}   icon={TabIcon}>
                                 <Scene
                                     key="profil"
                                     component={Profile}
@@ -240,3 +200,12 @@ export default class Routes extends Component<{}> {
         );
     }
 }
+mapStateToProps = (state) => ({
+    getUser: state.authReducer.authData,
+});
+
+mapDispatchToProps = (dispatch) => ({
+    dispatch,
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Routes);

@@ -100,6 +100,7 @@ const styles = StyleSheet.create({
 
 class SignupMr extends ValidationComponent {
 
+
     goBack() {
         Actions.login();
     }

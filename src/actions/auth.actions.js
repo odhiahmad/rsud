@@ -1,4 +1,5 @@
-import {baseApi, fetchApi} from '../service/api';
+import {baseApi, baseApiBpjs, fetchApi} from '../service/api';
+import {Actions} from 'react-native-router-flux';
 
 export const createNewUser = (payload) => {
     return async (dispatch) => {
@@ -45,19 +46,22 @@ export const loginUser = (payload) => {
             });
             const response = await fetchApi('/user/login', 'POST', payload, 200);
 
+
             if (response.success) {
                 dispatch({
                     type: 'LOGIN_USER_SUCCESS',
                 });
                 dispatch({
-                    status:response.status,
                     type: 'AUTH_USER_SUCCESS',
-                    token: response.token,
+                    token: response.responseBody.token,
+                    status: response.responseBody.status,
                 });
                 dispatch({
                     type: 'GET_USER_SUCCESS',
                     payload: response.responseBody,
                 });
+                console.log(response.responseBody.status);
+
                 return response;
             } else {
                 throw response;
@@ -73,6 +77,67 @@ export const loginUser = (payload) => {
     };
 };
 
+export const getDataBPJS = (payload1, payload2) => {
+    return async (dispatch) => {
+        try {
+            dispatch({
+                type: 'GET_DATA_BPJS_LOADING',
+            });
+            const url = baseApiBpjs + 'peserta_bpjs';
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    'username': '00004',
+                    'password': '551UU1BJ',
+                    'param': payload1,
+                    'data': payload2,
+                }),
+            }).then((response) => response.json()).then((responseJson) => {
+
+                if(responseJson.response != null){
+                    if (parseInt(responseJson.response.peserta.statusPeserta.kode) === 0) {
+                        dispatch({
+                            type: 'GET_DATA_BPJS',
+                            data: responseJson.response,
+                        });
+                        throw responseJson.response;
+                    } else {
+                        dispatch({
+                            type: 'GET_DATA_BPJS',
+                            data: responseJson.response,
+                        });
+                        throw responseJson.response;
+                    }
+
+                }else{
+                    dispatch({
+                        type: 'GET_DATA_BPJS',
+                        data: responseJson.response,
+                    });
+
+                    throw responseJson.response;
+                }
+
+
+            }).catch((error) => {
+                console.log(error);
+                this.state.loading = false;
+            });
+
+        } catch (error) {
+            dispatch({
+                type: 'GET_DATA_BPJS_FAILED',
+                payload: error.responseBody,
+            });
+            return error;
+        }
+    };
+};
+
 
 export const logoutUser = (userId) => {
     return async (dispatch, getState) => {
@@ -81,11 +146,11 @@ export const logoutUser = (userId) => {
             const {authReducer: {authData: {token}}} = state;
             const tokenData = state.userReducer.getUser.userDetails.token;
 
-            if(tokenData === null){
+            if (tokenData === null) {
                 dispatch({
                     type: 'USER_LOGGED_OUT_SUCCESS',
                 });
-            }else{
+            } else {
                 fetch(baseApi + '/user/logout', {
                     method: 'POST',
                     headers: {
@@ -94,7 +159,7 @@ export const logoutUser = (userId) => {
                     },
                     body: JSON.stringify({
                         token: tokenData,
-                        id:userId
+                        id: userId,
                     }),
 
                 }).then((response) => response.json()).then((responseJson) => {
@@ -112,10 +177,17 @@ export const logoutUser = (userId) => {
                     });
             }
 
-
-
         } catch (e) {
 
         }
+    };
+};
+
+export const lengkapiDataUser = () => {
+    return async (dispatch) => {
+        dispatch({
+            type: 'GET_USER_SUCCESS',
+            status: false,
+        });
     };
 };

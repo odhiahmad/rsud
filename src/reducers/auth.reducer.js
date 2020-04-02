@@ -19,6 +19,38 @@ const authData = (state = {}, action) => {
     }
 };
 
+const bpjsData = (state = {}, action) => {
+    switch (action.type) {
+        case 'GET_DATA_BPJS_LOADING':
+            return {
+                isLoading: true,
+                isError: false,
+                isSuccess: false,
+                errors: null,
+
+            };
+        case 'GET_DATA_BPJS':
+            return {
+                status:true,
+                data: action.data,
+                isLoading: false,
+                isError: false,
+                isSuccess: true,
+                errors: null,
+            };
+        case 'GET_DATA_BPJS_FAIL':
+            return{
+                isError: true,
+                isLoading: false,
+                isSuccess: true,
+                errors: null,
+            };
+        default:
+            return state;
+    }
+};
+
+
 const createUser = (state = {}, action) => {
     switch (action.type) {
 
@@ -28,7 +60,6 @@ const createUser = (state = {}, action) => {
                 isError: false,
                 isSuccess: false,
                 errors: null,
-
             };
 
         case 'CREAT_USER_SUCCESS':
@@ -88,4 +119,5 @@ export default combineReducers({
     createUser,
     loginUser,
     authData,
+    bpjsData,
 });

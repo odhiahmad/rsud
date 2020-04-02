@@ -141,15 +141,6 @@ class Login extends Component<{}> {
                 console.log(response.responseBody);
                 this.state.message = response.responseBody.message;
             }
-
-
-            // this.state.nilaiTambahA =  Math.floor(Math.random() * 10);
-            // this.state.nilaiTambahB = Math.floor(Math.random() * 10);
-            //
-            // console.log(errors.message);
-            // this.state.message = errors.message;
-            // this.showAlert();
-
         } else {
             this.state.loading = false;
             this.state.message = 'Jumlah angka yang anda masukan tidak sama';
