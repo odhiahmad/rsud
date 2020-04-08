@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import {
     StyleSheet,
     Animated,
-    Text,
     View,
     TouchableOpacity,
     SafeAreaView,
@@ -14,12 +13,20 @@ import {
 import {connect} from 'react-redux';
 import {logoutUser} from '../actions/auth.actions';
 import {BottomLayer} from './component/BottomLayer';
-import {Icon} from 'native-base';
+import {Icon,Container, Header, Button, Content, Text} from 'native-base';
 import {Actions} from 'react-native-router-flux';
 import {SliderBox} from 'react-native-image-slider-box';
+import PushNotification from 'react-native-push-notification';
+import { ActionSheetCustom as ActionSheet } from 'react-native-actionsheet'
+import FlashMessage from 'react-native-flash-message';
 
 type Props = {}
 let {width, height} = Dimensions.get('window');
+const options = [
+    'Keluar',
+    <Text onPress={Actions.daftaronline}>Daftar Sendiri</Text>,
+    <Text onPress={Actions.daftaronline}>Daftar Untuk Orang Lain</Text>
+]
 
 class Profile extends Component {
     constructor(props) {
@@ -32,6 +39,7 @@ class Profile extends Component {
                 require('../images/banner/banner4.jpg'),
             ],
             inClickHome: false,
+            inClickHomeSendiri: false,
             inClickBed: false,
             inClickJadwal: false,
             inClickInfo: false,
@@ -44,6 +52,17 @@ class Profile extends Component {
         };
     }
 
+    showActionSheet = () => {
+        this.ActionSheet.show()
+    }
+
+    async componentDidMount(){
+        PushNotification.configure({
+            onNotification: function (notification) {
+               console.log("Notification ",notification)
+            }
+        })
+    }
     onLayout = e => {
         this.setState({
             width: e.nativeEvent.layout.width
@@ -53,8 +72,17 @@ class Profile extends Component {
     onClickButtonHome = () => {
         this.setState({inClickHome: true});
         Actions.daftaronline();
+        this.ActionSheet.hide()
         setTimeout(function () {
             this.setState({inClickHome: false});
+        }.bind(this), 2000);
+    };
+    onClickButtonHomeSendiri = () => {
+        this.setState({inClickHomeSendiri: true});
+        Actions.daftaronlinesendiri();
+        this.ActionSheet.hide()
+        setTimeout(function () {
+            this.setState({inClickHomeSendiri: false});
         }.bind(this), 2000);
     };
     onClickButtonJadwal = () => {
@@ -110,6 +138,20 @@ class Profile extends Component {
         return (
             <View style={{flex: 1}}>
                 <ScrollView style={{flex: 1, backgroundColor: 'white'}}>
+                    <ActionSheet
+                        ref={o => this.ActionSheet = o}
+                        title={<Text style={{color: '#000', fontSize: 18}}>Pilih Jenis Daftar</Text>}
+                        options={
+                            [
+                                'Keluar',
+                                <Text onPress={!this.state.inClickHome ? this.onClickButtonHome : null}>Daftar Sendiri</Text>,
+                                <Text onPress={!this.state.inClickHomeSendiri ? this.onClickButtonHomeSendiri : null}>Daftar Untuk Orang Lain</Text>
+                            ]
+                        }
+                        cancelButtonIndex={0}
+                        destructiveButtonIndex={4}
+                        onPress={(index) => { /* do something */ }}
+                    />
                     <SliderBox
                         ImageComponentStyle={{borderRadius: 15, width: '97%', marginTop: 5}}
                         images={this.state.images}
@@ -151,8 +193,10 @@ class Profile extends Component {
                                     width: '100%',
                                     marginBottom: 4,
                                 }}>
+
                                     <TouchableOpacity
-                                        onPress={!this.state.inClickHome ? this.onClickButtonHome : null}
+                                        onPress={this.showActionSheet}
+                                        // onPress={!this.state.inClickHome ? this.onClickButtonHome : null}
                                         style={{
                                             marginRight: 2,
                                             width: '25%',
@@ -451,7 +495,7 @@ class Profile extends Component {
                         {/*</View>*/}
                     </View>
                 </ScrollView>
-
+                <FlashMessage position="top"/>
             </View>
         );
     }

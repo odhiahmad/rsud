@@ -841,7 +841,6 @@ class Step2 extends ValidationComponent {
             );
         }
 
-
         var listViewSuku = [];
         if (this.state.dataSuku.length != 0) {
             listViewSuku.push(

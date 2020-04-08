@@ -158,16 +158,17 @@ export const logoutUser = (userId) => {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        token: tokenData,
                         id: userId,
                     }),
 
                 }).then((response) => response.json()).then((responseJson) => {
+                    console.log(responseJson)
                     if (responseJson.success === true) {
                         dispatch({
                             type: 'USER_LOGGED_OUT_SUCCESS',
                         });
                     } else {
+
                         return responseJson;
                     }
 

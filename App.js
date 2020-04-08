@@ -13,6 +13,7 @@ import { PersistGate } from 'redux-persist/integration/react'
 
 import Main from "./src/Main";
 import persist from "./src/config/store";
+import FlashMessage from 'react-native-flash-message';
 
 const persistStore = persist();
 
@@ -23,6 +24,7 @@ export default class App extends Component<Props> {
                 <PersistGate loading={null} persistor={persistStore.persistor}>
                     <Main />
                 </PersistGate>
+                <FlashMessage position="top"/>
             </Provider>
         );
     }

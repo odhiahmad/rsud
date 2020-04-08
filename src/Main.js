@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import {
+    ToastAndroid,
+    BackHandler,
     StyleSheet,
     Text,
     View,
@@ -10,8 +12,34 @@ import {Actions} from 'react-native-router-flux';
 import {connect} from "react-redux";
 
 import Routes from './components/Routes';
+import FlashMessage from 'react-native-flash-message';
 
+var backButtonPressedOnceToExit = false;
 class Main extends Component<{}> {
+    componentWillMount(){
+        BackHandler.addEventListener('hardwareBackPress', this.onBackPress.bind(this));
+    }
+
+    componentWillUnmount(){
+        BackHandler.removeEventListener('hardwareBackPress', this.onBackPress.bind(this));
+    }
+
+    onBackPress() {
+        if (backButtonPressedOnceToExit) {
+            BackAndroid.exitApp();
+        } else {
+            if (Actions.currentScene !== 'Home') {
+                Actions.pop();
+                return true;
+            } else {
+                backButtonPressedOnceToExit = true;
+                ToastAndroid.show("Press Back Button again to exit",ToastAndroid.SHORT);
+                //setting timeout is optional
+                setTimeout( () => { backButtonPressedOnceToExit = false }, 2000);
+                return true;
+            }
+        }
+    }
 
     render() {
         const {authData:{isLoggedIn}} = this.props;
@@ -22,6 +50,7 @@ class Main extends Component<{}> {
                     barStyle="light-content"
                 />
                 <Routes isLoggedIn={isLoggedIn} />
+
             </View>
         )
     }

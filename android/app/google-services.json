@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1011852562465",
+    "firebase_url": "https://rsud-smart-hospital.firebaseio.com",
+    "project_id": "rsud-smart-hospital",
+    "storage_bucket": "rsud-smart-hospital.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1011852562465:android:e92a19ad7800a4c34ed360",
+        "android_client_info": {
+          "package_name": "com.rsud"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1011852562465-4uo74jdf6r78qmnp0lmmqotub0qiug1d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjsdJjCMgzfBtFwGVloeU550Jacy_8u0M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1011852562465-4uo74jdf6r78qmnp0lmmqotub0qiug1d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

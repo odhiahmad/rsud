@@ -1,8 +1,10 @@
 const BASE_URL = "http://192.168.0.106/api";
 const BASE_URL_SERVER = "http://rsud.padangpanjang.go.id/ws/mobile/";
+const BASE_FOTO_URL = "http://192.168.0.106/";
 
 export const baseApi = BASE_URL
 export const baseApiBpjs = BASE_URL_SERVER
+export const baseUrlFoto = BASE_FOTO_URL
 
 export const api = async (url, method, body = null, headers = {}) => {
 

@@ -628,7 +628,8 @@ class Step1 extends ValidationComponent <{}> {
                             />}
                         {this.isFieldInError('pekerjaan') && this.getErrorsInField('pekerjaan').map(errorMessage =>
                             <Text>{errorMessage}</Text>)}
-                        {this.props.getState().noTelpon != undefined ? <TextInput
+                        {this.props.getState().noTelpon != undefined ?
+                            <TextInput
                                 defaultValue={this.props.getState().noTelpon}
                                 ref="noTelpon"
                                 onChangeText={(noTelpon) => this.setState({noTelpon})}
