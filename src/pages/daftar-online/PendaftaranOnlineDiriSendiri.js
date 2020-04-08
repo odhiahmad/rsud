@@ -126,6 +126,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
     constructor(props) {
         super(props);
         this.setDate = this.setDate.bind(this);
+        this.setDate1 = this.setDate1.bind(this);
         this.toggleSwitch = this.toggleSwitch.bind(this);
         this.state = {
             statusIsi: 0,
@@ -143,9 +144,11 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
 
             data: [],
             dataCaraBayar: [],
-            dataRujukan:[],
-            dataPoly:[],
-            dataDokter:[],
+            dataRujukan: [],
+            dataPoly: [],
+            dataDokter: [],
+            dataTanggal: [],
+            dataJam: [],
 
             page: 1,
             total: 0,
@@ -163,22 +166,73 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
             tanggalMasuk: '',
             tanggalDaftar: '',
             pilihCaraBayar: '',
+            pilihTanggalKunjungan: '',
+            pilihPoly:'',
             caraBayar: '',
-            pilihRujukan:'',
-            pilihDokter:'',
+            pilihRujukan: '',
+            pilihDokter: '',
+            pilihHari: '',
             chosenDate: new Date(),
+            chosenDate1: new Date(),
         };
     }
 
+    onValueChange2(value: string) {
+        this.setState({
+            jenisKelamin: value,
+        });
+    }
+
     componentDidMount() {
+
 
         this.setState({
             isLoading: true,
         }, this.getData);
 
+        var dayName = [];
+        for (let i = 0; i < 3; i++) {
+            var angka = i + 1;
+            var days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            var bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            var d = new Date();
+            var tomorrow = new Date();
+
+            var someDate = new Date();
+            var numberOfDaysToAdd = 6;
+            someDate.setDate(someDate.getDate() + angka);
+            console.log(someDate.getDay());
+
+            if (someDate.getDay() === 0) {
+                tomorrow.setDate(new Date().getDate() + angka + 1);
+                this.state.dataTanggal.push({
+                    id: i,
+                    name: days[someDate.getDay() + 1] + ', ' + (tomorrow.toString().substring(8, 10)) + '-' + bulan[someDate.getMonth()],
+                    tanggal: tomorrow,
+                    hari: days[someDate.getDay() + 1],
+                });
+            } else if (someDate.getDay() != 0) {
+                tomorrow.setDate(new Date().getDate() + angka);
+                this.state.dataTanggal.push({
+                    id: i,
+                    name: days[someDate.getDay()] + ', ' + (tomorrow.toString().substring(8, 10)) + ' ' + bulan[someDate.getMonth()] + ' ' + someDate.getFullYear(),
+                    tanggal: tomorrow,
+                    hari: days[someDate.getDay()],
+                });
+            }
+
+
+        }
+        console.log(this.state.dataTanggal);
+
     }
+
     setDate(newDate) {
         this.setState({chosenDate: newDate});
+    }
+
+    setDate1(newDate) {
+        this.setState({chosenDate1: newDate});
     }
 
     showDataCaraBayar() {
@@ -233,6 +287,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 this.state.dataPoly.push({
                     id: i,
                     name: a[i].poly_nama,
+                    idPoly:a[i].poly_id
                 });
             }
             this.setState({
@@ -250,28 +305,34 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
     showDataDokter() {
         this.setState({
             loading: true,
+            dataDokter:[]
         });
-        const url = baseApi + '/user/poly';
+        const url = baseApi + '/user/polyDetailHari';
         fetch(url, {
-            method: 'GET',
+            method: 'POST',
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
             },
+            body: JSON.stringify({
+                id:this.state.pilihPoly,
+                hari:this.state.pilihHari
+            })
         }).then((response) => response.json()).then((responseJson) => {
-            console.log(responseJson);
+            console.log(responseJson.data);
             var a = responseJson.data;
             for (let i = 0; i < a.length; i++) {
-                this.state.dataPoly.push({
+                this.state.dataDokter.push({
                     id: i,
-                    name: a[i].poly_nama,
+                    name: a[i].get_dokter_jadwal[0].dokter_nama,
+                    nrp: a[i].get_dokter_jadwal[0].nrp
                 });
             }
             this.setState({
                 loading: false,
             });
 
-            console.log(this.state.dataPoly);
+            console.log(this.state.dataDokter);
 
 
         }).catch((error) => {
@@ -365,7 +426,6 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                     data: this.state.data.concat(responseJson.data.data),
                 });
 
-                console.log(this.state.data);
             }
 
         }).catch((error) => {
@@ -425,7 +485,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
             });
             this.setModalUnvisible(!this.state.modalVisible);
             this.showDataCaraBayar();
-            this.showDataPoly()
+            this.showDataPoly();
         } else if (this.state.simpanFavorite === true) {
             this.setState({
                 state: true,
@@ -445,7 +505,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
             }).then((response) => response.json()).then((responseJson) => {
                 if (responseJson.success === true) {
                     this.showDataCaraBayar();
-                    this.showDataPoly()
+                    this.showDataPoly();
                     this.setModalUnvisible(!this.state.modalVisible);
                     console.log(responseJson.data);
                     this.setState({
@@ -504,26 +564,21 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                     type: 'info',
                     position: 'top',
                 });
-                const jns = '';
-                if (responseJson.data.jns_kelamin === 1) {
-                    jns = 'Laki - Laki';
-                } else if (responseJson.data.jns_kelamin === 0) {
-                    jns = 'Perempuan';
-                }
+
                 this.setState({
                     status: 'after',
                     nomorKtp: responseJson.data.no_ktp,
                     namaPasien: responseJson.data.nama,
                     tempatLahir: responseJson.data.tempat_lahir,
                     tanggalLahir: responseJson.data.tgl_lahir,
-                    jenisKelamin: jns,
+                    jenisKelamin: responseJson.data.jns_kelamin,
                     dataPasien: [],
                     nomorMr: responseJson.data.nomr,
                     nama: responseJson.data.nama,
                     loading: false,
                 });
                 this.state.loading = false;
-                console.log(this.state.status);
+                console.log(responseJson.data.jns_kelamin);
                 this.state.message = responseJson.data;
 
             } else {
@@ -637,6 +692,34 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
 
         const {showAlert} = this.state;
         const {onChange} = this.props;
+        var jenisKel = [];
+
+        if (this.state.jenisKelamin != '') {
+            jenisKel.push(
+                <View>
+                    <Picker
+                        mode="dropdown"
+                        iosIcon={<Icon name="arrow-down"/>}
+                        placeholder="Pilih Jenis Kelamin"
+                        placeholderIconColor="#007aff"
+
+                        selectedValue={this.state.jenisKelamin}
+                        onValueChange={this.onValueChange2.bind(this)}
+                    >
+                        <Picker.Item label="Perempuan" value="0"/>
+                        <Picker.Item label="Laki - Laki" value="1"/>
+                    </Picker>
+                    {this.isFieldInError('jenisKelamin') && this.getErrorsInField('jenisKelamin').map(errorMessage =>
+                        <Text>{errorMessage}</Text>)}
+                </View>,
+            );
+        } else {
+            jenisKel.push(
+                <View>
+
+                </View>,
+            );
+        }
         return (
             <View style={styles.container}>
                 {/*{this.state.loading === true ? <View><Loader/></View> : ''}*/}
@@ -685,28 +768,45 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                                 placeholderTextColor="rgba(255,255,255,0.8)"
                                 selectionColor="#999999"
                             />
-                            {/*<DatePicker*/}
-                            {/*    style={styles.inputBox}*/}
-                            {/*    defaultDate={new Date(this.state.tanggalLahir)}*/}
-                            {/*    locale={'en'}*/}
-                            {/*    timeZoneOffsetInMinutes={undefined}*/}
-                            {/*    modalTransparent={false}*/}
-                            {/*    animationType={'fade'}*/}
-                            {/*    androidMode={'default'}*/}
-                            {/*    placeHolderText="Pilih Tanggal Lahir"*/}
-                            {/*    disabled={false}*/}
-                            {/*    onDateChange={this.setDate}*/}
-                            {/*/>}*/}
-                            {/*{this.isFieldInError('tanggalLahir') && this.getErrorsInField('tanggalLahir').map(errorMessage =>*/}
-                            {/*    <Text>{errorMessage}</Text>)}*/}
-                            <TextInput
-                                onChangeText={(jenisKelamin) => this.setState({jenisKelamin})}
-                                defaultValue={this.state.jenisKelamin}
-                                ref="jenisKelamin"
+                            <DatePicker
                                 style={styles.inputBox}
-                                underlineColorAndroid="rgba(0,0,0,0)"
-                                placeholderTextColor="rgba(255,255,255,0.8)"
-                                selectionColor="#999999"
+                                defaultDate={new Date(this.state.tanggalLahir)}
+                                locale={'en'}
+                                timeZoneOffsetInMinutes={undefined}
+                                modalTransparent={false}
+                                animationType={'fade'}
+                                androidMode={'default'}
+                                disabled={false}
+                                onDateChange={this.setDate}
+                            />
+                            {this.isFieldInError('tanggalLahir') && this.getErrorsInField('tanggalLahir').map(errorMessage =>
+                                <Text>{errorMessage}</Text>)}
+                            {jenisKel}
+                            {this.isFieldInError('jenisKelamin') && this.getErrorsInField('jenisKelamin').map(errorMessage =>
+                                <Text>{errorMessage}</Text>)}
+                            <Select2 placeholderTextColor="#ffffff"
+                                     listEmptyTitle="Tidak ada data"
+                                     cancelButtonText="Keluar"
+                                     selectButtonText="Pilih"
+                                     isSelectSingle
+                                     selectedTitleStyle={{color: 'white'}}
+                                     style={styles.inputBox}
+                                     colorTheme="#1da30b"
+                                     searchPlaceHolderText="Cari Tanggal Kunjungan"
+                                     popupTitle="Pilih Tanggal Kunjungan"
+                                     title="Pilih Tanggal Kunjungan"
+                                     data={this.state.dataTanggal}
+                                     onSelect={data => {
+                                         this.setState({
+                                             tanggalMasuk: this.state.dataTanggal[data].name,
+                                             pilihTanggalKunjungan: this.state.dataTanggal[data].tanggal,
+                                             pilihHari: this.state.dataTanggal[data].hari,
+                                         });
+
+                                     }}
+                                     onRemoveItem={data => {
+                                         this.setState({pilihCaraBayar: '', tanggalMasuk: '', pilihHari: ''});
+                                     }}
                             />
                             <Select2 placeholderTextColor="#ffffff"
                                      listEmptyTitle="Tidak ada data"
@@ -726,8 +826,8 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                                              caraBayar: this.state.dataCaraBayar[data].ket,
                                          });
 
-                                         if(this.state.dataCaraBayar[data].ket === 'BPJS'){
-                                             this.showDataRujukan()
+                                         if (this.state.dataCaraBayar[data].ket === 'BPJS') {
+                                             this.showDataRujukan();
                                          }
                                      }}
                                      onRemoveItem={data => {
@@ -789,14 +889,45 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                                      data={this.state.dataPoly}
                                      onSelect={data => {
                                          this.setState({
-                                             pilihPoly: this.state.dataPoly[data].name,
+                                             pilihPoly: this.state.dataPoly[data].idPoly,
+                                             dataDokter:[]
                                          });
+
+
+                                             this.showDataDokter()
+
+
 
                                      }}
                                      onRemoveItem={data => {
                                          this.setState({pilihPoly: ''});
                                      }}
                             />
+                            {this.state.pilihPoly != '' ?
+                                <View>
+                                    <Select2 placeholderTextColor="#ffffff"
+                                             listEmptyTitle="Tidak ada data"
+                                             cancelButtonText="Keluar"
+                                             selectButtonText="Pilih"
+                                             isSelectSingle
+                                             selectedTitleStyle={{color: 'white'}}
+                                             style={styles.inputBox}
+                                             colorTheme="#1da30b"
+                                             searchPlaceHolderText="Cari Dokter"
+                                             popupTitle="Pilih Dokter"
+                                             title="Pilih Dokter"
+                                             data={this.state.dataDokter}
+                                             onSelect={data => {
+                                                 this.setState({
+                                                     pilihDokter: this.state.dataDokter[data].nrp,
+                                                 });
+
+                                             }}
+                                             onRemoveItem={data => {
+                                                 this.setState({pilihDokter: ''});
+                                             }}
+                                    />
+                                </View> : <View></View>}
                         </View>
                         : <View></View>
                     }
