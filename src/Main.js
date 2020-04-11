@@ -13,9 +13,14 @@ import {connect} from "react-redux";
 
 import Routes from './components/Routes';
 import FlashMessage from 'react-native-flash-message';
-
+import SplashScreen from 'react-native-splash-screen'
 var backButtonPressedOnceToExit = false;
 class Main extends Component<{}> {
+    componentDidMount() {
+        // do stuff while splash screen is shown
+        // After having done stuff (such as async tasks) hide the splash screen
+        SplashScreen.hide();
+    }
     componentWillMount(){
         BackHandler.addEventListener('hardwareBackPress', this.onBackPress.bind(this));
     }
@@ -42,6 +47,8 @@ class Main extends Component<{}> {
     }
 
     render() {
+        const isHermes = () => global.HermesInternal !== null;
+        console.log(isHermes())
         const {authData:{isLoggedIn}} = this.props;
         return(
             <View style={styles.container}>

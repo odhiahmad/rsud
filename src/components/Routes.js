@@ -107,7 +107,7 @@ class Routes extends Component<{}> {
     }
 
     handleBackButton = () => {
-        if (Actions.currentScene !== 'home') {
+        if (Actions.currentScene !== 'home' && Actions.currentScene !== 'login') {
             Actions.pop();
             return true;
         } else {
@@ -170,6 +170,7 @@ class Routes extends Component<{}> {
                                     title="Daftar Online"
                                 />
                                 <Scene
+                                    direction='vertical'
                                     key="daftaronlinesendiri"
                                     component={PendaftaranOnlineDiriSendiri}
                                     title="Daftar Online"
