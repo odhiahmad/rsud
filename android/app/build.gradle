@@ -139,6 +139,7 @@ android {
         versionName "1.0"
         multiDexEnabled true
     }
+
     splits {
         abi {
             reset()

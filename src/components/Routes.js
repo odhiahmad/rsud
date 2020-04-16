@@ -7,7 +7,7 @@ import Signup from '../pages/daftar-akun/Signup';
 import Profile from '../pages/Profile';
 import Home from '../pages/Home';
 import Notifikasi from '../pages/Notifikasi';
-
+import Riwayat from '../pages/Riwayat';
 import BedMonitoringIndex from '../pages/bed-monitoring/index';
 import MenuPilihan from '../pages/daftar-akun/MenuPilihan';
 import SignupMr from '../pages/daftar-akun/SignupMr';
@@ -30,6 +30,7 @@ import LengkapiPendaftaranHalamanDepan from '../pages/daftar-akun/LengkapiPendaf
 import {connect} from 'react-redux';
 import GantiPassword from '../pages/profil/GantiPassword';
 import CariNomorMr from '../pages/daftar-online/CariNomorMr';
+import LengkapiProfil from '../pages/daftar-online/LengkapiProfil';
 let {width, height} = Dimensions.get('window');
 var backButtonPressedOnceToExit = false;
 class TabIcon extends Component {
@@ -152,12 +153,13 @@ class Routes extends Component<{}> {
                             />
                         </Scene>
                         <Scene
+                            swipeEnabled
                             initial={this.props.getUser.status === false}
                             key="tabbar"
                             tabs={true}
                             tabBarStyle={{backgroundColor: '#FFFFFF'}}
                         >
-                            <Scene key="beranda" title="Beranda" icon={TabIcon}>
+                            <Scene  duration={400} key="beranda" title="Beranda" icon={TabIcon}>
                                 <Scene
                                     renderLeftButton={Logo}
                                     key="home"
@@ -174,6 +176,13 @@ class Routes extends Component<{}> {
                                     key="daftaronlinesendiri"
                                     component={PendaftaranOnlineDiriSendiri}
                                     title="Daftar Online"
+                                />
+
+                                <Scene
+                                    direction='vertical'
+                                    key="lengkapiProfil"
+                                    component={LengkapiProfil}
+                                    title="Daftar Online (Lengkapi Profil)"
                                 />
                                 <Scene
                                     hideNavBar={true}
@@ -223,11 +232,11 @@ class Routes extends Component<{}> {
 
                                 />
                             </Scene>
-                            <Scene key="notifikasi" component={Notifikasi} title="Riwayat" icon={TabIcon}>
+                            <Scene duration={400} key="notifikasi" component={Riwayat} title="Riwayat" icon={TabIcon}>
 
                             </Scene>
                             {/* Tab and it's scenes */}
-                            <Scene key="profil" title="Profil" icon={TabIcon}>
+                            <Scene duration={400} key="profil" title="Profil" icon={TabIcon}>
                                 <Scene
                                     initial={true}
                                     key="profil"

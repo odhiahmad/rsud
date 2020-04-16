@@ -350,7 +350,7 @@ class Profile extends Component <{}> {
 
 
                             </PhotoUpload>
-                            <View style={{marginBottom: 10, marginTop: 90, justifyContent: 'center'}}>
+                            <View style={{marginBottom: 10, marginTop: 20, justifyContent: 'center'}}>
 
 
                                 {listViewProfil}
@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
         marginBottom: 30,
         alignSelf: 'center',
         position: 'absolute',
-        marginTop: 110,
+        marginTop: 20,
     },
     avatar: {
         width: 150,

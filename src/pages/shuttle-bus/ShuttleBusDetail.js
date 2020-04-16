@@ -115,7 +115,16 @@ export default class ShuttleBusDetail extends Component {
             if(today.getHours() > 9){
                  time = today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
             }else{
-                 time = '0'+today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
+                 if(today.getMinutes() > 9 ){
+                     time = '0'+today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
+                 }else{
+
+                     if(today.getSeconds() > 9){
+                         time = '0'+today.getHours() + ':' + '0'+today.getMinutes() + ':' + '0'+today.getSeconds();
+                     }else{
+                         time = '0'+today.getHours() + ':' + '0'+today.getMinutes() + ':' + today.getSeconds();
+                     }
+                 }
             }
 
 

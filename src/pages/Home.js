@@ -13,20 +13,21 @@ import {
 import {connect} from 'react-redux';
 import {logoutUser} from '../actions/auth.actions';
 import {BottomLayer} from './component/BottomLayer';
-import {Icon,Container, Header, Button, Content, Text} from 'native-base';
+import {Icon, Container, Header, Button, Content, Text} from 'native-base';
 import {Actions} from 'react-native-router-flux';
 import {SliderBox} from 'react-native-image-slider-box';
 import PushNotification from 'react-native-push-notification';
-import { ActionSheetCustom as ActionSheet } from 'react-native-actionsheet'
+import {ActionSheetCustom as ActionSheet} from 'react-native-actionsheet';
 import FlashMessage from 'react-native-flash-message';
 
 type Props = {}
 let {width, height} = Dimensions.get('window');
 const options = [
     'Keluar',
-    <Text onPress={Actions.daftaronline}>Daftar Sendiri</Text>,
-    <Text onPress={Actions.daftaronline}>Daftar Untuk Orang Lain</Text>
-]
+    'Daftar Sendiri',
+    'Daftar Untuk Orang Lain',
+];
+
 
 class Profile extends Component {
     constructor(props) {
@@ -43,44 +44,57 @@ class Profile extends Component {
             inClickBed: false,
             inClickJadwal: false,
             inClickInfo: false,
-            inClickShuttle:false,
-            inClickFaq:false,
-            inClickPengaduan:false,
-            inClickNews:false,
+            inClickShuttle: false,
+            inClickFaq: false,
+            inClickPengaduan: false,
+            inClickNews: false,
 
 
         };
     }
 
     showActionSheet = () => {
-        this.ActionSheet.show()
-    }
+        this.ActionSheet.show();
+    };
 
-    async componentDidMount(){
+    async componentDidMount() {
         PushNotification.configure({
             onNotification: function (notification) {
-               console.log("Notification ",notification)
-            }
-        })
+                console.log('Notification ', notification);
+            },
+        });
     }
+
     onLayout = e => {
         this.setState({
-            width: e.nativeEvent.layout.width
+            width: e.nativeEvent.layout.width,
         });
     };
 
-    onClickButtonHome = () => {
-        this.setState({inClickHome: true});
-        Actions.daftaronline();
-        this.ActionSheet.hide()
-        setTimeout(function () {
-            this.setState({inClickHome: false});
-        }.bind(this), 2000);
+    onClickButtonHome(index) {
+
+        if (index === 1) {
+            this.setState({inClickHome: true});
+            Actions.daftaronline();
+            this.ActionSheet.hide();
+            setTimeout(function () {
+                this.setState({inClickHome: false});
+            }.bind(this), 2000);
+        } else if (index === 2) {
+            this.setState({inClickHomeSendiri: true});
+            Actions.daftaronlinesendiri();
+            this.ActionSheet.hide();
+            setTimeout(function () {
+                this.setState({inClickHomeSendiri: false});
+            }.bind(this), 2000);
+        }
+
     };
+
     onClickButtonHomeSendiri = () => {
         this.setState({inClickHomeSendiri: true});
         Actions.daftaronlinesendiri();
-        this.ActionSheet.hide()
+        this.ActionSheet.hide();
         setTimeout(function () {
             this.setState({inClickHomeSendiri: false});
         }.bind(this), 2000);
@@ -134,23 +148,22 @@ class Profile extends Component {
             this.setState({inClickNews: false});
         }.bind(this), 2000);
     };
+
     render() {
+        const handlePress = (index) => {
+            console.log(index);
+        };
         return (
             <View style={{flex: 1}}>
                 <ScrollView style={{flex: 1, backgroundColor: 'white'}}>
                     <ActionSheet
                         ref={o => this.ActionSheet = o}
                         title={<Text style={{color: '#000', fontSize: 18}}>Pilih Jenis Daftar</Text>}
-                        options={
-                            [
-                                'Keluar',
-                                <Text onPress={!this.state.inClickHome ? this.onClickButtonHome : null}>Daftar Sendiri</Text>,
-                                <Text onPress={!this.state.inClickHomeSendiri ? this.onClickButtonHomeSendiri : null}>Daftar Untuk Orang Lain</Text>
-                            ]
-                        }
+                        options={options}
                         cancelButtonIndex={0}
                         destructiveButtonIndex={4}
-                        onPress={(index) => { /* do something */ }}
+                        onPress={(index) => this.onClickButtonHome(index)}
+
                     />
                     <SliderBox
                         ImageComponentStyle={{borderRadius: 15, width: '97%', marginTop: 5}}
@@ -162,13 +175,13 @@ class Profile extends Component {
                         // }
                         dotColor="#FFEE58"
                         paginationBoxStyle={{
-                            position: "absolute",
+                            position: 'absolute',
                             bottom: 0,
                             padding: 0,
-                            alignItems: "center",
-                            alignSelf: "center",
-                            justifyContent: "center",
-                            paddingVertical: 10
+                            alignItems: 'center',
+                            alignSelf: 'center',
+                            justifyContent: 'center',
+                            paddingVertical: 10,
                         }}
                         dotStyle={{
                             width: 10,
@@ -177,7 +190,7 @@ class Profile extends Component {
                             marginHorizontal: 0,
                             padding: 0,
                             margin: 0,
-                            backgroundColor: "rgba(128, 128, 128, 0.92)"
+                            backgroundColor: 'rgba(128, 128, 128, 0.92)',
                         }}
                         inactiveDotColor="#90A4AE"
                         paginationBoxVerticalPadding={20}

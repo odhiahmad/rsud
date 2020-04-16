@@ -223,6 +223,7 @@ export default class ListThumbnailExample extends Component {
                     ListFooterComponent={this.renderFooter}
                     data={this.state.data}/>
                 <Modal
+                    onRequestClose={() => {this.setModalUnvisible(!this.state.modalVisible)}}
                     animationType="slide"
                     transparent
                     visible={this.state.modalVisible}
