@@ -223,6 +223,7 @@ class Login extends Component<{}> {
                     selectionColor="#999999"
                 />
                 <TextInput
+                    keyboardType={'numeric'}
                     ref="angka"
                     onChangeText={(angka) => this.setState({angka})}
                     style={styles.inputBox}

@@ -1,5 +1,6 @@
 import React, {Component, useEffect} from 'react';
 import {baseApi} from '../../service/api';
+import {ListItem, Header, Badge,Icon} from 'react-native-elements';
 import {
     ScrollView,
     StyleSheet,
@@ -7,64 +8,41 @@ import {
     View,
     ActivityIndicator,
     TouchableHighlight,
-    TouchableOpacity, Image,
+    TouchableOpacity, Image, StatusBar, FlatList,
 } from 'react-native';
 import Modal from 'react-native-modal';
-import {
-    Col, Row, Grid,
-    Item,
-    H2,
-    Spinner,
-    Root,
-    Container,
-    Header,
-    Content,
-    Button,
-    ListItem,
-    Icon,
-    Left,
-    Body,
-    Right,
-    Switch,
-    ActionSheet,
-    Card, CardItem,
-} from 'native-base';
 import {Actions} from 'react-native-router-flux';
-
-
-var BUTTONS = [
-    'Kelas 1', 'Kelas 2', 'Kelas 3', 'Isolasi', 'Incubator', 'Covis', 'HCU',
-
-];
-var DESTRUCTIVE_INDEX = 3;
-var CANCEL_INDEX = 4;
+import LoaderModal from '../../components/LoaderModal';
 
 export default class index extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
+            loading: false,
             namaKelas: null,
             isLoading: true,
-            dataSource: null,
+            data: [],
             inClick: false,
         };
     }
 
     onClickButton = () => {
         this.setState({inClickHome: true});
-        Actions.shuttlebusdetail({id:id});
+        Actions.shuttlebusdetail({id: id});
         setTimeout(function () {
             this.setState({inClickHome: false});
         }.bind(this), 2000);
     };
 
     componentDidMount() {
-
+        this.setState({
+            loading: true,
+        });
         return fetch(baseApi + '/user/shuttle').then((response) => response.json()).then((responseJson) => {
             this.setState({
-                isLoading: false,
-                dataSource: responseJson.data,
+                loading: false,
+                data: responseJson.data,
             });
         })
             .catch((error) => {
@@ -72,63 +50,44 @@ export default class index extends Component {
             });
     }
 
-    componentWillUnmount() {
 
-    }
+    renderRow = ({item, index}) => {
+        return (
+            <ListItem  onPress={() =>
+                Actions.shuttlebusdetail({id: item.id})
+            }
 
+                      title={<Text>{item.nama}</Text>}
+                      leftAvatar={{
+                          title: item.nama[0],
+                      }}
+                      chevron
+            />
+        );
+    };
 
     render() {
-
-
-        if (this.state.isLoading) {
             return (
-                <View style={styles.container}>
-                    <ActivityIndicator/>
+                <View>
+                    <LoaderModal
+                        loading={this.state.loading}/>
+                    <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
+                    <Header
+                        statusBarProps={{barStyle: 'light-content'}}
+                        containerStyle={{
+                            backgroundColor: '#1da30b',
+                            justifyContent: 'space-around',
+                        }}
+                        barStyle="light-content"
+                        placement="center"
+                        centerComponent={{text: 'Shuttle Bus', style: {color: '#fff'}}}
+                    />
+                    <FlatList
+                        renderItem={this.renderRow}
+                        keyExtractor={(item, index) => index.toString()}
+                        data={this.state.data}/>
                 </View>
             );
-        } else {
-            let data = this.state.dataSource.map(({id_shuttle_bus,get_shuttle,trip,id}, key) => {
-                let rute = get_shuttle.map((nama, j) => <Text key={j}>{nama.nama}</Text>);
-
-
-                return <View key={key} style={styles.item}>
-                    <ListItem
-                        onPress={() =>
-                            Actions.shuttlebusdetail({id:id_shuttle_bus,idTrip:id})
-                        }
-                        icon>
-                        <Left>
-                            <Button style={{backgroundColor: '#FF9501'}}>
-                                <Icon type="FontAwesome" active
-                                      name="bus"></Icon>
-                            </Button>
-                        </Left>
-                        <Body>
-                            <Text>{rute}</Text>
-                        </Body>
-                        <Right>
-                            <Text>{trip}</Text>
-                        </Right>
-                    </ListItem>
-                </View>;
-
-
-            });
-
-
-            return (
-                <Root>
-                    <Container>
-                        <Content>
-                            <View>
-                                {data}
-                            </View>
-                        </Content>
-                    </Container>
-                </Root>
-
-            );
-        }
 
     }
 }
@@ -142,7 +101,7 @@ const styles = StyleSheet.create({
     },
     avatar: {
         width: 40,
-        height:40,
+        height: 40,
         borderRadius: 63,
         borderWidth: 4,
         borderColor: 'white',

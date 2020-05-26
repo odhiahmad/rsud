@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {Router, Stack, Scene, Actions} from 'react-native-router-flux';
 import {Text, Image, Dimensions, View, BackHandler, TouchableOpacity, Animated, ToastAndroid} from 'react-native';
-
+import { Icon } from 'react-native-elements'
 import Login from '../pages/Login';
 import Signup from '../pages/daftar-akun/Signup';
 import Profile from '../pages/Profile';
@@ -18,12 +18,12 @@ import DaftarOnlineIndex from '../pages/daftar-online/PendaftaranOnline';
 import PendaftaranOnlineDiriSendiri from '../pages/daftar-online/PendaftaranOnlineDiriSendiri';
 import EditProfil from '../pages/profil/EditProfil';
 import Faq from '../pages/Faq';
-import Pengaduan from '../pages/Pengaduan'
+import Pengaduan from '../pages/pengaduan/Pengaduan'
 import InformasiIndex from '../pages/informasi/index';
 import LupaPassword from '../pages/LupaPassword';
 import JadwalPoliklinikIndex from '../pages/jadwal-poliklinik/index';
 import News from '../pages/news/index'
-import {Icon,Container, Header, Fab, Button} from 'native-base';
+import {Container, Header, Fab, Button} from 'native-base';
 import GrayScreen from '../pages/GrayScreen';
 import LengkapiPendaftaran from '../pages/daftar-akun/LengkapiPendaftaran';
 import LengkapiPendaftaranHalamanDepan from '../pages/daftar-akun/LengkapiPendaftaranHalamanDepan';
@@ -31,6 +31,7 @@ import {connect} from 'react-redux';
 import GantiPassword from '../pages/profil/GantiPassword';
 import CariNomorMr from '../pages/daftar-online/CariNomorMr';
 import LengkapiProfil from '../pages/daftar-online/LengkapiProfil';
+import { createStackNavigator } from 'react-navigation-stack';
 let {width, height} = Dimensions.get('window');
 var backButtonPressedOnceToExit = false;
 class TabIcon extends Component {
@@ -50,7 +51,12 @@ class TabIcon extends Component {
         }
 
         return (
-            <Icon name={icon} type="FontAwesome" style={{color: this.props.focused ? '#057ce4' : '#afafa4'}}/>
+            <Icon
+                name={icon}
+                type='font-awesome'
+                color={this.props.focused ? '#24d10d' : '#1da30b'}
+            />
+
         );
     }
 }
@@ -115,7 +121,7 @@ class Routes extends Component<{}> {
             if(this.state.doubleBackToExitPressedOnce) {
                 BackHandler.exitApp();
             }
-            ToastAndroid.show('Press back again to exit', ToastAndroid.SHORT);
+            ToastAndroid.show('Tekan tombol dua kali untuk keluar', ToastAndroid.SHORT);
             this.setState({ doubleBackToExitPressedOnce: true });
             setTimeout(() => {
                 this.setState({ doubleBackToExitPressedOnce: false });
@@ -153,14 +159,16 @@ class Routes extends Component<{}> {
                             />
                         </Scene>
                         <Scene
-                            swipeEnabled
+                            lazy
+                            labelStyle={{color:'black'}}
+                            swipeEnabled={true}
                             initial={this.props.getUser.status === false}
                             key="tabbar"
                             tabs={true}
-                            tabBarStyle={{backgroundColor: '#FFFFFF'}}
                         >
-                            <Scene  duration={400} key="beranda" title="Beranda" icon={TabIcon}>
+                            <Scene hideNavBar={true} duration={400} key="beranda" title="Beranda" icon={TabIcon}>
                                 <Scene
+                                    hideNavBar={true}
                                     renderLeftButton={Logo}
                                     key="home"
                                     component={Home}
@@ -191,11 +199,13 @@ class Routes extends Component<{}> {
                                     title="Input Nomor MR"
                                 />
                                 <Scene
+                                    hideNavBar={true}
                                     key="jadwalpoliklinik"
                                     component={JadwalPoliklinikIndex}
                                     title="Jadwal Poliklinik"
                                 />
                                 <Scene
+                                    hideNavBar={true}
                                     key="bedmonitoring"
                                     component={BedMonitoringIndex}
                                     title="Ketersedian Tempat Tidur"
@@ -232,11 +242,11 @@ class Routes extends Component<{}> {
 
                                 />
                             </Scene>
-                            <Scene duration={400} key="notifikasi" component={Riwayat} title="Riwayat" icon={TabIcon}>
+                            <Scene  hideNavBar={true} duration={400} key="notifikasi" component={Riwayat} title="Riwayat" icon={TabIcon}>
 
                             </Scene>
                             {/* Tab and it's scenes */}
-                            <Scene duration={400} key="profil" title="Profil" icon={TabIcon}>
+                            <Scene hideNavBar={true}duration={400} key="profil" title="Profil" icon={TabIcon}>
                                 <Scene
                                     initial={true}
                                     key="profil"

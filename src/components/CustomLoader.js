@@ -5,9 +5,9 @@ import {
     Modal,
     ActivityIndicator
 } from 'react-native';
-import { CirclesLoader, PulseLoader, TextLoader, DotsLoader,ColorDotsLoader } from 'react-native-indicator';
+import { LinesLoader,LineDotsLoader,CirclesLoader, PulseLoader, TextLoader, DotsLoader,ColorDotsLoader } from 'react-native-indicator';
 
-const LoaderModal = props => {
+const CustomLoader = props => {
     const {
         loading,
         ...attributes
@@ -21,8 +21,8 @@ const LoaderModal = props => {
             onRequestClose={() => {console.log('close modal')}}>
             <View style={styles.modalBackground}>
                 <View style={styles.activityIndicatorWrapper}>
-                    <ActivityIndicator
-                        animating={loading} />
+                    <DotsLoader/>
+                    <TextLoader text="Loading" />
                 </View>
             </View>
         </Modal>
@@ -48,4 +48,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default LoaderModal;
+export default CustomLoader;

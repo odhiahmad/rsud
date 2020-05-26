@@ -9,8 +9,6 @@ import {
     Alert, TextInput, ScrollView, ActivityIndicator,
 } from 'react-native';
 import LoaderModal from '../../components/LoaderModal';
-import Logo from '../../components/Logo';
-import Form from '../../components/Form';
 import InputText from '../../components/InputText';
 import ValidationComponent from 'react-native-form-validator';
 import Loader from '../../components/Loader';
@@ -27,7 +25,6 @@ import {
     Spinner,
     Root,
     Container,
-    Header,
     Content,
     Button,
     ListItem,
@@ -42,6 +39,8 @@ import {
 import {connect} from 'react-redux';
 import Select2 from 'react-native-select-two';
 import {logoutUser} from '../../actions/auth.actions';
+import {showMessage} from 'react-native-flash-message';
+import {Header} from 'react-native-elements';
 
 const styles = StyleSheet.create({
     container: {
@@ -98,12 +97,13 @@ const styles = StyleSheet.create({
     },
 });
 
-class EditProfil extends ValidationComponent {
+class LengkapiProfil extends ValidationComponent {
 
     constructor(props) {
         super(props);
         this.toggleSwitch = this.toggleSwitch.bind(this);
         this.state = {
+            isLoading: false,
             dataProvinsi: [],
             pilihProvinsi: '',
             dataKota: [],
@@ -118,6 +118,7 @@ class EditProfil extends ValidationComponent {
             pilihBahasa: '',
             dataNegara: [],
             pilihNegara: '',
+            pilihJenisKota:'',
             dataWn: [
                 {
                     id: 0,
@@ -134,7 +135,7 @@ class EditProfil extends ValidationComponent {
             tanggalLahir: '',
             nama: '',
             jenisKelamin: '',
-            dataAgama:[],
+            dataAgama: [],
             pilihAgama: '',
             noKartu: '',
             noTelpon: '',
@@ -155,10 +156,11 @@ class EditProfil extends ValidationComponent {
     }
 
     componentDidMount() {
+        console.log(this.props.id);
         this.showDataProvinsi();
         this.showDataSuku();
         this.showDataBahasa();
-        this.showDataAgama()
+        this.showDataAgama();
 
         fetch(baseApi + '/user/user', {
             method: 'GET',
@@ -171,37 +173,78 @@ class EditProfil extends ValidationComponent {
 
             this.setState({
                 isLoading: false,
-                loading:false,
+                loading: false,
                 dataProfil: responseJson.dataProfile,
-                tempatLahir: responseJson.dataProfile.tempat_lahir,
-                tanggalLahir: responseJson.dataProfile.tgl_lahir,
-                nama: responseJson.dataProfile.nama,
-                jenisKelamin: responseJson.dataProfile.jns_kelamin,
-                pilihAgama: responseJson.dataProfile.agama,
-                noTelpon: responseJson.dataProfile.no_telpon,
-                pekerjaan: responseJson.dataProfile.pekerjaan,
-                nik: responseJson.dataProfile.no_ktp,
-                statusKawin: responseJson.dataProfile.status_kawin,
-                pilihProvinsi: responseJson.dataProfile.nama_provinsi,
-                pilihKota: responseJson.dataProfile.nama_kab_kota,
-                pilihKecamatan: responseJson.dataProfile.nama_kecamatan,
-                pilihDesa: responseJson.dataProfile.nama_kelurahan,
-                pilihSuku: responseJson.dataProfile.suku,
-                pilihBahasa: responseJson.dataProfile.bahasa,
-                pilihWn: responseJson.dataProfile.kewarganegaraan,
-                pilihNegara:responseJson.dataProfile.nama_negara,
-                alamat: responseJson.dataProfile.alamat,
-                penanggungJawab: responseJson.dataProfile.penanggung_jawab,
-                noBpjs: responseJson.dataProfile.no_bpjs,
-                noHpPenanggungJawab: responseJson.dataProfile.no_penanggung_jawab,
+                tempatLahir: responseJson.dataProfile.tempat_lahir !== null ? responseJson.dataProfile.tempat_lahir : '',
+                tanggalLahir: responseJson.dataProfile.tgl_lahir !== null ? responseJson.dataProfile.tgl_lahir : '',
+                nama: responseJson.dataProfile.nama !== null ? responseJson.dataProfile.nama : '',
+                jenisKelamin: responseJson.dataProfile.jns_kelamin !== null ? responseJson.dataProfile.jns_kelamin : '',
+                pilihAgama: responseJson.dataProfile.agama !== null ? responseJson.dataProfile.agama : '',
+                noTelpon: responseJson.dataProfile.no_telpon !== null ? responseJson.dataProfile.no_telpon : '',
+                pekerjaan: responseJson.dataProfile.pekerjaan !== null ? responseJson.dataProfile.pekerjaan : '',
+                nik: responseJson.dataProfile.no_ktp !== null ? responseJson.dataProfile.no_ktp : '',
+                statusKawin: responseJson.dataProfile.status_kawin !== null ? responseJson.dataProfile.status_kawin : '',
+                pilihProvinsi: responseJson.dataProfile.nama_provinsi !== null ? responseJson.dataProfile.nama_provinsi : '',
+                pilihKota: responseJson.dataProfile.nama_kab_kota !== null ? responseJson.dataProfile.nama_kab_kota : '',
+                pilihKecamatan: responseJson.dataProfile.nama_kecamatan !== null ? responseJson.dataProfile.nama_kecamatan : '',
+                pilihDesa: responseJson.dataProfile.nama_kelurahan !== null ? responseJson.dataProfile.nama_kelurahan : '',
+                pilihSuku: responseJson.dataProfile.suku !== null ? responseJson.dataProfile.suku : '',
+                pilihBahasa: responseJson.dataProfile.bahasa !== null ? responseJson.dataProfile.bahasa : '',
+                pilihWn: responseJson.dataProfile.kewarganegaraan !== null ? responseJson.dataProfile.kewarganegaraan : '',
+                pilihNegara: responseJson.dataProfile.nama_negara !== null ? responseJson.dataProfile.nama_negara : '',
+                alamat: responseJson.dataProfile.alamat !== null ? responseJson.dataProfile.alamat : '',
+                penanggungJawab: responseJson.dataProfile.penanggung_jawab !== null ? responseJson.dataProfile.penanggung_jawab : '',
+                noBpjs: responseJson.dataProfile.no_bpjs !== null ? responseJson.dataProfile.no_bpjs : '',
+                noHpPenanggungJawab: responseJson.dataProfile.no_penanggung_jawab !== null ? responseJson.dataProfile.no_penanggung_jawab : '',
             });
 
-            this.showKota(responseJson.dataProfile.nama_provinsi);
-            this.showKecamatan(responseJson.dataProfile.nama_kab_kota);
-            this.showDesa(responseJson.dataProfile.nama_kecamatan);
+            console.log({
+                tempatLahir: responseJson.dataProfile.tempat_lahir !== null ? responseJson.dataProfile.tempat_lahir : '',
+                tanggalLahir: responseJson.dataProfile.tgl_lahir !== null ? responseJson.dataProfile.tgl_lahir : '',
+                nama: responseJson.dataProfile.nama !== null ? responseJson.dataProfile.nama : '',
+                jenisKelamin: responseJson.dataProfile.jns_kelamin !== null ? responseJson.dataProfile.jns_kelamin : '',
+                pilihAgama: responseJson.dataProfile.agama !== null ? responseJson.dataProfile.agama : '',
+                noTelpon: responseJson.dataProfile.no_telpon !== null ? responseJson.dataProfile.no_telpon : '',
+                pekerjaan: responseJson.dataProfile.pekerjaan !== null ? responseJson.dataProfile.pekerjaan : '',
+                nik: responseJson.dataProfile.no_ktp !== null ? responseJson.dataProfile.no_ktp : '',
+                statusKawin: responseJson.dataProfile.status_kawin !== null ? responseJson.dataProfile.status_kawin : '',
+                pilihProvinsi: responseJson.dataProfile.nama_provinsi !== null ? responseJson.dataProfile.nama_provinsi : '',
+                pilihKecamatan: responseJson.dataProfile.nama_kecamatan !== null ? responseJson.dataProfile.nama_kecamatan : '',
+                pilihDesa: responseJson.dataProfile.nama_kelurahan !== null ? responseJson.dataProfile.nama_kelurahan : '',
+                pilihSuku: responseJson.dataProfile.suku !== null ? responseJson.dataProfile.suku : '',
+                pilihBahasa: responseJson.dataProfile.bahasa !== null ? responseJson.dataProfile.bahasa : '',
+                pilihWn: responseJson.dataProfile.kewarganegaraan !== null ? responseJson.dataProfile.kewarganegaraan : '',
+                pilihNegara: responseJson.dataProfile.nama_negara !== null ? responseJson.dataProfile.nama_negara : '',
+                alamat: responseJson.dataProfile.alamat !== null ? responseJson.dataProfile.alamat : '',
+                penanggungJawab: responseJson.dataProfile.penanggung_jawab !== null ? responseJson.dataProfile.penanggung_jawab : '',
+                noBpjs: responseJson.dataProfile.no_bpjs !== null ? responseJson.dataProfile.no_bpjs : '',
+                noHpPenanggungJawab: responseJson.dataProfile.no_penanggung_jawab !== null ? responseJson.dataProfile.no_penanggung_jawab : '',
+            });
 
 
-            console.log(responseJson.dataProfile);
+            var kota;
+            if(responseJson.dataProfile.nama_kab_kota !== null){
+                var cek = responseJson.dataProfile.nama_kab_kota.substr(0,2)
+                if(cek === 'Ka'){
+                    kota = responseJson.dataProfile.nama_kab_kota.slice(10)
+                    this.setState({
+                        pilihKota:responseJson.dataProfile.nama_kab_kota.slice(10)
+                    })
+                }else if(cek === 'Ko'){
+                    kota = responseJson.dataProfile.nama_kab_kota.slice(5)
+                    this.setState({
+                        pilihKota:responseJson.dataProfile.nama_kab_kota.slice(5)
+                    })
+                }
+            }
+
+            console.log(kota)
+            if (responseJson.dataProfile.nama_provinsi !== null) {
+                this.showKota(responseJson.dataProfile.nama_provinsi);
+                this.showKecamatan(kota, responseJson.dataProfile.nama_provinsi);
+                this.showDesa(responseJson.dataProfile.nama_kecamatan, kota, responseJson.dataProfile.nama_provinsi);
+            }
+
         })
             .catch((error) => {
                 console.log(error);
@@ -363,6 +406,7 @@ class EditProfil extends ValidationComponent {
                 this.state.dataKota.push({
                     id: i,
                     name: a[i].nama_kabkota,
+                    jenis:a[i].kabkota
                 });
             }
             this.setState({
@@ -375,8 +419,11 @@ class EditProfil extends ValidationComponent {
         });
     }
 
-    showKecamatan(kota) {
-        this.state.dataKecamatan = [];
+    showKecamatan(kota, provinsi) {
+        this.setState({
+            dataKecamatan:[]
+        })
+        console.log(kota)
         const url = baseApi + '/user/kecamatan';
         fetch(url, {
             method: 'POST',
@@ -386,7 +433,7 @@ class EditProfil extends ValidationComponent {
             },
             body: JSON.stringify({
                 kota: kota,
-                provinsi: this.state.pilihProvinsi,
+                provinsi: provinsi,
             }),
         }).then((response) => response.json()).then((responseJson) => {
             var a = responseJson.data;
@@ -433,7 +480,7 @@ class EditProfil extends ValidationComponent {
         });
     }
 
-    showDesa(kecamatan) {
+    showDesa(kecamatan, kota, provinsi) {
         this.state.dataDesa = [];
         const url = baseApi + '/user/desa';
         fetch(url, {
@@ -443,8 +490,8 @@ class EditProfil extends ValidationComponent {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                kota: this.state.pilihKota,
-                provinsi: this.state.pilihProvinsi,
+                kota: kota,
+                provinsi: provinsi,
                 kecamatan: kecamatan,
             }),
         }).then((response) => response.json()).then((responseJson) => {
@@ -469,17 +516,15 @@ class EditProfil extends ValidationComponent {
     _onSubmit() {
         this.validate({
             // noBpjs:{minlength: 13, maxlength: 13,number:true},
-            // penanggungJawab: {minlength: 3, maxlength: 50, required: true},
-            // noHpPenanggungJawab: {minlength: 10, maxlength: 13, number: true, required: true},
-            // pilihAgama:{required:true},
+            pilihAgama: {required: true},
             jenisKelamin: {required: true},
             statusKawin: {required: true},
             chosenDate: {required: true},
-            // noTelpon: {minlength: 10, maxlength: 13, number: true, required: true},
-            // tempatLahir: {minlength: 4, maxlength: 50, required: true},
-            // nama: {minlength: 4, maxlength: 50, required: true},
-            // pekerjaan: {minlength: 4, maxlength: 50, required: true},
-            // nik: {minlength: 16, maxlength: 16, required: true},
+            noTelpon: {minlength: 10, maxlength: 13, number: true, required: true},
+            tempatLahir: {minlength: 3, required: true},
+            nama: {minlength: 4, maxlength: 50, required: true},
+            pekerjaan: {minlength: 4, maxlength: 50,required: true},
+            nik: {minlength: 16, maxlength: 16, required: true},
             pilihProvinsi: {required: true},
             pilihKota: {required: true},
             pilihKecamatan: {required: true},
@@ -487,11 +532,14 @@ class EditProfil extends ValidationComponent {
             pilihSuku: {required: true},
             pilihBahasa: {required: true},
             pilihWn: {required: true},
-            alamat: {required: true},
+            alamat: {minlength: 4,required: true},
         });
         if (this.isFormValid()) {
 
-            if(this.state.noBpjs != 0){
+            this.setState({
+                isLoading: true,
+            });
+            if (this.state.noBpjs != 0) {
                 this.state.loading = true;
                 const url = baseApiBpjs + 'peserta_bpjs';
                 fetch(url, {
@@ -508,9 +556,9 @@ class EditProfil extends ValidationComponent {
                     }),
                 }).then((response) => response.json()).then((responseJson) => {
 
-                    if(responseJson.response != null){
+                    if (responseJson.response != null) {
                         if (parseInt(responseJson.response.peserta.statusPeserta.kode) === 0) {
-                            fetch(baseApi + '/user/updateProfil', {
+                            fetch(baseApi + '/user/updateProfilLengkapiPendaftaran', {
                                 method: 'POST',
                                 headers: {
                                     Accept: 'application/json',
@@ -518,7 +566,7 @@ class EditProfil extends ValidationComponent {
                                     'Authorization': 'Bearer ' + this.props.getUser.userDetails.token,
                                 },
                                 body: JSON.stringify({
-                                    id: this.props.getUser.userDetails.id,
+                                    id: this.props.id,
                                     jenisKelamin: this.state.jenisKelamin,
                                     statusKawin: this.state.statusKawin,
                                     tanggalLahir: this.state.tanggalLahir,
@@ -528,7 +576,7 @@ class EditProfil extends ValidationComponent {
                                     pekerjaan: this.state.pekerjaan,
                                     nik: this.state.nik,
                                     pilihProvinsi: this.state.pilihProvinsi,
-                                    pilihKota: this.state.pilihKota,
+                                    pilihKota: this.state.pilihJenisKota + ' ' +this.state.pilihKota,
                                     pilihKecamatan: this.state.pilihKecamatan,
                                     pilihDesa: this.state.pilihDesa,
                                     pilihSuku: this.state.pilihSuku,
@@ -536,14 +584,12 @@ class EditProfil extends ValidationComponent {
                                     pilihWn: this.state.pilihWn,
                                     pilihNegara: this.state.pilihNegara,
                                     alamat: this.state.alamat,
-                                    penanggungJawab: this.state.penanggungJawab,
-                                    noHpPenanggungJawab:this.state.noHpPenanggungJawab,
                                     noBpjs: this.state.noBpjs,
-                                    agama:this.state.pilihAgama,
+                                    agama: this.state.pilihAgama,
                                 }),
                             }).then((response) => response.json()).then((responseJson) => {
                                 console.log({
-                                    id: this.props.getUser.userDetails.id,
+                                    id: this.props.id,
                                     jenisKelamin: this.state.jenisKelamin,
                                     statusKawin: this.state.statusKawin,
                                     tanggalLahir: this.state.tanggalLahir,
@@ -561,49 +607,84 @@ class EditProfil extends ValidationComponent {
                                     pilihWn: this.state.pilihWn,
                                     pilihNegara: this.state.pilihNegara,
                                     alamat: this.state.alamat,
-                                    penanggungJawab: this.state.penanggungJawab,
-                                    noHpPenanggungJawab:this.state.noHpPenanggungJawab,
                                     noBpjs: this.state.noBpjs,
-                                    agama:this.state.pilihAgama,
-                                })
+                                    agama: this.state.pilihAgama,
+                                });
                                 if (responseJson.success === true) {
-                                    this.state.loading = false;
-                                    this.state.message = responseJson.message;
-                                    this.showAlert();
+                                    this.setState({
+                                        isLoading: false,
+                                    });
+                                    showMessage({
+                                        message: responseJson.message,
+                                        type: 'success',
+                                        position: 'bottom',
+                                    });
+                                    Actions.pop({
+                                        refresh: {
+                                            nomorMr: this.props.id,
+                                            tahunLahir: this.props.tahunLahir,
+                                        },
+                                    });
                                 } else {
-                                    this.state.loading = false;
-                                    this.state.message = responseJson.message;
-                                    this.showAlert();
+                                    this.setState({
+                                        isLoading: false,
+                                    });
+                                    showMessage({
+                                        message: responseJson.message,
+                                        type: 'danger',
+                                        position: 'bottom',
+                                    });
                                 }
                             }).catch((error) => {
                                 this.state.loading = false;
                                 console.log(error);
-                                this.state.message = error;
-                                this.showAlert();
+                                showMessage({
+                                    message: responseJson.message,
+                                    type: 'danger',
+                                    position: 'bottom',
+                                });
                             });
 
 
                         } else {
-                            this.state.loading = false;
-                            this.state.message = 'BPJS Anda Tidak Aktif';
-                            this.showAlert();
+                            this.setState({
+                                isLoading: false,
+                            });
+
+                            showMessage({
+                                message: 'BPJS Anda Tidak Aktif',
+                                type: 'danger',
+                                position: 'bottom',
+                            });
                         }
 
-                    }else{
-                        this.state.loading = false;
-                        this.state.message = 'Nomor Yang anda masukan tidak terdaftar';
-                        this.showAlert();
+                    } else {
+                        this.setState({
+                            isLoading: false,
+                        });
+                        showMessage({
+                            message: 'Nomor Yang anda masukan tidak terdaftar',
+                            type: 'danger',
+                            position: 'bottom',
+                        });
                     }
 
 
                 }).catch((error) => {
                     console.log(error);
-                    this.state.loading = false;
+                    this.setState({
+                        isLoading: false,
+                    });
+                    showMessage({
+                        message: error,
+                        type: 'danger',
+                        position: 'bottom',
+                    });
                 });
-            }else{
+            } else {
 
 
-                fetch(baseApi + '/user/updateProfil', {
+                fetch(baseApi + '/user/updateProfilLengkapiPendaftaran', {
                     method: 'POST',
                     headers: {
                         Accept: 'application/json',
@@ -611,7 +692,7 @@ class EditProfil extends ValidationComponent {
                         'Authorization': 'Bearer ' + this.props.getUser.userDetails.token,
                     },
                     body: JSON.stringify({
-                        id: this.props.getUser.userDetails.id,
+                        id: this.props.id,
                         jenisKelamin: this.state.jenisKelamin,
                         statusKawin: this.state.statusKawin,
                         tanggalLahir: this.state.tanggalLahir,
@@ -629,14 +710,12 @@ class EditProfil extends ValidationComponent {
                         pilihWn: this.state.pilihWn,
                         pilihNegara: this.state.pilihNegara,
                         alamat: this.state.alamat,
-                        penanggungJawab: this.state.penanggungJawab,
-                        noHpPenanggungJawab:this.state.noHpPenanggungJawab,
                         noBpjs: this.state.noBpjs,
-                        agama:this.state.pilihAgama,
+                        agama: this.state.pilihAgama,
                     }),
                 }).then((response) => response.json()).then((responseJson) => {
                     console.log({
-                        id: this.props.getUser.userDetails.id,
+                        id: this.props.id,
                         jenisKelamin: this.state.jenisKelamin,
                         statusKawin: this.state.statusKawin,
                         tanggalLahir: this.state.tanggalLahir,
@@ -654,29 +733,53 @@ class EditProfil extends ValidationComponent {
                         pilihWn: this.state.pilihWn,
                         pilihNegara: this.state.pilihNegara,
                         alamat: this.state.alamat,
-                        penanggungJawab: this.state.penanggungJawab,
-                        noHpPenanggungJawab:this.state.noHpPenanggungJawab,
                         noBpjs: this.state.noBpjs,
-                        agama:this.state.pilihAgama,
-                    })
+                        agama: this.state.pilihAgama,
+                    });
                     if (responseJson.success === true) {
-                        this.state.loading = false;
-                        this.state.message = responseJson.message;
-                        this.showAlert();
+                        this.setState({
+                            isLoading: false,
+                        });
+                        showMessage({
+                            message: responseJson.message,
+                            type: 'success',
+                            position: 'bottom',
+                        });
+                        Actions.pop({
+                            refresh: {
+                                nomorMr: this.props.id,
+                                tahunLahir: this.props.tahunLahir,
+                            },
+                        });
                     } else {
-                        this.state.loading = false;
-                        this.state.message = responseJson.message;
-                        this.showAlert();
+                        this.setState({
+                            isLoading: false,
+                        });
+                        showMessage({
+                            message: responseJson.message,
+                            type: 'danger',
+                            position: 'bottom',
+                        });
                     }
                 }).catch((error) => {
-                    this.state.loading = false;
-                    console.log(error);
-                    this.state.message = error;
-                    this.showAlert();
+                    this.setState({
+                        isLoading: false,
+                    });
+                    showMessage({
+                        message: error,
+                        type: 'danger',
+                        position: 'bottom',
+                    });
                 });
             }
 
 
+        } else {
+            showMessage({
+                message: 'Isi Semua',
+                type: 'danger',
+                position: 'bottom',
+            });
         }
     }
 
@@ -736,6 +839,7 @@ class EditProfil extends ValidationComponent {
             }
 
             if (this.state.dataProvinsi.length != 0) {
+                var pilihProvinsiJudul = this.state.pilihProvinsi;
                 listView.push(
                     <View>
                         <Select2
@@ -749,7 +853,7 @@ class EditProfil extends ValidationComponent {
                             selectedTitleStyle={{color: 'white'}}
                             searchPlaceHolderText="Cari Provinsi Anda"
                             popupTitle="Pilih Provinsi"
-                            title={this.state.pilihProvinsi}
+                            title={this.state.pilihProvinsi != null ? this.state.pilihProvinsi : 'Pilih Provinsi'}
                             data={this.state.dataProvinsi}
                             onSelect={data => {
                                 if (this.state.dataKota.length != 0) {
@@ -793,7 +897,7 @@ class EditProfil extends ValidationComponent {
                 );
             }
 
-            if (this.state.dataProvinsi.length != 0) {
+            if (this.state.pilihProvinsi != null) {
                 listViewKota.push(
                     <View>
                         <Select2
@@ -807,7 +911,7 @@ class EditProfil extends ValidationComponent {
                             colorTheme="#1da30b"
                             searchPlaceHolderText="Cari Kota Anda"
                             popupTitle="Pilih Kota"
-                            title={this.state.pilihKota}
+                            title={this.state.pilihKota != '' ? this.state.pilihKota : 'Pilih Kota'}
                             data={this.state.dataKota}
                             onSelect={data => {
                                 if (this.state.dataKecamatan.length != 0) {
@@ -824,8 +928,9 @@ class EditProfil extends ValidationComponent {
                                 }
                                 this.setState({
                                     pilihKota: this.state.dataKota[data].name,
+                                    pilihJenisKota:this.state.dataKota[data].jenis
                                 });
-                                this.showKecamatan(this.state.dataKota[data].name);
+                                this.showKecamatan(this.state.dataKota[data].name, this.state.pilihProvinsi);
 
                             }}
                             onRemoveItem={data => {
@@ -835,12 +940,6 @@ class EditProfil extends ValidationComponent {
 
                         {this.isFieldInError('pilihKota') && this.getErrorsInField('pilihKota').map(errorMessage =>
                             <Text>{errorMessage}</Text>)}
-                    </View>,
-                );
-            } else {
-                listViewKota.push(
-                    <View style={styles.loader}>
-                        <ActivityIndicator size="large"/>
                     </View>,
                 );
             }
@@ -858,7 +957,7 @@ class EditProfil extends ValidationComponent {
                             colorTheme="#1da30b"
                             searchPlaceHolderText="Cari Kecamatan Anda"
                             popupTitle="Pilih Kecamatan"
-                            title={this.state.pilihKecamatan}
+                            title={this.state.pilihKecamatan !== '' ? this.state.pilihKecamatan : 'Pilih Kecamatan'}
                             data={this.state.dataKecamatan}
                             onSelect={data => {
                                 if (this.state.dataDesa.length != 0) {
@@ -870,7 +969,7 @@ class EditProfil extends ValidationComponent {
                                 this.setState({
                                     pilihKecamatan: this.state.dataKecamatan[data].name,
                                 });
-                                this.showDesa(this.state.dataKecamatan[data].name);
+                                this.showDesa(this.state.dataKecamatan[data].name, this.state.pilihKota, this.state.pilihProvinsi);
 
                             }}
                             onRemoveItem={data => {
@@ -894,7 +993,7 @@ class EditProfil extends ValidationComponent {
                             colorTheme="#1da30b"
                             searchPlaceHolderText="Cari Desa Anda"
                             popupTitle="Pilih Desa"
-                            title={this.state.pilihDesa}
+                            title={this.state.pilihDesa !== ''? this.state.pilihDesa : 'Pilih Desa'}
                             data={this.state.dataDesa}
                             onSelect={data => {
                                 this.setState({
@@ -926,7 +1025,7 @@ class EditProfil extends ValidationComponent {
                             colorTheme="#1da30b"
                             searchPlaceHolderText="Cari Suku Anda"
                             popupTitle="Pilih Suku"
-                            title={this.state.pilihSuku}
+                            title={this.state.pilihSuku != '' ? this.state.pilihSuku : 'Pilih Suku'}
                             data={this.state.dataSuku}
                             onSelect={data => {
                                 this.setState({
@@ -965,7 +1064,7 @@ class EditProfil extends ValidationComponent {
                             colorTheme="#1da30b"
                             searchPlaceHolderText="Cari Bahasa Anda"
                             popupTitle="Pilih Bahasa"
-                            title={this.state.pilihBahasa}
+                            title={this.state.pilihBahasa != '' ? this.state.pilihBahasa : 'Pilih Bahasa'}
                             data={this.state.dataBahasa}
                             onSelect={data => {
                                 this.setState({
@@ -1069,7 +1168,8 @@ class EditProfil extends ValidationComponent {
                             loading={false}/>
                     </View>
                     <TextInput
-                        defaultValue={this.state.nik}
+                        keyboardType={'numeric'}
+                        defaultValue={parseInt(this.state.nik) === 0 ? null : this.state.nik}
                         ref="nik"
                         onChangeText={(nik) => this.setState({nik})}
                         style={styles.inputBox}
@@ -1081,6 +1181,7 @@ class EditProfil extends ValidationComponent {
                     {this.isFieldInError('nik') && this.getErrorsInField('nik').map(errorMessage =>
                         <Text>{errorMessage}</Text>)}
                     <TextInput
+                        autoCapitalize='words'
                         defaultValue={this.state.nama}
                         ref="nama"
                         onChangeText={(nama) => this.setState({nama})}
@@ -1092,16 +1193,26 @@ class EditProfil extends ValidationComponent {
                     />
                     {this.isFieldInError('nama') && this.getErrorsInField('nama').map(errorMessage =>
                         <Text>{errorMessage}</Text>)}
-                    <TextInput
+
+                    {this.state.tempatLahir !== null ? <TextInput
                         defaultValue={this.state.tempatLahir}
-                        ref="tempat_lahir"
+                        ref="tempatLahir"
                         onChangeText={(tempatLahir) => this.setState({tempatLahir})}
                         style={styles.inputBox}
                         underlineColorAndroid="rgba(0,0,0,0)"
                         placeholder="Tempat Lahir"
                         placeholderTextColor="rgba(255,255,255,0.8)"
                         selectionColor="#999999"
-                    />
+                    /> : <TextInput
+                        ref="tempatLahir"
+                        onChangeText={(tempatLahir) => this.setState({tempatLahir})}
+                        style={styles.inputBox}
+                        underlineColorAndroid="rgba(0,0,0,0)"
+                        placeholder="Tempat Lahirrr"
+                        placeholderTextColor="rgba(255,255,255,0.8)"
+                        selectionColor="#999999"
+                    />}
+
                     {this.isFieldInError('tempatLahir') && this.getErrorsInField('tempatLahir').map(errorMessage =>
                         <Text>{errorMessage}</Text>)}
                     <DatePicker
@@ -1144,7 +1255,7 @@ class EditProfil extends ValidationComponent {
                     </Picker>
                     {this.isFieldInError('statusKawin') && this.getErrorsInField('statusKawin').map(errorMessage =>
                         <Text>{errorMessage}</Text>)}
-                    <TextInput
+                    {this.state.pekerjaan !== null ? <TextInput
                         defaultValue={this.state.pekerjaan}
                         ref="pekerjaan"
                         onChangeText={(pekerjaan) => this.setState({pekerjaan})}
@@ -1153,11 +1264,20 @@ class EditProfil extends ValidationComponent {
                         placeholder="Pekerjaan"
                         placeholderTextColor="rgba(255,255,255,0.8)"
                         selectionColor="#999999"
-                    />
+                    /> : <TextInput
+                        ref="pekerjaan"
+                        onChangeText={(pekerjaan) => this.setState({pekerjaan})}
+                        style={styles.inputBox}
+                        underlineColorAndroid="rgba(0,0,0,0)"
+                        placeholder="Pekerjaaaan"
+                        placeholderTextColor="rgba(255,255,255,0.8)"
+                        selectionColor="#999999"
+                    />}
                     {this.isFieldInError('pekerjaan') && this.getErrorsInField('pekerjaan').map(errorMessage =>
                         <Text>{errorMessage}</Text>)}
                     <TextInput
-                        defaultValue={this.state.noTelpon}
+                        keyboardType={'numeric'}
+                        defaultValue={this.state.noTelpon != '' ? this.state.noTelpon : ''}
                         ref="noTelpon"
                         onChangeText={(noTelpon) => this.setState({noTelpon})}
                         style={styles.inputBox}
@@ -1172,14 +1292,15 @@ class EditProfil extends ValidationComponent {
                     {this.state.pilihWn === '' ? <View></View> : this.state.pilihWn === 'WNI' ?
                         <View>
                             {listView}
-                            {this.state.pilihProvinsi != '' ? listViewKota : <View></View>}
-                            {this.state.pilihKota != '' && this.state.pilihProvinsi != '' ? listViewKecamatan :
+                            {this.state.pilihProvinsi !== '' ? listViewKota : <View></View>}
+                            {this.state.pilihKota !== '' && this.state.pilihProvinsi !== '' ? listViewKecamatan :
                                 <View></View>}
-                            {this.state.pilihKecamatan != '' && this.state.pilihKota != '' && this.state.pilihProvinsi != '' ? listViewDesa :
+                            {this.state.pilihKecamatan !== '' && this.state.pilihKota !== '' && this.state.pilihProvinsi !== '' ? listViewDesa :
                                 <View></View>}
 
                             {this.state.alamat != '' ?
                                 <Textarea ref="alamat"
+                                          autoCapitalize='words'
                                           defaultValue={this.state.alamat}
                                           onChangeText={(alamat) => this.setState({alamat})}
                                           placeholderTextColor="#ffffff"
@@ -1187,6 +1308,7 @@ class EditProfil extends ValidationComponent {
                                           rowSpan={5} bordered
                                           placeholder="Alamat"/> :
                                 <Textarea ref="alamat"
+                                          autoCapitalize='words'
                                           onChangeText={(alamat) => this.setState({alamat})}
                                           placeholderTextColor="#ffffff" style={styles.inputBox} rowSpan={5}
                                           bordered
@@ -1199,32 +1321,9 @@ class EditProfil extends ValidationComponent {
                         </View> : this.state.pilihWn === 'WNA' ?
                             <View>{listViewPilihNegara}</View> : <View></View>
                     }
+
                     <TextInput
-                        defaultValue={this.state.penanggungJawab}
-                        ref="penanggungJawab"
-                        onChangeText={(penanggungJawab) => this.setState({penanggungJawab})}
-                        style={styles.inputBox}
-                        underlineColorAndroid="rgba(0,0,0,0)"
-                        placeholder="Penanggung Jawab"
-                        placeholderTextColor="rgba(255,255,255,0.8)"
-                        selectionColor="#999999"
-                    />
-                    {this.isFieldInError('penanggungJawab') && this.getErrorsInField('penanggungJawab').map(errorMessage =>
-                        <Text>{errorMessage}</Text>)}
-                    <TextInput
-                        defaultValue={this.state.noHpPenanggungJawab}
-                        ref="noHpPenanggungJawab"
-                        onChangeText={(noHpPenanggungJawab) => this.setState({noHpPenanggungJawab})}
-                        style={styles.inputBox}
-                        underlineColorAndroid="rgba(0,0,0,0)"
-                        placeholder="Nomor Telfon / No Hp PJ"
-                        placeholderTextColor="rgba(255,255,255,0.8)"
-                        selectionColor="#999999"
-                    />
-                    {this.isFieldInError('noHpPenanggungJawab') && this.getErrorsInField('noHpPenanggungJawab').map(errorMessage =>
-                        <Text>{errorMessage}</Text>)}
-                    <TextInput
-                        defaultValue={this.state.noBpjs}
+                        defaultValue={parseInt(this.state.noBpjs) === 0 ? null : this.state.noBpjs}
                         ref="noBpjs"
                         onChangeText={(noBpjs) => this.setState({noBpjs})}
                         style={styles.inputBox}
@@ -1248,48 +1347,44 @@ class EditProfil extends ValidationComponent {
 
         }
 
-        var loadingView = []
-        if(this.state.loading === true){
+        var loadingView = [];
+        if (this.state.loading === true) {
             loadingView.push(
                 <View>
                     <LoaderModal
                         loading={true}/>
-                </View>
-            )
-        }else{
+                </View>,
+            );
+        } else {
             loadingView.push(
                 <View>
                     <LoaderModal
                         loading={false}/>
-                </View>
-            )
+                </View>,
+            );
         }
         return (
             <View style={styles.container}>
+                <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
+                <Header
+                    statusBarProps={{barStyle: 'light-content'}}
+                    containerStyle={{
+                        backgroundColor: '#1da30b',
+                        justifyContent: 'space-around',
+                    }}
+                    barStyle="light-content"
+                    placement="center"
+                    centerComponent={{text: 'Edit Profil', style: {color: '#fff'}}}
+                />
                 {/*{this.state.loading === true ? <View><Loader/></View> : ''}*/}
-                <ScrollView style={{marginVertical: 15, backgroundColor: 'white'}}>
+                <ScrollView style={{backgroundColor: 'white'}}>
+                    <LoaderModal
+                        loading={this.state.isLoading}/>
                     {loadingView}
                     {listViewProfil1}
-
-
                     <TouchableOpacity style={styles.button} onPress={this._onSubmit.bind(this)}>
-                        <Text style={styles.buttonText}>Edit Profil</Text>
+                        <Text style={styles.buttonText}>Update Profil</Text>
                     </TouchableOpacity>
-                    <AwesomeAlert
-                        show={showAlert}
-                        showProgress={false}
-                        title="Notifikasi"
-                        message={this.state.message}
-                        closeOnTouchOutside={true}
-                        closeOnHardwareBackPress={false}
-                        showCancelButton={false}
-                        showConfirmButton={true}
-                        confirmText=" Keluar "
-                        confirmButtonColor="#DD6B55"
-                        onConfirmPressed={() => {
-                            this.hideAlert();
-                        }}
-                    />
                 </ScrollView>
             </View>
         );
@@ -1304,4 +1399,4 @@ mapDispatchToProps = (dispatch) => ({
     dispatch,
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditProfil);
+export default connect(mapStateToProps, mapDispatchToProps)(LengkapiProfil);

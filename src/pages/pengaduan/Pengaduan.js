@@ -36,14 +36,16 @@ import {
 } from 'react-native';
 import moment from 'moment'
 import HTMLView from 'react-native-htmlview';
+import {connect} from 'react-redux';
 const {height} = Dimensions.get('window');
 const imageUrl = '../../images/banner/banner1.jpg';
 
 
-export default class ListThumbnailExample extends Component {
+class Pengaduan extends Component <{}> {
     constructor(props) {
         super(props);
         this.state = {
+            active:false,
             dataIsi:null,
             dataJudul:null,
             modalArticleData:{},
@@ -75,10 +77,6 @@ export default class ListThumbnailExample extends Component {
     setModalUnvisible(visible) {
         this.setState({
             modalVisible: visible,
-            dataIsi:null,
-            dataJudul:null,
-            dataPostLink:null,
-            dataPostTanggal:null
         });
     }
 
@@ -93,19 +91,6 @@ export default class ListThumbnailExample extends Component {
 
     };
 
-    handleShare = () => {
-        const tanggalTahun = this.state.dataPostTanggal.substring(0,4)
-        const tanggalBulan = this.state.dataPostTanggal.substring(5,7)
-        const tanggalHari = this.state.dataPostTanggal.substring(8,11)
-
-        const url = 'https://rsud.padangpanjang.go.id/'+tanggalHari+'/'+tanggalBulan+'/'+tanggalTahun+'/'+this.state.dataPostLink
-        const title = this.state.dataJudul
-        const message = `${title}\n\nRead More @ ${url}\n\nShare via RSUD Smart APP`
-        return Share.share(
-            {title,message,url:message},
-        {dialogTitle:'Share' + this.state.dataJudul}
-        );
-     }
     renderFooter = () => {
         return (
             this.state.isLoading ?
@@ -116,14 +101,16 @@ export default class ListThumbnailExample extends Component {
     };
 
     getData = async () => {
-        const url = baseApi + '/user/berita?page=' + this.state.page;
+        const url = baseApi + '/user/pengaduan?page=' + this.state.page;
         fetch(url,{
             method: 'POST',
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + this.props.getUser.userDetails.token,
             },
             body: JSON.stringify({
+                id:this.props.getUser.userDetails.id,
                 search: this.state.searchText,
             }),
         }).then((response) => response.json()).then((responseJson) => {
@@ -138,26 +125,24 @@ export default class ListThumbnailExample extends Component {
         });
     };
 
-    setModalVisible(visible, judul,Isi,tanggal,link) {
+    setModalVisible(visible) {
         this.setState({
             modalVisible: visible,
-            dataIsi:Isi,
-            dataJudul:judul,
-            dataPostLink:link,
-            dataPostTanggal:tanggal
         });
 
     }
 
     searchData = async () => {
-        const url = baseApi + '/user/berita?page=';
+        const url = baseApi + '/user/pengaduan?page=';
         fetch(url,{
             method: 'POST',
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + this.props.getUser.userDetails.token,
             },
             body: JSON.stringify({
+                id:this.props.getUser.userDetails.id,
                 search: this.state.searchText,
             }),
         }).then((response) => response.json()).then((responseJson) => {
@@ -205,7 +190,7 @@ export default class ListThumbnailExample extends Component {
                     </Body>
                     <Right>
                         <Button transparent onPress={() => {this.setModalVisible(true,item.post_judul,item.post_isi,item.post_tglpublish,item.post_link)}}>
-                            <Text style={{color:'orange'}}>View</Text>
+                            <Text>View</Text>
                         </Button>
                     </Right>
                 </ListItem>
@@ -217,14 +202,14 @@ export default class ListThumbnailExample extends Component {
     render() {
         return (
             <View style={{flex: 1, height: height}}>
-                <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
-                <Header searchBar rounded transparent androidStatusBarColor="#106604">
+                <StatusBar translucent backgroundColor="#1da30b"/>
+                <Header searchBar noShadow rounded transparent  androidStatusBarColor="#106604">
                     <Item>
                         <Icon name="ios-search" />
-                        <Input onChangeText={this._onChangeSearchText.bind(this)} placeholder="Cari Berita" />
+                        <Input onChangeText={this._onChangeSearchText.bind(this)} placeholder="Cari Pengaduan" />
                     </Item>
                     <Button transparent>
-                        <Text>Search</Text>
+                        <Text>Cari</Text>
                     </Button>
                 </Header>
                 <FlatList
@@ -234,44 +219,31 @@ export default class ListThumbnailExample extends Component {
                     onEndReachedThreshold={0.1}
                     ListFooterComponent={this.renderFooter}
                     data={this.state.data}/>
+                <Fab
+                    active={this.state.active}
+                    direction="up"
+                    containerStyle={{bottom: 65}}
+                    style={styles.fab}
+                    position="bottomRight"
+                    onPress={() => this.setModalVisible(true)}
+                >
+                    <Icon name="add" />
+                </Fab>
                 <Modal
-                    onRequestClose={() => {this.setModalUnvisible(!this.state.modalVisible)}}
+                    onSwipeComplete={() => {
+                        this.setModalUnvisible(!this.state.modalVisible);
+                    }}
+                    scrollHorizontal
+                    propagateSwipe
+                    swipeDirection={['down']}
+                    swipearea={50}
+                    onRequestClose={() => {
+                        this.setModalUnvisible(!this.state.modalVisible);
+                    }}
                     animationType="slide"
-                    transparent
                     visible={this.state.modalVisible}
                 >
-                    <Container style={{margin:15,marginBottom:0,backgroundColor:'#fff'}}>
-                        <View style={{ flex: 1 }}>
-                        <Header style={{backgroundColor:'#009387'}}>
-                            <Body>
-                                <Title style={{fontSize: 12}} children={this.state.dataJudul}></Title>
-                            </Body>
-                            <Right>
-                                <Button style={{marginRight:5}} onPress={this.handleShare}>
-                                    <Icon name="share" style={{color:'white',fontSize:12}}/>
-                                </Button>
-                                <Button onPress={() => {
-                                    this.setModalUnvisible(!this.state.modalVisible)}}>
-                                    <Icon name="close" style={{color:'white',fontSize:12}}/>
-                                </Button>
-                            </Right>
-                        </Header>
-                        <Content style={{margin: 5}}>
-                            <Text style={{fontSize: 24,fontWeight:'bold'}}>{this.state.dataJudul} :</Text>
-                            <HTMLView
-                                value={this.state.dataIsi}
-                                stylesheet={styles.a}
-                            />
-                            {/*<Fab*/}
-                            {/*    position="bottomRight"*/}
-                            {/*>*/}
-                            {/*    <Icon name="share" style={{color:'white',fontSize:12}}/>*/}
-                            {/*</Fab>*/}
-                        </Content>
-
-
-                        </View>
-                    </Container>
+                    <View><Text>Tes</Text></View>
                 </Modal>
             </View>
         );
@@ -279,6 +251,9 @@ export default class ListThumbnailExample extends Component {
 }
 
 const styles = StyleSheet.create({
+    fab:{
+      marginTop: 20,
+    },
     a: {
         fontWeight: '300',
         color: '#FF3366', // make links coloured pink
@@ -306,3 +281,12 @@ const styles = StyleSheet.create({
         padding: 5,
     },
 });
+mapStateToProps = (state) => ({
+    getUser: state.userReducer.getUser,
+});
+
+mapDispatchToProps = (dispatch) => ({
+    dispatch,
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Pengaduan);

@@ -39,6 +39,8 @@ import {
     ActionSheet,
     Card, CardItem,
 } from 'native-base';
+import {showMessage} from 'react-native-flash-message';
+
 
 const styles = StyleSheet.create({
     container: {
@@ -158,7 +160,7 @@ class SignupMrDua extends ValidationComponent {
     };
 
     _onSubmit() {
-        this.state.loading = true;
+
         this.validate({
             nama: {minlength: 4, maxlength: 20, required: true},
             email: {email: true, required: true},
@@ -168,6 +170,9 @@ class SignupMrDua extends ValidationComponent {
             angka: {minlength: 1, required: true, numbers: true},
         });
         if (this.isFormValid()) {
+            this.setState({
+                loading: true,
+            });
             if (this.state.email === this.state.emailValidasi) {
                 if (this.state.password === this.state.passwordKonfirmasi) {
                     if (parseInt(this.state.angka) === this.state.nilaiTambahA + this.state.nilaiTambahB) {
@@ -192,47 +197,90 @@ class SignupMrDua extends ValidationComponent {
 
 
                             if(responseJson.success === true){
-                                this.state.statusLogin = true
-                                this.state.message = responseJson.message;
-                                this.state.loading = false;
-                                this.showAlert();
+                                this.setState({
+                                    loading: false,
+                                    message :responseJson.message,
+                                    statusLogin:true,
+                                });
+                                showMessage({
+                                    message: responseJson.message,
+                                    type: 'warning',
+                                    position: 'bottom',
+                                });
                             }else{
-                                this.state.statusLogin = false
-                                this.state.loading = false;
-                                this.state.message = responseJson.message;
-                                this.showAlert();
+                                this.setState({
+                                    loading: false,
+                                    message :responseJson.message,
+                                    statusLogin:false,
+                                });
+                                showMessage({
+                                    message: responseJson.message,
+                                    type: 'danger',
+                                    position: 'bottom',
+                                });
                             }
 
 
                         }).catch((error) => {
-                            this.state.loading = false;
-                            console.log(error);
-                            this.state.message = error;
-                            this.showAlert();
+                            this.setState({
+                                loading: false,
+                                statusLogin:false,
+                            });
+                            showMessage({
+                                message: error,
+                                type: 'danger',
+                                position: 'bottom',
+                            });
 
                         });
                     } else {
-                        this.state.loading = false;
-                        this.state.message = 'Jumlah yang anda masukan tidak sama';
-                        this.showAlert();
+                        this.setState({
+                            loading: false,
+                            statusLogin:false,
+                        });
+                        showMessage({
+                            message: 'Jumlah yang anda masukan tidak sama',
+                            type: 'danger',
+                            position: 'bottom',
+                        });
+
                     }
 
                 } else {
-                    this.state.loading = false;
-                    this.state.message = 'Password konfirmasi tidak sama';
-                    this.showAlert();
+                    this.setState({
+                        loading: false,
+                        statusLogin:false,
+                    });
+                    showMessage({
+                        message:'Password konfirmasi tidak sama',
+                        type: 'danger',
+                        position: 'bottom',
+                    });
+
                 }
             } else {
-                this.state.loading = false;
-                this.state.message = 'Email atau Password konfirmasi tidak sama';
-                this.showAlert();
+                this.setState({
+                    loading: false,
+                    statusLogin:false,
+                });
+                showMessage({
+                    message:'Email atau Password konfirmasi tidak sama',
+                    type: 'danger',
+                    position: 'bottom',
+                });
             }
 
         } else {
-            this.state.loading = false;
-            this.state.message = 'Isi semua';
-            this.showAlert();
 
+            this.setState({
+                loading: false,
+                statusLogin:false,
+            });
+            showMessage({
+                message:'Isi semua',
+                type: 'danger',
+                position: 'bottom',
+            });
         }
 
     }
@@ -267,6 +315,7 @@ class SignupMrDua extends ValidationComponent {
                     {this.isFieldInError('nama') && this.getErrorsInField('nama').map(errorMessage =>
                         <Text>{errorMessage}</Text>)}
                     <TextInput
+                        keyboardType={'email'}
                         ref="email"
                         onChangeText={(email) => this.setState({email})}
                         style={styles.inputBox}
@@ -278,6 +327,7 @@ class SignupMrDua extends ValidationComponent {
                     {this.isFieldInError('email') && this.getErrorsInField('email').map(errorMessage =>
                         <Text>{errorMessage}</Text>)}
                     <TextInput
+                        keyboardType={'email'}
                         ref="emailValidasi"
                         onChangeText={(emailValidasi) => this.setState({emailValidasi})}
                         style={styles.inputBox}
@@ -334,6 +384,7 @@ class SignupMrDua extends ValidationComponent {
                         selectionColor="#999999"
                     />
                     <TextInput
+                        keyboardType={'numeric'}
                         ref="angka"
                         onChangeText={(angka) => this.setState({angka})}
                         style={styles.inputBox}
@@ -357,21 +408,6 @@ class SignupMrDua extends ValidationComponent {
 
                     </View>
 
-                    <AwesomeAlert
-                        show={showAlert}
-                        showProgress={false}
-                        title="Notifikasi"
-                        message={this.state.message}
-                        closeOnTouchOutside={true}
-                        closeOnHardwareBackPress={false}
-                        showCancelButton={false}
-                        showConfirmButton={true}
-                        confirmText=" Keluar "
-                        confirmButtonColor="#DD6B55"
-                        onConfirmPressed={() => {
-                            this.hideAlert();
-                        }}
-                    />
                 </ScrollView>
             </View>
         );

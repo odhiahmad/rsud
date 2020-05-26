@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import ParallaxScroll from '@monterosa/react-native-parallax-scroll';
-import {Header} from 'react-native-elements';
+
 import {
     Animated,
     Image,
@@ -20,7 +20,7 @@ import Form from '../../components/Form';
 import InputText from '../../components/InputText';
 import ValidationComponent from 'react-native-form-validator';
 import Loader from '../../components/Loader';
-import {baseApi, baseApiBpjs, baseUrlFoto} from '../../service/api';
+import {baseApi, baseApiBpjs} from '../../service/api';
 import {Actions} from 'react-native-router-flux';
 import StickyParalaxHeader from 'react-native-sticky-parallax-header';
 import AwesomeAlert from 'react-native-awesome-alerts';
@@ -34,6 +34,7 @@ import {
     Spinner,
     Root,
     Container,
+    Header,
     Content,
     Button,
     ListItem,
@@ -58,6 +59,8 @@ import moment from 'moment';
 const {height} = Dimensions.get('window');
 const styles = StyleSheet.create({
     container: {
+
+        flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -92,7 +95,7 @@ const styles = StyleSheet.create({
     buttonModalInputText: {
         color: '#ffffff',
         width: 345,
-        backgroundColor: '#1da30b',
+        backgroundColor: '#1c313a',
         borderRadius: 25,
         marginVertical: 2,
         paddingVertical: 13,
@@ -170,13 +173,13 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
             inClickNomorMR: false,
             showPassword: true,
             loading: false,
-            inClickLengkapiProfil: false,
-            jenisRujukan: '',
+            inClickLengkapiProfil:false,
+            jenisRujukan:'',
             dataPasien: [],
             modalVisible: false,
             modalVisibleDokter: false,
             modalVisibleBpjs: false,
-            nomorKtpBpjs: '',
+            nomorKtpBpjs:'',
 
             simpanFavorite: false,
             id_pasien: '',
@@ -184,7 +187,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
             status: 'before',
             nama: '',
             jenisKelaminTampil: '',
-            dataRujukanBpjs: [],
+            dataRujukanBpjs:[],
             data: [],
             dataCaraBayar: [],
             dataRujukan: [],
@@ -192,14 +195,14 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
             dataDokter: [],
             dataTanggal: [],
             dataJam: [
-                {id: 0, name: '08:00:00 - 09:00:00', jam: '08:00:00',tersedia:30},
-                {id: 1, name: '09:00:00 - 10:00:00', jam: '09:00:00',tersedia:30},
-                {id: 2, name: '10:00:00 - 11:00:00', jam: '10:00:00',tersedia:30},
-                {id: 3, name: '11:00:00 - 12:00:00', jam: '11:00:00',tersedia:30},
-                {id: 4, name: '13:00:00 - 14:00:00', jam: '13:00:00',tersedia:30},
-                {id: 5, name: '14:00:00 - 15:00:00', jam: '14:00:00',tersedia:30},
-                {id: 6, name: '15:00:00 - 16:00:00', jam: '15:00:00',tersedia:30},
-                {id: 7, name: '16:00:00 - 17:00:00', jam: '16:00:00',tersedia:30},
+                {id: 0, name: '08:00:00 - 09:00:00', jam: '08:00:00'},
+                {id: 1, name: '09:00:00 - 10:00:00', jam: '09:00:00'},
+                {id: 2, name: '10:00:00 - 11:00:00', jam: '10:00:00'},
+                {id: 3, name: '11:00:00 - 12:00:00', jam: '11:00:00'},
+                {id: 4, name: '13:00:00 - 14:00:00', jam: '13:00:00'},
+                {id: 5, name: '14:00:00 - 15:00:00', jam: '14:00:00'},
+                {id: 6, name: '15:00:00 - 16:00:00', jam: '15:00:00'},
+                {id: 7, name: '16:00:00 - 17:00:00', jam: '16:00:00'},
             ],
 
             page: 1,
@@ -207,11 +210,11 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
             next_page_url: null,
             searchText: null,
             searchAktif: 0,
-            cekRujukan: 3,
+            cekRujukan:3,
             statusLengkap: 0,
 
-            statusMendaftar: 0,
-            idCaraBayar: '',
+            statusMendaftar:0,
+            idCaraBayar:'',
             tahunLahir: '',
             nomor_mr: '',
             nomorKtp: '',
@@ -231,11 +234,11 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
             pilihNrp: '',
             pilihHari: '',
             pilihJam: '',
-            pilihIdPoly: '',
+            pilihIdPoly:'',
             kelas: '',
             idKelas: '',
             no_jaminan: '',
-            pilihFoto:'',
+
 
             chosenDate: new Date(),
             chosenDate1: new Date(),
@@ -248,10 +251,10 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
         });
     }
 
-    componentWillReceiveProps(value) {
-        console.log(value.nomorMr);
+    componentWillReceiveProps(value){
+        console.log(value.nomorMr)
 
-        if (value.nomorMr !== undefined && value.tahunLahir !== undefined) {
+        if(value.nomorMr !== undefined && value.tahunLahir !== undefined){
             this.setState({
                 loading: true,
             });
@@ -271,7 +274,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                     showMessage({
                         message: responseJson.message,
                         type: 'info',
-                        position: 'bottom',
+                        position: 'top',
                     });
 
                     if (parseInt(responseJson.data.no_ktp) !== 0 && responseJson.data.tempat_lahir !== '' &&
@@ -316,7 +319,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                     showMessage({
                         message: responseJson.message,
                         type: 'danger',
-                        position: 'bottom',
+                        position: 'top',
                     });
                     this.setState({
                         loading: false,
@@ -334,15 +337,14 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
 
         }
     }
-
     componentDidMount() {
-        // this.cekDaftar();
-        // if (this.state.nomor_mr != '') {
-        //
-        // }
-        // this.setState({
-        //     isLoading: true,
-        // }, this.getData);
+        this.cekDaftar()
+        if(this.state.nomor_mr != ''){
+
+        }
+        this.setState({
+            isLoading: true,
+        }, this.getData);
 
         var dayName = [];
         var hitung = [];
@@ -371,7 +373,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
 
                 if (hitung.length === 3) {
 
-                } else if (hitung.length < 3 && hitung.length > 2) {
+                }else if (hitung.length < 3 && hitung.length > 2) {
                     tomorrow.setDate(new Date().getDate() + angka + 1);
                     dataTanggalName.push({
                         name: days[someDate.getDay() + 1] + ', ' + (tomorrow.toString().substring(8, 10)) + ' ' + bulan[someDate.getMonth()] + ' ' + someDate.getFullYear(),
@@ -398,6 +400,8 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 hari: dataTanggalName[i].hari,
             });
         }
+
+
 
 
     }
@@ -456,13 +460,13 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                     showMessage({
                         message: 'Rujukan Anda Berlaku',
                         type: 'warning',
-                        position: 'bottom',
+                        position: 'top',
                     });
                 } else {
                     showMessage({
                         message: 'Rujukan Anda Tidak Berlaku',
                         type: 'danger',
-                        position: 'bottom',
+                        position: 'top',
                     });
                 }
 
@@ -470,7 +474,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 showMessage({
                     message: responseJson.metaData.message,
                     type: 'danger',
-                    position: 'bottom',
+                    position: 'top',
                 });
             }
         });
@@ -500,20 +504,20 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                         showMessage({
                             message: 'BPJS anda aktif',
                             type: 'warning',
-                            position: 'bottom',
+                            position: 'top',
                         });
                     } else {
                         showMessage({
                             message: 'BPJS Anda tidak aktif',
                             type: 'danger',
-                            position: 'bottom',
+                            position: 'top',
                         });
                     }
                 } else {
                     showMessage({
                         message: 'No KTP Anda tidak sesuai dengan yang dibpjs',
                         type: 'danger',
-                        position: 'bottom',
+                        position: 'top',
                     });
                 }
 
@@ -535,7 +539,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
             showMessage({
                 message: 'Masukan no bpjs yang valid',
                 type: 'danger',
-                position: 'bottom',
+                position: 'top',
             });
         }
 
@@ -593,8 +597,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                     </ListItem>
                 </List></View>);
     };
-
-    cekDaftar() {
+    cekDaftar(){
         this.setState({
             loading: true,
         });
@@ -606,18 +609,18 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 'Authorization': 'Bearer ' + this.props.getUser.userDetails.token,
             },
             body: JSON.stringify({
-                id: this.props.getUser.userDetails.id,
+                id:this.props.getUser.userDetails.id,
             }),
         }).then((response) => response.json()).then((responseJson) => {
             if (responseJson.success === true) {
                 showMessage({
                     message: responseJson.message,
                     type: 'danger',
-                    position: 'bottom',
+                    position: 'top',
                 });
                 this.setState({
                     loading: false,
-                    statusMendaftar: 1,
+                    statusMendaftar:1
                 });
                 Actions.pop();
 
@@ -625,11 +628,11 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 showMessage({
                     message: responseJson.message,
                     type: 'warning',
-                    position: 'bottom',
+                    position: 'top',
                 });
                 this.setState({
                     loading: false,
-                    statusMendaftar: 0,
+                    statusMendaftar:0
                 });
                 console.log(responseJson.message);
 
@@ -642,12 +645,11 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
             this.state.message = error;
         });
     }
-
     onClickButtonLengkapiProfil = () => {
         this.setState({inClickLengkapiProfil: true});
         Actions.lengkapiProfil({
-            id: this.state.nomorMr,
-            tahunLahir: this.state.tahunLahir,
+            id:this.state.nomorMr,
+            tahunLahir:this.state.tahunLahir
         });
         setTimeout(function () {
             this.setState({inClickLengkapiProfil: false});
@@ -681,7 +683,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                     id: i,
                     name: a[i].cara_bayar,
                     ket: a[i].KET,
-                    idCaraBayar: a[i].id_cara_bayar,
+                    idCaraBayar:a[i].id_cara_bayar,
 
                 });
             }
@@ -731,7 +733,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
     }
 
     showDataDokter(id) {
-        console.log(this.state.tanggalMasuk);
+        console.log(this.state.pilihPoly);
         this.setState({
             loading: true,
             dataDokter: [],
@@ -746,44 +748,21 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
             body: JSON.stringify({
                 id: id,
                 hari: this.state.pilihHari,
-                tanggalKunjungan:this.state.pilihTanggalKunjungan
             }),
         }).then((response) => response.json()).then((responseJson) => {
-
+            console.log(responseJson.data);
             var a = responseJson.data;
             for (let i = 0; i < a.length; i++) {
                 this.state.dataDokter.push({
                     id: i,
                     name: a[i].get_dokter_jadwal[0].dokter_nama,
                     nrp: a[i].get_dokter_jadwal[0].nrp,
-                    foto: a[i].get_dokter_jadwal[0].dokter_fhoto,
                 });
             }
             this.setState({
                 loading: false,
             });
 
-            var jam = []
-            for (let i = 0; i < responseJson.dataJam.length; i++) {
-                jam.push(responseJson.dataJam[i].jam_kunjungan)
-            }
-            console.log(jam)
-            var angka = []
-            for (let i = 0; i < jam.length ; i++) {
-                console.log(jam[i])
-                for (let j = 0; j < this.state.dataJam.length; j++) {
-
-                    if(this.state.dataJam[j].jam === jam[i]){
-
-                        this.state.dataJam[j].tersedia = this.state.dataJam[j].tersedia - (j+1)
-                        this.setState({
-                            dataJam: this.state.dataJam,
-                        });
-
-                    }
-                }
-            }
-            console.log(this.state.dataJam);
             console.log(this.state.dataDokter);
 
 
@@ -826,7 +805,6 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
             console.log(error);
         });
     }
-
     handleLoadMore = () => {
 
         if (this.state.searchAktif === 0 && this.state.next_page_url != null) {
@@ -948,7 +926,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                     showMessage({
                         message: responseJson.metaData.message,
                         type: 'danger',
-                        position: 'bottom',
+                        position: 'top',
                     });
                 }
             });
@@ -982,7 +960,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                     showMessage({
                         message: responseJson.metaData.message,
                         type: 'danger',
-                        position: 'bottom',
+                        position: 'top',
                     });
                 }
             });
@@ -1017,7 +995,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                     showMessage({
                         message: responseJson.metaData.message,
                         type: 'danger',
-                        position: 'bottom',
+                        position: 'top',
                     });
                 }
             });
@@ -1051,7 +1029,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                     showMessage({
                         message: responseJson.metaData.message,
                         type: 'danger',
-                        position: 'bottom',
+                        position: 'top',
                     });
                 }
             });
@@ -1166,7 +1144,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 showMessage({
                     message: responseJson.message,
                     type: 'info',
-                    position: 'bottom',
+                    position: 'top',
                 });
 
                 if (parseInt(responseJson.data.no_ktp) !== 0 && responseJson.data.tempat_lahir !== '' &&
@@ -1217,7 +1195,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 showMessage({
                     message: responseJson.message,
                     type: 'danger',
-                    position: 'bottom',
+                    position: 'top',
                 });
                 this.setState({
                     loading: false,
@@ -1236,7 +1214,8 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
     }
 
     _onSubmitFinish() {
-        if (this.state.caraBayar === 'Umum') {
+        console.log(this.state.caraBayar)
+        if(this.state.caraBayar === 'Umum'){
             this.validate({
                 pilihCaraBayar: {required: true},
                 pilihPoly: {required: true},
@@ -1265,7 +1244,6 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                         jenisKelamin: this.state.jenisKelamin,
                         jamKunjungan: this.state.pilihJam,
                         pilihCaraBayar: this.state.pilihCaraBayar,
-                        pilihJamLabel:this.state.pilihJamLabel,
                         tanggalKunjungan: this.state.pilihTanggalKunjungan,
                         namaRuang: this.state.pilihPoly,
                         idRuang: this.state.pilihIdPoly,
@@ -1281,35 +1259,18 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                         showMessage({
                             message: responseJson.message,
                             type: 'info',
-                            position: 'bottom',
+                            position: 'top',
                         });
                         this.setState({
                             loading: false,
                         });
-                        Actions.pop({
-                            refresh: {
-                                nomorAntrian: responseJson.data.nomor_daftar,
-                                tanggalKunjungan: responseJson.data.tanggal_kunjungan,
-                                jamKunjungan: responseJson.data.jam_kunjungan,
-                                jamKunjunganLabel: responseJson.data.jam_kunjunganLabel,
-                                jamKunjunganAntrian: responseJson.data.jam_kunjunganAntrian,
-                                namaPasien: responseJson.data.nama_pasien,
-                                namaRuang: responseJson.data.nama_ruang,
-                                caraBayar: responseJson.data.cara_bayar,
-                                tanggalMendaftar: responseJson.data.updated_at,
-                                namaDokter: responseJson.data.namaDokterJaga,
-                                tanggalLahir: responseJson.data.tgl_lahir,
-                                nomorMr: responseJson.data.nomr,
-                                jenisKelamin: responseJson.data.jns_kelamin,
-                                statusBerobat: responseJson.data.status_berobat,
-                            },
-                        });
+                        Actions.pop();
 
                     } else {
                         showMessage({
                             message: responseJson.message,
                             type: 'danger',
-                            position: 'bottom',
+                            position: 'top',
                         });
                         this.setState({
                             loading: false,
@@ -1324,17 +1285,17 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                     this.state.message = error;
                 });
             }
-        } else {
-            if (this.state.nomorKtpBpjs === this.state.nomorKtp) {
+        }else{
+            if(this.state.nomorKtpBpjs === this.state.nomorKtp){
                 this.validate({
                     pilihCaraBayar: {required: true},
                     pilihPoly: {required: true},
                     pilihNrp: {required: true},
                     pilihHari: {required: true},
                     pilihJam: {required: true},
-                    noBpjs: {required: true},
-                    no_jaminan: {required: true},
-                    pilihRujukan: {required: true},
+                    noBpjs:{required:true},
+                    no_jaminan:{required:true},
+                    pilihRujukan:{required:true}
                 });
                 if (this.isFormValid()) {
                     this.setState({
@@ -1361,50 +1322,32 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                             namaRuang: this.state.pilihPoly,
                             idRuang: this.state.pilihIdPoly,
                             caraBayar: this.state.caraBayar,
-                            pilihJamLabel:this.state.pilihJamLabel,
                             idCaraBayar: this.state.idCaraBayar,
                             pilihRujukan: this.state.pilihRujukan,
                             pilihDokter: this.state.pilihDokter,
                             pilihNrp: this.state.pilihNrp,
                             noBpjs: this.state.noBpjs,
-                            nomorRujukan: this.state.no_jaminan,
-                            kelas: this.state.kelas,
-                            idKelas: this.state.idKelas,
+                            nomorRujukan:this.state.no_jaminan,
+                            kelas:this.state.kelas,
+                            idKelas:this.state.idKelas
                         }),
                     }).then((response) => response.json()).then((responseJson) => {
                         if (responseJson.success === true) {
                             showMessage({
                                 message: responseJson.message,
                                 type: 'info',
-                                position: 'bottom',
+                                position: 'top',
                             });
                             this.setState({
                                 loading: false,
                             });
-                            Actions.pop({
-                                refresh: {
-                                    nomorAntrian: responseJson.data.nomor_daftar,
-                                    tanggalKunjungan: responseJson.data.tanggal_kunjungan,
-                                    jamKunjungan: responseJson.data.jam_kunjungan,
-                                    jamKunjunganLabel: responseJson.data.jam_kunjunganLabel,
-                                    jamKunjunganAntrian: responseJson.data.jam_kunjunganAntrian,
-                                    namaPasien: responseJson.data.nama_pasien,
-                                    namaRuang: responseJson.data.nama_ruang,
-                                    caraBayar: responseJson.data.cara_bayar,
-                                    tanggalMendaftar: responseJson.data.updated_at,
-                                    namaDokter: responseJson.data.namaDokterJaga,
-                                    tanggalLahir: responseJson.data.tgl_lahir,
-                                    nomorMr: responseJson.data.nomr,
-                                    jenisKelamin: responseJson.data.jns_kelamin,
-                                    statusBerobat: responseJson.data.status_berobat,
-                                },
-                            });
+                            Actions.pop();
 
                         } else {
                             showMessage({
                                 message: responseJson.message,
                                 type: 'danger',
-                                position: 'bottom',
+                                position: 'top',
                             });
                             this.setState({
                                 loading: false,
@@ -1419,15 +1362,16 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                         this.state.message = error;
                     });
                 }
-            } else {
+            }else{
                 showMessage({
                     message: 'Nomor KTP anda dengan yang di BPJS tidak sama',
                     type: 'info',
-                    position: 'bottom',
+                    position: 'top',
                 });
             }
 
         }
+
 
 
     }
@@ -1508,8 +1452,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
         } else {
             return (
                 <List>
-                    <ListItem onPress={() => {
-                    }}>
+                    <ListItem onPress={()=>{}}>
                         <Body>
                             <View style={{flex: 1, flexDirection: 'row', marginTop: 2}}>
                                 <Text>Nama </Text><Text note>{item.nama}</Text>
@@ -1519,8 +1462,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                             </View>
                         </Body>
                         <Right>
-                            <Button onPress={() => {
-                            }} transparent>
+                            <Button onPress={()=>{}} transparent>
                                 <Text>Pilih</Text>
                             </Button>
                         </Right>
@@ -1530,14 +1472,12 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
 
     };
 
-    pilihJam(jam,name) {
-        console.log(name);
+    pilihJam(jam) {
+        console.log(jam);
         this.setState({
             pilihJam: jam,
-            pilihJamLabel:name,
             pilihDokter: this.state.dataDokter[0].name,
             pilihNrp: this.state.dataDokter[0].nrp,
-            pilihFoto:this.state.dataDokter[0].foto
         });
         this.setModalUnvisibleDokter(!this.state.modalVisibleDokter);
     }
@@ -1546,16 +1486,16 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
         return (
             <View>
                 <List>
-                    <ListItem onPress={() => this.pilihJam(item.jam,item.name)} thumbnail>
+                    <ListItem onPress={() => this.pilihJam(item.jam)} thumbnail>
                         <Left>
                             <Text>Jam</Text>
                         </Left>
                         <Body>
-                            <Text style={{color:'gray'}}>{item.name}</Text>
+                            <Text>{item.name}</Text>
                         </Body>
                         <Right>
                             <TouchableOpacity
-                                onPress={() => this.pilihJam(item.jam,item.name)}><Text>Pilih</Text></TouchableOpacity>
+                                onPress={() => this.pilihJam(item.jam)}><Text>Pilih</Text></TouchableOpacity>
                         </Right>
                     </ListItem>
                 </List>
@@ -1568,11 +1508,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 <List>
                     <ListItem thumbnail>
                         <Left>
-                            <Thumbnail source={
-                                item.foto != null ?
-                                    {uri: baseUrlFoto + 'dokter/' + item.foto} :
-                                    require('../../images/dokter.png')
-                            }/>
+                            <Thumbnail source={require('../../images/banner/banner1.jpg')}/>
                         </Left>
                         <Body>
                             <Text>Nama</Text>
@@ -1602,95 +1538,165 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
         const {onChange} = this.props;
         var jenisKel = [];
 
+        if (this.state.jenisKelamin != '') {
+            jenisKel.push(
+                <View>
+                    <Picker
+                        mode="dropdown"
+                        iosIcon={<Icon name="arrow-down"/>}
+                        placeholder="Pilih Jenis Kelamin"
+                        placeholderIconColor="#007aff"
+
+                        selectedValue={this.state.jenisKelamin}
+                        onValueChange={this.onValueChange2.bind(this)}
+                    >
+                        <Picker.Item label="Perempuan" value="0"/>
+                        <Picker.Item label="Laki - Laki" value="1"/>
+                    </Picker>
+                    {this.isFieldInError('jenisKelamin') && this.getErrorsInField('jenisKelamin').map(errorMessage =>
+                        <Text>{errorMessage}</Text>)}
+                </View>,
+            );
+        } else {
+            jenisKel.push(
+                <View>
+
+                </View>,
+            );
+        }
         return (
             <View style={styles.container}>
-                <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
-                <Header
-                    statusBarProps={{barStyle: 'light-content'}}
-                    containerStyle={{
-                        backgroundColor: '#1da30b',
-                        justifyContent: 'space-around',
-                    }}
-                    barStyle="light-content"
-                    placement="center"
-                    centerComponent={{text: 'Pendaftaran', style: {color: '#fff'}}}
-                />
                 <LoaderModal
                     loading={this.state.loading}/>
                 {this.state.statusIsi === 0 ?
                     <View>
-                        {/*<TextInput*/}
-                        {/*    onTouchStart={() => this.setModalVisible(true)}*/}
-                        {/*    pointerEvents="none"*/}
-                        {/*    onChangeText={(nomor_mr) => this.setState({nomor_mr})}*/}
-                        {/*    defaultValue={this.state.nomor_mr}*/}
-                        {/*    onFocus={() => this.setModalVisible(true)}*/}
-                        {/*    ref="nomor_mr"*/}
-                        {/*    style={styles.inputBox}*/}
-                        {/*    underlineColorAndroid="rgba(0,0,0,0)"*/}
-                        {/*    placeholder="Masukan Nomor MR"*/}
-                        {/*    placeholderTextColor="rgba(255,255,255,0.8)"*/}
-                        {/*    selectionColor="#999999"*/}
-                        {/*/>*/}
-                        {this.state.status === 'after' ?
-                            <View style={{padding: 5}}>
-                                <View style={{marginBottom: 10, padding: 5}}>
-                                    <Text style={styles.signupButton}>Nomor Mr </Text>
-                                    <Text
-                                        style={styles.signupText}>{this.state.nomorMr}</Text>
-                                </View>
-                                <View style={{marginBottom: 10, padding: 5}}>
-                                    <Text style={styles.signupButton}>Nama</Text>
-                                    <Text style={styles.signupText}>{this.state.nama}</Text>
-                                </View>
-                                {/*<ListItem style={{padding: 5}} icon>*/}
-                                {/*    <Left>*/}
-                                {/*        <Text>Ingin menyimpan sebagai favorit?</Text>*/}
-                                {/*    </Left>*/}
-                                {/*    <Body>*/}
-                                {/*        <Switch*/}
-                                {/*            onValueChange={this.toggleSwitch}*/}
-                                {/*            value={this.state.simpanFavorite}*/}
-                                {/*        />*/}
-                                {/*    </Body>*/}
-                                {/*</ListItem>*/}
-                                <TouchableOpacity style={styles.button}
-                                                  onPress={this._onSubmitNama.bind(this)}>
-                                    <Text style={styles.buttonText}>Lanjutkan</Text>
-                                </TouchableOpacity>
-                            </View> : this.state.status === 'before' ?
-                                <View>
-                                    <TextInput
-                                        keyboardType={'numeric'}
-                                        defaultValue={this.state.nomorMr}
-                                        ref="nomorMr"
-                                        onChangeText={(nomorMr) => this.setState({nomorMr})}
-                                        style={styles.inputBoxModal}
-                                        underlineColorAndroid="rgba(0,0,0,0)"
-                                        placeholder="Masukan Nomor MR"
-                                        placeholderTextColor="rgba(255,255,255,0.8)"
-                                        selectionColor="#999999"
-                                    />
-                                    <TextInput
-                                        keyboardType={'numeric'}
-                                        defaultValue={this.state.tahunLahir}
-                                        ref="tahunLahir"
-                                        onChangeText={(tahunLahir) => this.setState({tahunLahir})}
-                                        style={styles.inputBoxModal}
-                                        underlineColorAndroid="rgba(0,0,0,0)"
-                                        placeholder="Masukan Tahun Lahir"
-                                        placeholderTextColor="rgba(255,255,255,0.8)"
-                                        selectionColor="#999999"
-                                    />
-                                    <TouchableOpacity style={styles.buttonModal}
-                                                      onPress={this._onSubmit.bind(this)}>
-                                        <Text style={styles.buttonText}>Submit</Text>
-                                    </TouchableOpacity></View> : <View></View>
-                        }
+
+                        <TextInput
+                            onTouchStart={()=> this.setModalVisible(true)}
+                            pointerEvents="none"
+                            onChangeText={(nomor_mr) => this.setState({nomor_mr})}
+                            defaultValue={this.state.nomor_mr}
+                            onFocus={() => this.setModalVisible(true)}
+                            ref="nomor_mr"
+                            style={styles.inputBox}
+                            underlineColorAndroid="rgba(0,0,0,0)"
+                            placeholder="Masukan Nomor MR"
+                            placeholderTextColor="rgba(255,255,255,0.8)"
+                            selectionColor="#999999"
+                        />
                         {this.isFieldInError('nomorMr') && this.getErrorsInField('nomorMr').map(errorMessage =>
                             <Text>{errorMessage}</Text>)}
+
+                        <Modal
+                            onRequestClose={() => {
+                                this.setModalUnvisible(!this.state.modalVisible);
+                            }}
+                            transparent={true}
+                            animationType="slide"
+                            visible={this.state.modalVisible}
+                        >
+                            <Container style={{marginBottom: 0, backgroundColor: '#fffff', marginTop: 60}}>
+                                <View style={{flex: 1}}>
+                                    <Content>
+                                        <Tabs initialPage={0} back>
+                                            <Tab tabStyle={{backgroundColor: 'white'}} textStyle={{color: 'black'}}
+                                                 activeTabStyle={{backgroundColor: '#1da30b'}}
+                                                 activeTextStyle={{color: '#fff', fontWeight: 'normal'}}
+                                                 heading="Masukan Baru">
+                                                <View style={{
+                                                    marginVertical: 15, alignItems: 'center',
+                                                    justifyContent: 'center', backgroundColor: 'white',
+                                                }}>
+                                                    {this.state.status === 'after' ?
+                                                        <View style={{padding: 5}}>
+                                                            <View style={{marginBottom: 10, padding: 5}}>
+                                                                <Text style={styles.signupButton}>Nomor Mr </Text>
+                                                                <Text
+                                                                    style={styles.signupText}>{this.state.nomorMr}</Text>
+                                                            </View>
+                                                            <View style={{marginBottom: 10, padding: 5}}>
+                                                                <Text style={styles.signupButton}>Nama</Text>
+                                                                <Text style={styles.signupText}>{this.state.nama}</Text>
+                                                            </View>
+                                                            <ListItem style={{padding: 5}} icon>
+                                                                <Left>
+                                                                    <Text>Ingin menyimpan sebagai favorit?</Text>
+                                                                </Left>
+                                                                <Body>
+                                                                    <Switch
+                                                                        onValueChange={this.toggleSwitch}
+                                                                        value={this.state.simpanFavorite}
+                                                                    />
+                                                                </Body>
+                                                            </ListItem>
+                                                            <TouchableOpacity style={styles.button}
+                                                                              onPress={this._onSubmitNama.bind(this)}>
+                                                                <Text style={styles.buttonText}>Lanjutkan</Text>
+                                                            </TouchableOpacity>
+                                                        </View> : this.state.status === 'before' ?
+                                                            <View>
+                                                                <TextInput
+                                                                    keyboardType={'numeric'}
+                                                                    defaultValue={this.state.nomorMr}
+                                                                    ref="nomorMr"
+                                                                    onChangeText={(nomorMr) => this.setState({nomorMr})}
+                                                                    style={styles.inputBoxModal}
+                                                                    underlineColorAndroid="rgba(0,0,0,0)"
+                                                                    placeholder="Masukan Nomor MR"
+                                                                    placeholderTextColor="rgba(255,255,255,0.8)"
+                                                                    selectionColor="#999999"
+                                                                />
+                                                                <TextInput
+                                                                    keyboardType={'numeric'}
+                                                                    defaultValue={this.state.tahunLahir}
+                                                                    ref="tahunLahir"
+                                                                    onChangeText={(tahunLahir) => this.setState({tahunLahir})}
+                                                                    style={styles.inputBoxModal}
+                                                                    underlineColorAndroid="rgba(0,0,0,0)"
+                                                                    placeholder="Masukan Tahun Lahir"
+                                                                    placeholderTextColor="rgba(255,255,255,0.8)"
+                                                                    selectionColor="#999999"
+                                                                />
+                                                                <TouchableOpacity style={styles.buttonModal}
+                                                                                  onPress={this._onSubmit.bind(this)}>
+                                                                    <Text style={styles.buttonText}>Submit</Text>
+                                                                </TouchableOpacity></View> : <View></View>
+                                                    }
+                                                </View>
+                                            </Tab>
+                                            <Tab tabStyle={{backgroundColor: 'white'}} textStyle={{color: 'black'}}
+                                                 activeTabStyle={{backgroundColor: '#1da30b'}}
+                                                 activeTextStyle={{color: '#fff', fontWeight: 'normal'}}
+                                                 heading="Daftar Tersimpan">
+                                                <View>
+                                                    <Body style={{padding: 5}} searchBar rounded transparent>
+                                                        <Item>
+                                                            <Icon name="ios-search"/>
+                                                            <Input onChangeText={this._onChangeSearchText.bind(this)}
+                                                                   placeholder="Cari Nama Favorit"/>
+                                                        </Item>
+                                                    </Body>
+                                                    <FlatList
+                                                        style={{
+                                                            marginBottom: 28,
+                                                            backgroundColor: '#F5FCFF',
+                                                        }}
+                                                        renderItem={this.renderRow}
+                                                        keyExtractor={(item, index) => index.toString()}
+                                                        onEndReached={this.handleLoadMore}
+                                                        onEndReachedThreshold={0.1}
+                                                        ListFooterComponent={this.renderFooter}
+                                                        data={this.state.data}/>
+                                                </View>
+                                            </Tab>
+                                        </Tabs>
+                                    </Content>
+                                </View>
+                            </Container>
+                        </Modal>
                     </View> :
                     <ScrollView>
+                        <View style={{justifyContent: 'center', alignItems: 'center'}}>
                             <View style={{height: 200, paddingVertical: 20}}>
                                 <Grid>
                                     <Col style={{width: 120, height: 100}}><PhotoUpload
@@ -1774,14 +1780,13 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                                 </Grid>
 
                             </View>
-                            <View style={{marginBottom: 50, marginTop: 65, justifyContent: 'center'}}>
+                            <View style={{marginBottom: 10, marginTop: 65, justifyContent: 'center'}}>
                                 {this.state.statusLengkap === 1 ?
-                                    <View style={{justifyContent: 'center', alignItems: 'center'}}>
-                                        <TouchableOpacity style={styles.button}
-                                                          onPress={!this.state.inClickLengkapiProfil ? this.onClickButtonLengkapiProfil : null}>
+                                    <View style={{justifyContent: 'center',alignItems: 'center'}}>
+                                        <TouchableOpacity style={styles.button}  onPress={!this.state.inClickLengkapiProfil ? this.onClickButtonLengkapiProfil : null}>
                                             <Text style={styles.buttonText}>Lengkapi Profil Anda Terlebih dahulu</Text></TouchableOpacity>
                                     </View> :
-                                    <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                                    <View style={{justifyContent: 'center',alignItems: 'center'}}>
                                         <Select2 placeholderTextColor="#ffffff"
                                                  listEmptyTitle="Tidak ada data"
                                                  cancelButtonText="Keluar"
@@ -1803,11 +1808,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
 
                                                  }}
                                                  onRemoveItem={data => {
-                                                     this.setState({
-                                                         pilihCaraBayar: '',
-                                                         tanggalMasuk: '',
-                                                         pilihHari: '',
-                                                     });
+                                                     this.setState({pilihCaraBayar: '', tanggalMasuk: '', pilihHari: ''});
                                                  }}
                                         />
                                         {this.isFieldInError('pilihHari') && this.getErrorsInField('pilihHari').map(errorMessage =>
@@ -1828,7 +1829,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                                                      this.setState({
                                                          pilihCaraBayar: this.state.dataCaraBayar[data].name,
                                                          caraBayar: this.state.dataCaraBayar[data].ket,
-                                                         idCaraBayar: this.state.dataCaraBayar[data].idCaraBayar,
+                                                         idCaraBayar:this.state.dataCaraBayar[data].idCaraBayar,
                                                      });
 
                                                      if (this.state.dataCaraBayar[data].ket === 'BPJS') {
@@ -1899,11 +1900,9 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                                                             </View>
                                                             : this.state.cekRujukan === 2 ?
                                                                 <View>
-                                                                    <TouchableOpacity
-                                                                        style={styles.buttonModalInputText}
-                                                                        onPress={() => this.showModalBpjs(true)}>
-                                                                        <Text style={styles.buttonText}>Pilih
-                                                                            Rujukan</Text>
+                                                                    <TouchableOpacity style={styles.buttonModalInputText}
+                                                                                      onPress={() => this.showModalBpjs(true)}>
+                                                                        <Text style={styles.buttonText}>Pilih Rujukan</Text>
                                                                     </TouchableOpacity>
                                                                     <List>
                                                                         <ListItem>
@@ -1911,13 +1910,12 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                                                                                 <Text>No Rujukan</Text>
                                                                             </Left>
                                                                             <Body>
-                                                                                <Text
-                                                                                    note>{this.state.no_jaminan}</Text>
+                                                                                <Text note>{this.state.no_jaminan}</Text>
                                                                             </Body>
                                                                         </ListItem>
                                                                     </List>
                                                                 </View>
-                                                                : this.state.cekRujukan === 3 ? <View></View> :
+                                                                : this.state.cekRujukan === 3?<View></View>:
                                                                     <View></View>}
                                                 </View>
                                                 :
@@ -1939,7 +1937,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                                                  onSelect={data => {
                                                      this.setState({
                                                          pilihPoly: this.state.dataPoly[data].name,
-                                                         pilihIdPoly: this.state.dataPoly[data].idPoly,
+                                                         pilihIdPoly:this.state.dataPoly[data].idPoly,
                                                          dataDokter: [],
                                                          pilihDokter: '',
                                                          pilihJam: '',
@@ -1970,11 +1968,8 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                                                             <List>
                                                                 <ListItem thumbnail>
                                                                     <Left>
-                                                                        <Thumbnail source={
-                                                                            this.state.pilihFoto != null ?
-                                                                                {uri: baseUrlFoto + 'dokter/' + this.state.pilihFoto} :
-                                                                                require('../../images/dokter.png')
-                                                                        }/>
+                                                                        <Thumbnail
+                                                                            source={require('../../images/banner/banner1.jpg')}/>
                                                                     </Left>
                                                                     <Body>
                                                                         <Text note>{this.state.pilihNrp}</Text>
@@ -1994,8 +1989,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                                                         </View>
                                                     </View>}
                                             </View> : <View></View>}
-                                        <TouchableOpacity style={styles.button}
-                                                          onPress={this._onSubmitFinish.bind(this)}>
+                                        <TouchableOpacity style={styles.button} onPress={this._onSubmitFinish.bind(this)}>
                                             <Text style={styles.buttonText}>Go Daftar</Text>
                                         </TouchableOpacity>
                                         <Modal
@@ -2071,7 +2065,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                                         </Modal>
                                     </View>}
                             </View>
-
+                        </View>
                     </ScrollView>
                 }
             </View>

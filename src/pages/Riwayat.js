@@ -1,32 +1,16 @@
 import React, {Component} from 'react';
-import RNFetchBlob from 'react-native-fetch-blob';
 import QRCode from 'react-native-qrcode-svg';
-import RNFS from "react-native-fs"
-import CameraRoll from "@react-native-community/cameraroll";
-import {
-    Badge,
-    Container,
-    Header,
-    Content,
-    List,
-    ListItem,
-    Item,
-    Input,
-    Thumbnail,
-    Text,
-    Left,
-    Body,
-    Right,
-    Button,
-    Root, Icon,
-    Title,
-    Fab,
-} from 'native-base';
+import RNFS from 'react-native-fs';
+import CameraRoll from '@react-native-community/cameraroll';
+import {Header, ListItem} from 'react-native-elements';
 import ModalKomponen from '../components/Modal';
 import CustomRow from '../components/CustomRow';
-import {baseApi} from '../service/api';
+import {baseApi, baseUrlFoto} from '../service/api';
 import LoaderModal from '../components/LoaderModal';
+
 import {
+    ScrollView,
+    Text,
     ToastAndroid,
     ActivityIndicator,
     View,
@@ -37,12 +21,13 @@ import {
     Dimensions,
     Modal,
     Share,
-    SearchBar, RefreshControl,
+    SearchBar, RefreshControl, StatusBar,
 } from 'react-native';
 import moment from 'moment';
 import HTMLView from 'react-native-htmlview';
 import {connect} from 'react-redux';
 import StepIndicator from 'react-native-step-indicator';
+import ViewShot from 'react-native-view-shot';
 
 const {height} = Dimensions.get('window');
 const resources = {
@@ -99,8 +84,10 @@ class Riwayat extends Component {
             dataPostTanggal: null,
             searchText: null,
             searchAktif: 1,
-            svg:'',
+            svg: '',
 
+            index: 0,
+            dataQrCode: [],
             namaPasien: '',
             namaDokter: '',
             tanggalKunjungan: '',
@@ -109,12 +96,16 @@ class Riwayat extends Component {
             nomorMr: '',
             jenisKelamin: '',
             status_berobat: '',
-            busy:true,
-            imageSaved:false,
+            busy: true,
+            imageSaved: false,
             currentPosition: 0,
             inClick: false,
             idShuttle: this.props.id,
             idTrip: this.props.idTrip,
+            tanggalMendaftar: '',
+            namaRuang: '',
+            jamKunjunganLabel:'',
+            caraBayar: '',
 
         };
     }
@@ -123,44 +114,14 @@ class Riwayat extends Component {
         this.setState({currentPosition: position});
     }
 
-    componentWillReceiveProps(value) {
-        this.setState({
-            isLoading: true,
-        }, this.getData);
-    }
-
     componentDidMount() {
+
         this.setState({
             isLoading: true,
         }, this.getData);
 
     }
 
-    downloadPdf() {
-
-        var date = new Date();
-        var url = 'http://www.clker.com/cliparts/B/B/1/E/y/r/marker-pin-google-md.png';
-        var ext = this.extention(url);
-        ext = '.' + ext[0];
-        const {config, fs} = RNFetchBlob;
-        let PictureDir = fs.dirs.PictureDir;
-        let options = {
-            fileCache: true,
-            addAndroidDownloads: {
-                useDownloadManager: true,
-                notification: true,
-                path: PictureDir + '/image_' + Math.floor(date.getTime() + date.getSeconds() / 2) + ext,
-                description: 'Image',
-            },
-        };
-        config(options).fetch('GET', url).then((res) => {
-            Alert.alert('Success Downloaded');
-        });
-    }
-
-    extention(filename) {
-        return (/[.]/.exec(filename)) ? /[^.]+$/.exec(filename) : undefined;
-    }
 
     setModalUnvisible(visible) {
         this.setState({
@@ -170,7 +131,7 @@ class Riwayat extends Component {
 
     handleLoadMore = () => {
 
-        if (this.state.data.length > 5) {
+        if (this.state.data.length >= 5) {
             this.setState(
                 {page: this.state.page + 1, isLoading: true},
                 this.getData,
@@ -188,8 +149,16 @@ class Riwayat extends Component {
         );
     };
 
+    hideAlert = () => {
+
+        this.setState({
+            showAlert: false,
+        });
+
+    };
+
     getData = async () => {
-        console.log(this.props.getUser.userDetails.id);
+
         const url = baseApi + '/user/getRiwayatPendaftaran?page=' + this.state.page;
         fetch(url, {
             method: 'POST',
@@ -207,7 +176,6 @@ class Riwayat extends Component {
                 data: this.state.data.concat(responseJson.data.data),
             });
 
-            console.log(responseJson.data.data);
         }).catch((error) => {
             console.log(error);
         });
@@ -248,25 +216,53 @@ class Riwayat extends Component {
 
         }
 
-        this.setState({
+        this.state.dataQrCode = [{
             modalVisible: visible,
+            index: id,
+            caraBayar: this.state.data[id].cara_bayar,
+            namaRuang: this.state.data[id].nama_ruang,
+            tanggalMendaftar: this.state.data[id].tanggal_daftar,
             namaPasien: this.state.data[id].nama_pasien,
             namaDokter: this.state.data[id].namaDokterJaga,
-            tanggalKunjungan: this.state.data[id].tgl_masuk,
+            tanggalKunjungan: this.state.data[id].tanggal_kunjungan,
             jamKunjungan: this.state.data[id].jam_kunjungan,
+            jamKunjunganLabel: this.state.data[id].jam_kunjunganAntrian,
             tanggalLahir: this.state.data[id].tgl_lahir,
             nomorMr: this.state.data[id].nomr,
             jenisKelamin: this.state.data[id].jns_kelamin,
             statusBerobat: this.state.data[id].status_berobat,
             currentPosition: posisiSekarang,
+        }];
+
+        this.setState({
+            modalVisible: visible,
+            index: id,
+            caraBayar: this.state.data[id].cara_bayar,
+            namaRuang: this.state.data[id].nama_ruang,
+            tanggalMendaftar: this.state.data[id].tanggal_daftar,
+            namaPasien: this.state.data[id].nama_pasien,
+            namaDokter: this.state.data[id].namaDokterJaga,
+            tanggalKunjungan: this.state.data[id].tanggal_kunjungan,
+            jamKunjungan: this.state.data[id].jam_kunjungan,
+            jamKunjunganLabel: this.state.data[id].jam_kunjunganLabel,
+            tanggalLahir: this.state.data[id].tgl_lahir,
+            nomorMr: this.state.data[id].nomr,
+            jenisKelamin: this.state.data[id].jns_kelamin,
+            statusBerobat: this.state.data[id].status_berobat,
+            currentPosition: posisiSekarang,
+            dataQrCode: this.state.dataQrCode,
         });
 
 
-    }
-    _onRefresh = () => {
-        this.setState({isLoading: true,}, this.showData);
+        console.log(this.state.dataQrCode);
+
 
     }
+
+    _onRefresh = () => {
+        this.setState({isLoading: true}, this.showData);
+
+    };
     searchData = async () => {
         const url = baseApi + '/user/berita?page=';
         fetch(url, {
@@ -305,79 +301,77 @@ class Riwayat extends Component {
         }
 
     }
+
     saveQrToDisk() {
-        this.svg.toDataURL((data) => {
-            RNFS.writeFile(RNFS.CachesDirectoryPath+"/some-name.png", data, 'base64')
-                .then((success) => {
-                    return CameraRoll.saveToCameraRoll("file:///sdcard/img.png", 'photo')
-                })
-                .then(() => {
-                    this.setState({ busy: false, imageSaved: true  })
-                    ToastAndroid.show('Saved to gallery !!', ToastAndroid.SHORT)
-                }).catch((err) => {
-                console.warn(err.message);
-            });
-        })
-    }
+        this.refs.viewShot.capture().then(uri => {
+            console.log('do something with ', uri);
 
+            CameraRoll.saveToCameraRoll(uri, 'photo');
 
-    shareQR(){
-        this.svg.toDataURL((data) => {
-            console.log(data)
-            const shareImageBase64 = {
-                title: "QR",
-                message: "Ehi, this is my QR code",
-                url: `data:image/png;base64,${data}`
-            };
-            Share.open(shareImageBase64);
         });
+        // this.svg.toDataURL((data) => {
+        //     RNFS.writeFile(RNFS.CachesDirectoryPath + '/some-name.png', data, 'base64')
+        //         .then((success) => {
+        //             return CameraRoll.saveToCameraRoll(RNFS.CachesDirectoryPath + '/some-name.png', 'photo');
+        //
+        //         })
+        //         .then(() => {
+        //             this.setState({busy: false, imageSaved: true});
+        //             ToastAndroid.show('Disimpan di galery !!', ToastAndroid.SHORT);
+        //         }).catch((err) => {
+        //         console.warn(err.message);
+        //     });
+        // });
     }
 
     renderRow = ({item, index}) => {
         moment.locale('id');
         var time = moment(item.tgl_masuk).format('LLLL');
         return (
-            <List>
-                <ListItem onPress={() => {
-                    this.setModalVisible(true, index);
-                }}>
-                    <Body>
-                        <Text>{item.nama_pasien}</Text>
-                        <View style={{flex: 1, flexDirection: 'row', marginTop: 10}}>
-                            <Text note>{item.namaDokterJaga}</Text>
-                        </View>
-                        <View style={{flex: 1, flexDirection: 'row', marginTop: 10}}>
-                            <Text note>{time}</Text>
-                        </View>
-                        <View style={{flex: 1, flexDirection: 'row', marginTop: 10}}>
-                            <Badge danger><Text note>{item.status_berobat}</Text></Badge>
-                        </View>
-                    </Body>
-                    <Right>
-                        <Button transparent onPress={() => {
-                            this.setModalVisible(true, item.id);
-                        }}>
-                            <Text>View</Text>
-                        </Button>
-                    </Right>
-                </ListItem>
-            </List>);
+            <ListItem onPress={() => {
+                this.setModalVisible(true, index);
+            }}
+
+                      title={item.nama_pasien}
+                      leftAvatar={{
+                          source: {uri: baseUrlFoto + 'profile/' + item.foto},
+                          title: item.nama_pasien[0],
+                      }}
+                      subtitle={<View>
+                          <Text style={{color: 'grey'}}>{item.namaDokterJaga}</Text>
+                          <Text style={{color: 'grey'}}>{item.status_berobat}</Text>
+                          <Text>{time}</Text></View>}
+                      bottomDivider
+                      chevron
+            >
+            </ListItem>
+        );
     };
 
 
     render() {
         let base64Logo = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAA..';
         return (
-            <Container>
-                <Content  refreshControl={
-                    <RefreshControl
-                        refreshing={this.state.refreshing}
-                        onRefresh={this._onRefresh}
-                    />
-                }>
-            <View style={{flex: 1, height: height}}>
+
+            <View>
+                <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
+                <Header
+                    statusBarProps={{barStyle: 'light-content'}}
+                    containerStyle={{
+                        backgroundColor: '#1da30b',
+                        justifyContent: 'space-around',
+                    }}
+                    barStyle="light-content"
+                    placement="center"
+                    centerComponent={{text: 'Riwayat', style: {fontWeight: 'bold', color: '#fff'}}}
+                />
+
                 <FlatList
-                    style={styles.container}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={this.state.refreshing}
+                            onRefresh={this._onRefresh}
+                        />}
                     renderItem={this.renderRow}
                     keyExtractor={(item, index) => index.toString()}
                     onEndReached={this.handleLoadMore}
@@ -397,52 +391,85 @@ class Riwayat extends Component {
                     }}
                     animationType="slide"
                     visible={this.state.modalVisible}
-                >
-                    <Container style={{margin: 0, marginBottom: 0, backgroundColor: '#fff'}}>
-                        <View style={{flex: 1, justifyContent: 'center'}}>
-                            <Content style={{margin: 5}}>
+                ><ScrollView style={{backgroundColor: 'white'}}>
+                    <ListItem
+                        title={this.state.namaPasien}
+                        subtitle={moment(this.state.tanggalKunjungan).format('LLLL')
+                        }
+                    >
+                    </ListItem>
+                    <View style={{backgroundColor: 'white'}}>
+                        <StepIndicator
+                            direction="horizontal"
+                            stepCount={labels.length}
+                            customStyles={customStyles}
+                            currentPosition={this.state.currentPosition}
+                            labels={labels}
+                        />
+                        <ViewShot ref="viewShot" style={{padding: 20, alignItems: 'center',backgroundColor: 'white'}}
+                                  options={{format: 'png', quality: 20}}>
 
-                                <List>
-                                    <ListItem>
-                                        <Left>
-                                            <Text>{this.state.namaPasien}</Text>
-                                        </Left>
-                                        <Body>
-                                            <Text note>{moment(this.state.tanggalKunjungan).format('LLLL')}</Text>
-                                        </Body>
-                                    </ListItem>
-                                </List>
-                                <View style={{padding: 20}}>
-                                    <StepIndicator
-                                        direction="horizontal"
-                                        stepCount={labels.length}
-                                        customStyles={customStyles}
-                                        currentPosition={this.state.currentPosition}
-                                        labels={labels}
+                            <View>
+                                {this.state.dataQrCode.length != 0  ?
+                                    <QRCode
+                                        size={200}
+                                        value={this.state.dataQrCode}
+                                        logoSize={30}
+                                        logoBackgroundColor='transparent'
+                                        getRef={(c) => (this.svg = c)}
                                     />
-                                </View>
-                                <View style={{padding: 20}}>
-                                    <Body>
-                                        <TouchableOpacity onPress={() => {this.saveQrToDisk()}}>
-                                        <QRCode
-                                            size={200}
-                                            value="Hellow World"
-                                            logoSize={30}
-                                            logoBackgroundColor='transparent'
-                                            getRef={(c) => (this.svg = c)}
-                                        />
-                                        </TouchableOpacity>
-                                    </Body>
-                                </View>
+                                    :null}
 
-                            </Content>
-
-                        </View>
-                    </Container>
+                            </View>
+                            <View style={{flexDirection: 'row',marginTop:10}}>
+                                <View style={{width: 150, backgroundColor: 'white'}}>
+                                    <Text style={{fontSize: 12}}>Tanggal</Text>
+                                    <Text style={{fontSize: 12}}>No MR</Text>
+                                    <Text style={{fontSize: 12}}>Nama</Text>
+                                    <Text style={{fontSize: 12}}>Tgl Kunjungan</Text>
+                                    <Text style={{fontSize: 12}}>Jam Kunjungan</Text>
+                                    <Text style={{fontSize: 12}}>Poly Tujuan</Text>
+                                    <Text style={{fontSize: 12}}>Cara Bayar</Text>
+                                </View>
+                                <View style={{width: 150, backgroundColor: 'white'}}>
+                                    <Text style={{fontSize: 12}}>: {this.state.tanggalMendaftar}</Text>
+                                    <Text style={{fontSize: 12}}>: {this.state.nomorMr}</Text>
+                                    <Text style={{fontSize: 12}}>: {this.state.namaPasien}</Text>
+                                    <Text style={{fontSize: 12}}>: {this.state.tanggalKunjungan}</Text>
+                                    <Text style={{fontSize: 12}}>: {this.state.jamKunjunganLabel}</Text>
+                                    <Text style={{fontSize: 12}}>: {this.state.namaRuang}</Text>
+                                    <Text style={{fontSize: 12}}>: {this.state.caraBayar}</Text>
+                                </View>
+                            </View>
+                            <View style={{padding:10,backgroundColor: 'white'}}>
+                                <Text style={{fontSize: 12}}>Mohon Diperhatikan</Text>
+                                <Text style={{fontSize: 8}}>1. Pasien diharapkan hadir sebelum
+                                    pukul {this.state.jamKunjungan} </Text>
+                                <Text style={{fontSize: 8}}>2. Silahkan datang ke counter checkin yang sudah kami
+                                    sediakan</Text>
+                                <Text style={{fontSize: 8}}>3. bawalah bukti reservasi, Kartu Pasien, Kartu BPJS,
+                                    dan surat rujukan/Surat Kontrol ulang yang masih berlaku</Text>
+                            </View>
+                            <View style={{padding:10,backgroundColor: 'white'}}>
+                                <Text style={{fontSize: 12}}>Catatan</Text>
+                                <Text style={{fontSize: 8}}>1. Pasien yang mendaftar online akan dilayani jika,
+                                    Membawa bukti reservasi pendaftaran online, kartu bpjs, dan surat rujukan yang
+                                    masih berlaku (Rujukan faskes 1 berlaku selama 90 Hari)</Text>
+                                <Text style={{fontSize: 8}}>2. Jika anda datang lewat dari jam kunjungan anda, anda
+                                    tidak akan dilayani</Text>
+                            </View>
+                        </ViewShot>
+                    </View>
+                    <View style={{alignItems: 'center', padding:10,justifyContent: 'center'}}><TouchableOpacity
+                        style={styles.button} onPress={() => {
+                        this.saveQrToDisk();
+                    }}>
+                        <Text style={styles.buttonText}>Simpan Bukti Reservasi</Text>
+                    </TouchableOpacity>
+                    </View>
+                </ScrollView>
                 </Modal>
             </View>
-                </Content>
-            </Container>
         );
     }
 }
@@ -464,6 +491,19 @@ const styles = StyleSheet.create({
         borderBottomColor: '#ccc',
         borderBottomWidth: 1,
         marginBottom: 10,
+    },
+    buttonText: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: '#ffffff',
+        textAlign: 'center',
+    },
+    button: {
+        width: 300,
+        backgroundColor: 'orange',
+        borderRadius: 25,
+        marginVertical: 2,
+        paddingVertical: 13,
     },
     itemImage: {
         width: '100%',

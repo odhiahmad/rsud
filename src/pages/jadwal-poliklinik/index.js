@@ -1,64 +1,49 @@
 import React, {Component, useEffect} from 'react';
-import {baseApi} from '../../service/api';
+import {baseApi, baseUrlFoto} from '../../service/api';
+import CustomLoader from '../../components/CustomLoader';
+import CustomLoader1 from '../../components/CustomLoader';
+import {ListItem, Header, Badge} from 'react-native-elements';
 import {
+    StatusBar,
     ScrollView,
     StyleSheet,
     Text,
     View,
     ActivityIndicator,
     TouchableHighlight,
-    TouchableOpacity, Image,
+    TouchableOpacity, Image, FlatList,
 } from 'react-native';
 import Modal from 'react-native-modal';
-import {
-    Col, Row, Grid,
-    Item,
-    H2,
-    Spinner,
-    Root,
-    Container,
-    Header,
-    Content,
-    Button,
-    ListItem,
-    Icon,
-    Left,
-    Body,
-    Right,
-    Switch,
-    ActionSheet,
-    Card, CardItem,
-} from 'native-base';
-
-
-var BUTTONS = [
-    'Kelas 1', 'Kelas 2', 'Kelas 3', 'Isolasi', 'Incubator', 'Covis', 'HCU',
-
-];
-var DESTRUCTIVE_INDEX = 3;
-var CANCEL_INDEX = 4;
+import LoaderModal from '../../components/LoaderModal';
+import moment from 'moment';
 
 export default class index extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
+            loadingModal: false,
+            loading: false,
             namaKelas: null,
             isLoading: true,
             dataSource: null,
+            data: [],
             dataDetail: null,
             isLoadingDataModal: true,
             isModalVisible: false,
             modalVisible: false,
+            urlImage: '',
         };
     }
 
     componentDidMount() {
-
+        this.setState({
+            loading: true,
+        });
         return fetch(baseApi + '/user/poly').then((response) => response.json()).then((responseJson) => {
             this.setState({
-                isLoading: false,
-                dataSource: responseJson.data,
+                loading: false,
+                data: responseJson.data,
             });
         })
             .catch((error) => {
@@ -66,18 +51,17 @@ export default class index extends Component {
             });
     }
 
-    componentWillUnmount() {
-
-    }
 
     setModalUnvisible(visible) {
         this.setState({modalVisible: visible, dataDetail: null});
     }
 
     setModalVisible(visible, id, namaKelas) {
+        console.log(id);
         this.setState({
             namaKelas: namaKelas,
             modalVisible: visible,
+            loadingModal: true,
         });
         fetch(baseApi + '/user/polyDetail', {
             method: 'POST',
@@ -91,8 +75,9 @@ export default class index extends Component {
 
         }).then((response) => response.json()).then((responseJson) => {
             this.setState({
-                isLoadingDataModal: false,
+                loadingModal: false,
                 dataDetail: responseJson.data,
+                urlImage: responseJson.urlImage,
 
             });
 
@@ -103,140 +88,95 @@ export default class index extends Component {
 
     }
 
+    renderRowDetail = ({item, index}) => {
+        console.log(this.state.urlImage + '/' + item.get_dokter_jadwal[0].dokter_fhoto);
+        return (
+            <ListItem
+                title={item.get_dokter_jadwal[0].dokter_nama}
+                subtitle={<View style={{flex: 1, flexDirection: 'row'}}>
+                    <View style={{width: 100}}>
+                        <Text style={{color: 'grey'}}>Hari</Text>
+                        <Text style={{color: 'grey'}}>Jam Mulai</Text>
+                        <Text style={{color: 'grey'}}>Jam Selesai</Text>
+                        <Text style={{color: 'grey'}}>Jam Checkin</Text>
+                    </View>
+                    <View style={{width: 100}}>
+                        <Text>{item.jadwal_hari}</Text>
+                        <Text>{item.jadwal_jam_mulai}</Text>
+                        <Text>{item.jadwal_jam_selesai}</Text>
+                        <Text>{item.jadwal_jam_selesai}</Text>
+                    </View>
+
+                </View>}
+                rightAvatar={
+                    item.get_dokter_jadwal[0].dokter_fhoto != null ?
+                        {
+                            rounded: true,
+                            height: 80,
+                            width: 80,
+                            source: this.state.urlImage && {uri: this.state.urlImage + '/' + item.get_dokter_jadwal[0].dokter_fhoto},
+                            title: item.get_dokter_jadwal[0].dokter_nama[0],
+                        }
+                        :
+                        {
+                            rounded: true,
+                            height: 80,
+                            width: 80,
+                            source: require('../../images/dokter.png'),
+                            title: item.get_dokter_jadwal[0].dokter_nama[0],
+                        }
+
+
+                }
+                bottomDivider
+            >
+            </ListItem>);
+    };
+
+    renderRow = ({item, index}) => {
+        return (
+            <ListItem onPress={() => {
+                this.setModalVisible(true, item.poly_id, item.poly_nama);
+            }}
+
+                      title={<Text>{item.poly_nama}</Text>}
+                      leftAvatar={{
+                          title: item.poly_nama[0],
+                      }}
+                      chevron
+            />
+        );
+    };
+
+    renderFooter = () => {
+        return (
+            this.state.loadingModal ?
+                <View style={styles.loader}>
+                    <ActivityIndicator size="small"/>
+                </View> : null
+        );
+    };
 
     render() {
-
-        var listView = [];
-        if (this.state.dataDetail != null) {
-            for (let i = 0; i < this.state.dataDetail.length; i++) {
-                var hari = this.state.dataDetail[i].jadwal_hari;
-                var jamMulai = this.state.dataDetail[i].jadwal_jam_mulai;
-                var jamSelesai = this.state.dataDetail[i].jadwal_jam_selesai;
-                var jamCheckin = this.state.dataDetail[i].jadwal_checkin;
-
-                listView.push(<View>
-                    {
-                        <Card>
-                            <CardItem>
-                                <Body>
-                                    <Text style={{
-                                        marginBottom:5,
-                                        fontSize: 16,
-                                        fontWeight: 'bold',
-                                        textAlign: 'center',
-                                    }}> {this.state.dataDetail[i].get_dokter_jadwal[0].dokter_nama}</Text>
-                                    <Grid>
-                                        <Col style={{width:'25%',height: 60}}>
-                                            <Image style={styles.avatar} source={require('../../images/profile.png')}/>
-                                        </Col>
-                                        <Col style={{height: 200}}>
-                                            <ListItem icon>
-                                                <Left>
-                                                    <Button primary>
-                                                        <Icon active name="calendar" />
-                                                    </Button>
-                                                </Left>
-                                                <Body>
-                                                    <Text style={{marginRight: 10}}>Hari</Text>
-                                                </Body>
-                                                <Right><Text style={{
-                                                    fontWeight: 'bold',
-                                                    paddingLeft: 10,
-                                                    textAlign: 'center',
-                                                }}>{hari}</Text></Right>
-                                            </ListItem>
-                                            <ListItem icon>
-                                                <Left>
-                                                    <Button warning>
-                                                        <Icon active name="clock" />
-                                                    </Button>
-                                                </Left>
-                                                <Body>
-                                                    <Text style={{marginRight: 10}}>Jam Mulai</Text>
-                                                </Body>
-                                                <Right><Text style={{
-                                                    fontWeight: 'bold',
-                                                    paddingLeft: 10,
-                                                    textAlign: 'center',
-                                                }}>{jamMulai}</Text></Right>
-                                            </ListItem>
-                                            <ListItem icon>
-                                                <Left>
-                                                    <Button style={{ backgroundColor: "#7d1010" }}>
-                                                        <Icon active name="clock" />
-                                                    </Button>
-                                                </Left>
-                                                <Body>
-                                                    <Text style={{marginRight: 10}}>Jam Selesai</Text>
-                                                </Body>
-                                                <Right><Text style={{
-                                                    fontWeight: 'bold',
-                                                    paddingLeft: 10,
-                                                    textAlign: 'center',
-                                                }}>{jamSelesai}</Text></Right>
-                                            </ListItem>
-                                            <ListItem icon>
-                                                <Left>
-                                                    <Button style={{ backgroundColor: "#FF9501" }}>
-                                                        <Icon active name="clock" />
-                                                    </Button>
-                                                </Left>
-                                                <Body>
-                                                    <Text style={{marginRight: 10}}>Jam Checkin</Text>
-                                                </Body>
-                                                <Right><Text style={{
-                                                    fontWeight: 'bold',
-                                                    paddingLeft: 10,
-                                                    textAlign: 'center',
-                                                }}>{jamCheckin}</Text></Right>
-                                            </ListItem>
-                                        </Col>
-                                    </Grid>
-                                </Body>
-                            </CardItem>
-                        </Card>
-                    }
-                </View>);
-
-            }
-        } else {
-            listView.push(<View style={styles.container}>
-                {
-                    <Spinner color='green'/>
-                }</View>);
-        }
-
-
-        if (this.state.isLoading) {
-            return (
-                <View style={styles.container}>
-                    <ActivityIndicator/>
-                </View>
-            );
-        } else {
-            let data = this.state.dataSource.map((val, key) => {
-                return <View key={key} style={styles.item}>
-                    <ListItem
-                        onPress={() => {
-                            this.setModalVisible(true, val.poly_id, val.poly_nama);
-                        }}
-                        icon>
-                        <Left>
-                            <Button style={{backgroundColor: '#FF9501'}}>
-                                <Icon type="FontAwesome" active
-                                      name={val.poly_icon}></Icon>
-                            </Button>
-                        </Left>
-                        <Body>
-                            <Text>{val.poly_nama}</Text>
-                        </Body>
-                    </ListItem>
-                </View>;
-
-
-            });
-
-            const modalDetail =
+        return (
+            <View>
+                <LoaderModal
+                    loading={this.state.loading}/>
+                <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
+                <Header
+                    statusBarProps={{barStyle: 'light-content'}}
+                    containerStyle={{
+                        backgroundColor: '#1da30b',
+                        justifyContent: 'space-around',
+                    }}
+                    barStyle="light-content"
+                    placement="center"
+                    centerComponent={{text: 'Jadwal Poliklinik', style: {color: '#fff'}}}
+                />
+                <FlatList
+                    renderItem={this.renderRow}
+                    keyExtractor={(item, index) => index.toString()}
+                    data={this.state.data}/>
                 <Modal
                     onHardwareBackPress={() => this.setModalUnvisible(!this.state.modalVisible)}
                     propagateSwipe={true}
@@ -246,62 +186,33 @@ export default class index extends Component {
                     transparent={false}
                     visible={this.state.modalVisible}
                     onRequestClose={() => {
-                        Alert.alert('Modal has been closed.');
+                        this.setModalUnvisible(!this.state.modalVisible);
                     }}>
                     <View style={{flex: 1}}>
                         <Text style={{
                             marginBottom: 10,
-                            fontSize: 16,
-                            fontWeight: '500',
+                            fontSize: 12,
+                            fontWeight: 'bold',
                             textAlign: 'center',
-                        }}>Jadwal {this.state.namaKelas}</Text>
-                        <ScrollView>
-
-
-                            {listView}
-
-                            {/*<View style={{width:40,justifyContent: 'center'}}></View>*/}
-
-
-                        </ScrollView>
-
-                        <TouchableOpacity>
-                            <Button onPress={() => {
-                                this.setModalUnvisible(!this.state.modalVisible);
-                            }} full success>
-                                <Text style={{
-                                    fontSize: 16,
-                                    fontWeight: '500',
-                                    color: '#ffffff',
-                                    textAlign: 'center',
-                                }}>Keluar</Text>
-                            </Button>
-                        </TouchableOpacity>
-
+                        }}>JADWAL {this.state.namaKelas}</Text>
+                        <FlatList
+                            ListFooterComponent={this.renderFooter}
+                            renderItem={this.renderRowDetail}
+                            keyExtractor={(item, index) => index.toString()}
+                            data={this.state.dataDetail}/>
                     </View>
-
-
-                </Modal>;
-
-            return (
-                <Root>
-                    <Container>
-                        <Content>
-                            <View>
-                                {data}
-                                {modalDetail}
-                            </View>
-                        </Content>
-                    </Container>
-                </Root>
-
-            );
-        }
+                </Modal>
+            </View>
+        );
 
     }
 }
 
 const styles = StyleSheet.create({
+    loader: {
+        marginTop: 18,
+        alignItems: 'center',
+    },
     container: {
         flex: 1,
         backgroundColor: '#fff',
@@ -309,10 +220,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     avatar: {
-        width: 40,
-        height:40,
+        width: 90,
+        height: 90,
         borderRadius: 63,
-        borderWidth: 4,
+        borderWidth: 1,
         borderColor: 'white',
         marginBottom: 10,
         alignSelf: 'center',

@@ -1,30 +1,25 @@
 import React, {Component} from 'react';
-import {StyleSheet, View, TouchableOpacity, SafeAreaView, ScrollView, Image, ActivityIndicator,RefreshControl } from 'react-native';
+import {ListItem, Icon, Header} from 'react-native-elements';
+import {
+    Text,
+    StyleSheet,
+    View,
+    TouchableOpacity,
+    SafeAreaView,
+    ScrollView,
+    Image,
+    ActivityIndicator,
+    RefreshControl, StatusBar,
+} from 'react-native';
 import {connect} from 'react-redux';
 import {logoutUser} from '../actions/auth.actions';
-import {baseApi, fetchApi} from '../service/api';
+import {baseApi, baseUrlFoto, fetchApi} from '../service/api';
 import Loader from '../components/Loader';
 import {Actions} from 'react-native-router-flux';
 import AwesomeAlert from 'react-native-awesome-alerts';
 import PhotoUpload from 'react-native-photo-upload';
-import {
-    Container,
-    Header,
-    Content,
-    Button,
-    ListItem,
-    Text,
-    Icon,
-    Left,
-    Body,
-    Right,
-    Switch,
-    Col,
-    Row,
-    Grid,
-    Fab,
-} from 'native-base';
 import LoaderModal from '../components/LoaderModal';
+import {showMessage} from 'react-native-flash-message';
 
 
 type Props = {}
@@ -51,11 +46,11 @@ class Profile extends Component <{}> {
     }
 
     componentDidMount() {
-        this.showProfil()
+        this.showProfil();
 
     }
 
-    showProfil(){
+    showProfil() {
         fetch(baseApi + '/user/user', {
             method: 'GET',
             headers: {
@@ -69,7 +64,7 @@ class Profile extends Component <{}> {
                 dataProfil: responseJson.dataUser.user,
                 dataUser: responseJson.dataProfile,
                 foto: responseJson.image,
-                refreshing:false,
+                refreshing: false,
             });
 
             console.log(this.props.getUser.userDetails.id);
@@ -119,9 +114,9 @@ class Profile extends Component <{}> {
 
     _onRefresh = () => {
         this.setState({refreshing: true});
-        this.showProfil()
+        this.showProfil();
 
-    }
+    };
 
     render() {
 
@@ -134,101 +129,38 @@ class Profile extends Component <{}> {
         var listView = [];
         var listViewProfil = [];
 
-        if (userProfil != 'Kurok') {
-            listViewProfil.push(
-                <View>
-                    <Left/>
-                    <Body style={{padding: 20}}>
-                        <Icon active type="FontAwesome" name="map-marker"/>
-                        <Text style={{textAlign: 'center'}}>{userProfil != null
-                            ? userProfil.nama_provinsi + ' ' + userProfil.nama_kab_kota + ' ' + userProfil.nama_kecamatan + ' ' + userProfil.nama_kelurahan : ''}</Text>
-                        <Text style={{textAlign: 'center'}}>{userProfil != null
-                            ? userProfil.alamat : ''}</Text>
-                    </Body>
-                    <Right/>
+        listViewProfil.push(
+            <View>
+                <View style={{padding: 20, alignItems: 'center'}}>
+                    <Icon active type="font-awesome" name="map-marker"/>
+                    <Text style={{textAlign: 'center'}}>{userProfil != null
+                        ? userProfil.nama_provinsi + ' ' + userProfil.nama_kab_kota + ' ' + userProfil.nama_kecamatan + ' ' + userProfil.nama_kelurahan : ''}</Text>
+                    <Text style={{textAlign: 'center'}}>{userProfil != null
+                        ? userProfil.alamat : ''}</Text>
+                </View>
+                <ListItem
+                    title="Nama"
+                    subtitle={userProfil != null ? userProfil.nama : ''}
+                    chevron
+                />
+                <ListItem
+                    title="No Bpjs"
+                    subtitle={userProfil != null ? userProfil.no_bpjs : ''}
+                    chevron
+                />
+                <ListItem
+                    title="Penanggung Jawab"
+                    subtitle={userProfil != null ? userProfil.penanggung_jawab : ''}
+                    chevron
+                />
+                <ListItem
+                    title="Agama"
+                    subtitle={userProfil != null ? userProfil.agama : ''}
+                    chevron
+                />
+            </View>,
+        );
 
-                    <Grid style={{marginBottom: 10, marginTop: 5}}>
-                        <Col style={{height: 50}}></Col>
-                        <Col style={{width: 165, height: 50, marginRight: 5}}>
-                            <Button full rounded info
-                                    onPress={!this.state.inClickEditProfil ? this.onClickEditProfil : null}>
-                                <Text style={{color: '#ffffff'}}> Edit Profil </Text>
-                            </Button></Col>
-                        <Col style={{width: 160, height: 50}}>
-                            <Button full info rounded
-                                    onPress={!this.state.inClickUbahPassword ? this.onClickUbahPassword : null}>
-                                <Text style={{color: '#ffffff'}}> Ganti Password </Text>
-                            </Button></Col>
-                        <Col style={{height: 50}}></Col>
-                    </Grid>
-                    <ListItem icon>
-                        <Left>
-                            <Text>Nama</Text>
-                        </Left>
-                        <Body>
-
-                        </Body>
-                        <Right>
-                            <Text>{userProfil != null ? userProfil.nama : ''}</Text>
-                        </Right>
-                    </ListItem>
-                    <ListItem icon>
-                        <Left>
-                            <Text>No BPJS</Text>
-                        </Left>
-                        <Body>
-
-                        </Body>
-                        <Right>
-                            <Text>{userProfil != null ? userProfil.no_bpjs : ''}</Text>
-                        </Right>
-                    </ListItem>
-                    <ListItem icon>
-                        <Left>
-                            <Text>Penanggung Jawab</Text>
-                        </Left>
-                        <Body>
-
-                        </Body>
-                        <Right>
-                            <Text>{userProfil != null ? userProfil.penanggung_jawab : ''}</Text>
-                        </Right>
-                    </ListItem>
-                    <ListItem icon>
-                        <Left>
-                            <Text>Agama</Text>
-                        </Left>
-                        <Body>
-
-                        </Body>
-                        <Right>
-                            <Text>{userProfil != null ? userProfil.agama : ''}</Text>
-                        </Right>
-                    </ListItem>
-                </View>,
-            );
-        } else if (userProfil === 'Kurok') {
-            listViewProfil.push(
-                <View>
-                    <ListItem icon>
-                        <Left>
-                            <Button style={{backgroundColor: '#FF9501'}}>
-                                <Icon active name="person"/>
-                            </Button>
-                        </Left>
-                        <Body>
-                            <Text>Akun anda belum di approve</Text>
-                        </Body>
-                    </ListItem>
-                </View>,
-            );
-        } else {
-            listViewProfil.push(
-                <View style={styles.loader}>
-                    <ActivityIndicator size="large"/>
-                </View>,
-            );
-        }
 
         var fotoProfil = [];
         if (this.state.foto != '') {
@@ -264,132 +196,131 @@ class Profile extends Component <{}> {
             );
         }
         return (
-            <Container>
-                <Content  refreshControl={
-                    <RefreshControl
-                        refreshing={this.state.refreshing}
-                        onRefresh={this._onRefresh}
-                    />
-                }>
-
-                        <View
-                            style={styles.container}>
-
-                            {/*<Fab*/}
-                            {/*    active={this.state.active}*/}
-                            {/*    direction="up"*/}
-                            {/*    containerStyle={{bottom: 65}}*/}
-                            {/*    style={styles.fab}*/}
-                            {/*    position="bottomRight"*/}
-                            {/*    onPress={() => this.setState({active: !this.state.active})}*/}
-                            {/*>*/}
-                            {/*    <Icon name="md-share"/>*/}
-                            {/*    <Button style={{backgroundColor: '#3B5998'}}>*/}
-                            {/*        <Icon name="logo-facebook"/>*/}
-                            {/*    </Button>*/}
-                            {/*    <Button style={{backgroundColor: '#34AF23'}}>*/}
-                            {/*        <Icon name="logo-whatsapp"/>*/}
-                            {/*    </Button>*/}
-                            {/*</Fab>*/}
-                            <View style={styles.header}>
-                                <Image style={{height: 170, width: '100%', transform: [{scale: 1.44}]}}
-                                       resizeMode='contain' source={require('../images/logo/rsud.jpg')}/></View>
-
-                            <PhotoUpload
-                                quality={30}
-                                containerStyle={styles.avatarPhoto}
-                                onPhotoSelect={avatar => {
-                                    if (avatar) {
-                                        console.log('Image base64 string: ', avatar);
-                                        if (avatar) {
-                                            console.log({
-                                                id: this.props.getUser.userDetails.id,
-                                                photo: avatar,
-                                            });
-                                            fetch(baseApi + '/user/updatePhoto', {
-                                                method: 'POST',
-                                                headers: {
-                                                    Accept: 'application/json',
-                                                    'Content-Type': 'application/json',
-                                                    'Authorization': 'Bearer ' + this.props.getUser.userDetails.token,
-                                                },
-                                                body: JSON.stringify({
-                                                    id: this.props.getUser.userDetails.id,
-                                                    photo: avatar,
-                                                }),
-                                            }).then((response) => response.json()).then((responseJson) => {
-                                                console.log(responseJson);
-                                            })
-                                                .catch((error) => {
-                                                    console.log(error);
-                                                });
-                                        }
+            <View style={{flex: 1}}>
+                <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
+                <Header
+                    statusBarProps={{ barStyle: 'light-content' }}
+                    containerStyle={{
+                        backgroundColor: '#1da30b',
+                        justifyContent: 'space-around',
+                    }}
+                    barStyle="light-content"
+                    placement="center"
+                    centerComponent={{ text: 'Profil', style: { fontWeight:'bold',color: '#fff' } }}
+                />
+            <ScrollView refreshControl={
+                <RefreshControl
+                    refreshing={this.state.refreshing}
+                    onRefresh={this._onRefresh}
+                />
+            }>
+                <View style={styles.header}>
+                    <Image style={{height: 170, width: '100%', transform: [{scale: 1.44}]}}
+                           resizeMode='contain' source={require('../images/logo/rsud.jpg')}/></View>
+                <PhotoUpload
+                    quality={30}
+                    containerStyle={styles.avatarPhoto}
+                    onPhotoSelect={avatar => {
+                        if (avatar) {
+                            console.log('Image base64 string: ', avatar);
+                            if (avatar) {
+                                console.log({
+                                    id: this.props.getUser.userDetails.id,
+                                    photo: avatar,
+                                });
+                                fetch(baseApi + '/user/updatePhoto', {
+                                    method: 'POST',
+                                    headers: {
+                                        Accept: 'application/json',
+                                        'Content-Type': 'application/json',
+                                        'Authorization': 'Bearer ' + this.props.getUser.userDetails.token,
+                                    },
+                                    body: JSON.stringify({
+                                        id: this.props.getUser.userDetails.id,
+                                        photo: avatar,
+                                    }),
+                                }).then((response) => response.json()).then((responseJson) => {
+                                    if(responseJson.success === true){
+                                        showMessage({
+                                            message: 'Foto berhasil di upload',
+                                            type: 'warning',
+                                            position: 'bottom',
+                                        });
+                                    }else{
+                                        showMessage({
+                                            message: 'Foto gagal di update',
+                                            type: 'danger',
+                                            position: 'bottom',
+                                        });
                                     }
-                                }}
-                            >
-                                {this.state.foto != '' ? <Image
-                                    key={new Date()}
-                                    style={{
-                                        paddingVertical: 40,
-                                        width: 150,
-                                        height: 150,
-                                        borderRadius: 75,
-                                    }}
-                                    resizeMode='cover'
-                                    source={{uri: this.state.foto + '?' + new Date()}}
-                                /> : <Image
-                                    style={{
-                                        paddingVertical: 30,
-                                        width: 150,
-                                        height: 150,
-                                        borderRadius: 75,
-                                    }}
-                                    resizeMode='cover'
-                                    source={require('../images/logo/logo-hitam.jpg')}
-                                />}
+                                })
+                                    .catch((error) => {
+                                        console.log(error);
+                                    });
+                            }
+                        }
+                    }}
+                >
+                    {this.state.foto != '' ? <Image
+                        key={new Date()}
+                        style={{
+                            paddingVertical: 40,
+                            width: 150,
+                            height: 150,
+                            borderRadius: 75,
+                        }}
+                        resizeMode='cover'
+                        source={{uri: this.state.foto + '?' + new Date()}}
+                    /> : <Image
+                        style={{
+                            paddingVertical: 30,
+                            width: 150,
+                            height: 150,
+                            borderRadius: 75,
+                        }}
+                        resizeMode='cover'
+                        source={require('../images/logo/logo-hitam.jpg')}
+                    />}
+                </PhotoUpload>
+                <View style={{marginBottom: 10, marginTop: 20, justifyContent: 'center'}}>
+                    {listViewProfil}
+                    <View style={{alignItems: 'center'}}>
+                        <TouchableOpacity style={styles.button}
+                                          onPress={!this.state.inClickEditProfil ? this.onClickEditProfil : null}>
+                            <Text style={styles.buttonText}> Edit Profil </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.button}
+                                          onPress={!this.state.inClickUbahPassword ? this.onClickUbahPassword : null}>
+                            <Text style={styles.buttonText}> Ganti Password </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.buttonLogout} onPress={this.showAlert}>
+                            <Text style={styles.buttonText}> Keluar dari Akun </Text>
+                        </TouchableOpacity></View>
+
+                    <AwesomeAlert
+                        show={showAlert}
+                        showProgress={false}
+                        title="Notifikasi"
+                        message="Apakah anda yakin ingin keluar"
+                        closeOnTouchOutside={true}
+                        closeOnHardwareBackPress={false}
+                        showCancelButton={true}
+                        showConfirmButton={true}
+                        confirmText="Ya"
+                        cancelText="Tidak"
+                        confirmButtonColor="#DD6B55"
+                        onConfirmPressed={() => {
+                            this.logoutUser();
+                        }}
+                        onCancelPressed={() => {
+                            this.hideAlert();
+                        }}
+                    />
+                </View>
+            </ScrollView>
+            </View>
 
 
-                            </PhotoUpload>
-                            <View style={{marginBottom: 10, marginTop: 20, justifyContent: 'center'}}>
-
-
-                                {listViewProfil}
-                                <Grid style={{marginBottom: 10, marginTop: 5}}>
-                                    <Col style={{height: 50}}></Col>
-                                    <Col style={{width: 300, height: 50}}><Button full success rounded
-                                                                                  onPress={this.showAlert}>
-                                        <Icon type="FontAwesome" name='sign-out'/>
-                                        <Text style={{color: '#ffffff'}}> Keluar dari Akun </Text>
-                                    </Button></Col>
-                                    <Col style={{height: 50}}></Col>
-                                </Grid>
-
-                                <AwesomeAlert
-                                    show={showAlert}
-                                    showProgress={false}
-                                    title="Notifikasi"
-                                    message="Apakah anda yakin ingin keluar"
-                                    closeOnTouchOutside={true}
-                                    closeOnHardwareBackPress={false}
-                                    showCancelButton={true}
-                                    showConfirmButton={true}
-                                    confirmText="Ya"
-                                    cancelText="Tidak"
-                                    confirmButtonColor="#DD6B55"
-                                    onConfirmPressed={() => {
-                                        this.logoutUser();
-                                    }}
-                                    onCancelPressed={() => {
-                                        this.hideAlert();
-                                    }}
-                                />
-                            </View>
-
-
-                        </View>
-
-                </Content>
-            </Container>
         );
 
 
@@ -397,7 +328,26 @@ class Profile extends Component <{}> {
 }
 
 const styles = StyleSheet.create({
-
+    buttonText: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: '#ffffff',
+        textAlign: 'center',
+    },
+    button: {
+        width: 300,
+        backgroundColor: 'orange',
+        borderRadius: 25,
+        marginVertical: 2,
+        paddingVertical: 13,
+    },
+    buttonLogout: {
+        width: 300,
+        backgroundColor: '#50574f',
+        borderRadius: 25,
+        marginVertical: 2,
+        paddingVertical: 13,
+    },
     header: {
         width: '100%',
         height: 170,

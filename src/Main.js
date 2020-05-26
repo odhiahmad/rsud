@@ -14,6 +14,9 @@ import {connect} from "react-redux";
 import Routes from './components/Routes';
 import FlashMessage from 'react-native-flash-message';
 import SplashScreen from 'react-native-splash-screen'
+import PushNotificationIOS from "@react-native-community/push-notification-ios";
+var PushNotification = require("react-native-push-notification");
+
 var backButtonPressedOnceToExit = false;
 class Main extends Component<{}> {
     componentDidMount() {
@@ -47,6 +50,12 @@ class Main extends Component<{}> {
     }
 
     render() {
+        PushNotification.localNotificationSchedule({
+            //... You can use all the options from localNotifications
+            message: "My Notification Message", // (required)
+            date: new Date(Date.now() + 60 * 1000), // in 60 secs
+        });
+
         const isHermes = () => global.HermesInternal !== null;
         console.log(isHermes())
         const {authData:{isLoggedIn}} = this.props;

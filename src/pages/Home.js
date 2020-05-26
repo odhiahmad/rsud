@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
+import {Header, Icon, ListItem, Tile} from 'react-native-elements';
 import {
+    Text,
     StyleSheet,
     Animated,
     View,
@@ -8,18 +10,47 @@ import {
     ScrollView,
     Image,
     BackHandler,
-    Dimensions,
+    Dimensions, StatusBar, Modal,
 } from 'react-native';
 import {connect} from 'react-redux';
 import {logoutUser} from '../actions/auth.actions';
 import {BottomLayer} from './component/BottomLayer';
-import {Icon, Container, Header, Button, Content, Text} from 'native-base';
 import {Actions} from 'react-native-router-flux';
 import {SliderBox} from 'react-native-image-slider-box';
 import PushNotification from 'react-native-push-notification';
 import {ActionSheetCustom as ActionSheet} from 'react-native-actionsheet';
 import FlashMessage from 'react-native-flash-message';
+import LoaderModal from '../components/LoaderModal';
+import AwesomeAlert from 'react-native-awesome-alerts';
+import moment from 'moment';
+import StepIndicator from 'react-native-step-indicator';
+import ViewShot from "react-native-view-shot";
+import QRCode from 'react-native-qrcode-svg';
+import CameraRoll from '@react-native-community/cameraroll';
 
+const customStyles = {
+    stepIndicatorSize: 25,
+    currentStepIndicatorSize: 30,
+    separatorStrokeWidth: 2,
+    currentStepStrokeWidth: 3,
+    stepStrokeCurrentColor: '#fe7013',
+    stepStrokeWidth: 3,
+    stepStrokeFinishedColor: '#fe7013',
+    stepStrokeUnFinishedColor: '#aaaaaa',
+    separatorFinishedColor: '#fe7013',
+    separatorUnFinishedColor: '#aaaaaa',
+    stepIndicatorFinishedColor: '#fe7013',
+    stepIndicatorUnFinishedColor: '#ffffff',
+    stepIndicatorCurrentColor: '#ffffff',
+    stepIndicatorLabelFontSize: 13,
+    currentStepIndicatorLabelFontSize: 13,
+    stepIndicatorLabelCurrentColor: '#fe7013',
+    stepIndicatorLabelFinishedColor: '#ffffff',
+    stepIndicatorLabelUnFinishedColor: '#aaaaaa',
+    labelColor: '#999999',
+    labelSize: 13,
+    currentStepLabelColor: '#fe7013',
+};
 type Props = {}
 let {width, height} = Dimensions.get('window');
 const options = [
@@ -27,7 +58,7 @@ const options = [
     'Daftar Sendiri',
     'Daftar Untuk Orang Lain',
 ];
-
+const labels = ['Mendaftar', 'Sedang Berobat', 'Selesai Berobat', 'Mendapatkan Obat', 'Selesai'];
 
 class Profile extends Component {
     constructor(props) {
@@ -48,14 +79,70 @@ class Profile extends Component {
             inClickFaq: false,
             inClickPengaduan: false,
             inClickNews: false,
-
-
+            status: false,
+            nomorAntrian: '',
+            tanggalKunjungan: '',
+            jamKunjungan: '',
+            showAlert: false,
+            modalVisible: false,
+            jamKunjunganLabel:'',
+            namaPasien:'',
+            namaRuang:'',
+            caraBayar:'',
+            tanggalMendaftar: '',
+            namaDokter: '',
+            tanggalLahir: '',
+            nomorMr: '',
+            jenisKelamin: '',
+            statusBerobat: '',
+            dataQrCode:[],
         };
     }
 
     showActionSheet = () => {
         this.ActionSheet.show();
     };
+
+    componentWillReceiveProps(value) {
+
+        if(value.nomorAntrian != null){
+            this.setModalVisible(true);
+            this.setState({
+                nomorAntrian: value.nomorAntrian,
+                tanggalKunjungan: value.tanggalKunjungan,
+                jamKunjungan: value.jamKunjungan,
+                jamKunjunganLabel:value.jamKunjunganLabel,
+                jamKunjunganAntrian:value.jamKunjunganAntrian,
+                namaPasien:value.namaPasien,
+                namaRuang:value.namaRuang,
+                caraBayar:value.caraBayar,
+                tanggalMendaftar: value.tanggalMendaftar,
+                namaDokter: value.namaDokter,
+                tanggalLahir: value.tanggalLahir,
+                nomorMr: value.nomorMr,
+                jenisKelamin: value.jenisKelamin,
+                statusBerobat: value.statusBerobat,
+            });
+
+            this.state.dataQrCode = [{
+                nomorAntrian: value.nomorAntrian,
+                tanggalKunjungan: value.tanggalKunjungan,
+                jamKunjungan: value.jamKunjungan,
+                jamKunjunganLabel:value.jamKunjunganLabel,
+                namaPasien:value.namaPasien,
+                namaRuang:value.namaRuang,
+                caraBayar:value.caraBayar,
+                tanggalMendaftar: value.tanggalMendaftar,
+                namaDokter: value.namaDokter,
+                tanggalLahir: value.tanggalLahir,
+                nomorMr: value.nomorMr,
+                jenisKelamin: value.jenisKelamin,
+                statusBerobat: value.statusBerobat,
+            }];
+        }
+
+
+    }
 
     async componentDidMount() {
         PushNotification.configure({
@@ -65,6 +152,17 @@ class Profile extends Component {
         });
     }
 
+    setModalUnvisible(visible) {
+        this.setState({
+            modalVisible: visible,
+        });
+    }
+
+    setModalVisible(visible) {
+        this.setState({
+            modalVisible: visible,
+        })
+    }
     onLayout = e => {
         this.setState({
             width: e.nativeEvent.layout.width,
@@ -90,6 +188,15 @@ class Profile extends Component {
         }
 
     };
+
+    saveQrToDisk() {
+        this.refs.viewShot.capture().then(uri => {
+            console.log('do something with ', uri);
+
+            CameraRoll.saveToCameraRoll(uri, 'photo');
+
+        });
+    }
 
     onClickButtonHomeSendiri = () => {
         this.setState({inClickHomeSendiri: true});
@@ -150,12 +257,27 @@ class Profile extends Component {
     };
 
     render() {
+        const {showAlert} = this.state;
         const handlePress = (index) => {
             console.log(index);
         };
         return (
             <View style={{flex: 1}}>
+                <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
+                <Header
+                    statusBarProps={{barStyle: 'light-content'}}
+                    containerStyle={{
+                        backgroundColor: '#1da30b',
+                        justifyContent: 'space-around',
+                    }}
+                    barStyle="light-content"
+                    placement="center"
+                    leftComponent={{text: 'Smart Hospital', style: {fontWeight: 'bold', color: '#fff', width: 200}}}
+                    // leftComponent={<Image style={{width:140,height:30}} source={require('../images/logo/logo-hitam.jpg')}/>}
+                />
+
                 <ScrollView style={{flex: 1, backgroundColor: 'white'}}>
+
                     <ActionSheet
                         ref={o => this.ActionSheet = o}
                         title={<Text style={{color: '#000', fontSize: 18}}>Pilih Jenis Daftar</Text>}
@@ -165,40 +287,16 @@ class Profile extends Component {
                         onPress={(index) => this.onClickButtonHome(index)}
 
                     />
-                    <SliderBox
-                        ImageComponentStyle={{borderRadius: 15, width: '97%', marginTop: 5}}
-                        images={this.state.images}
-                        sliderBoxHeight={200}
-                        parentWidth={this.state.width}
-                        // onCurrentImagePressed={
-                        //     index => console.warn(`image ${index} pressed`)
-                        // }
-                        dotColor="#FFEE58"
-                        paginationBoxStyle={{
-                            position: 'absolute',
-                            bottom: 0,
-                            padding: 0,
-                            alignItems: 'center',
-                            alignSelf: 'center',
-                            justifyContent: 'center',
-                            paddingVertical: 10,
-                        }}
-                        dotStyle={{
-                            width: 10,
-                            height: 10,
-                            borderRadius: 5,
-                            marginHorizontal: 0,
-                            padding: 0,
-                            margin: 0,
-                            backgroundColor: 'rgba(128, 128, 128, 0.92)',
-                        }}
-                        inactiveDotColor="#90A4AE"
-                        paginationBoxVerticalPadding={20}
-                        autoplay
-                        circleLoop/>
+                    <Tile
+                        imageSrc={require('../images/banner/banner1.jpg')}
+                        title="Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dolores dolore exercitationem"
+                        featured
+                        caption="Some Caption Text"
+                    />
+
                     <View style={{flex: 1, backgroundColor: 'white'}}>
-                        <View style={{marginHorizontal: 2, flexDirection: 'row'}}>
-                            <View style={{flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: 16, marginTop: 18}}>
+                        <View style={{marginHorizontal: 0, flexDirection: 'row'}}>
+                            <View style={{flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: 5, marginTop: 18}}>
                                 <View style={{
                                     justifyContent: 'space-between',
                                     flexDirection: 'row',
@@ -222,14 +320,16 @@ class Profile extends Component {
                                                 width: 70,
                                                 height: 70,
                                                 borderWidth: 1,
-                                                borderColor: 'red',
+                                                borderColor: 'orange',
                                                 borderRadius: 50,
                                                 justifyContent: 'center',
                                             }}>
                                             <Icon
-                                                name="paper" style={{
+                                                color='#1da30b'
+                                                type="font-awesome"
+                                                name="book" style={{
                                                 fontSize: 30,
-                                                color: 'red',
+
                                                 alignSelf: 'center',
                                                 position: 'absolute',
                                             }}/>
@@ -256,14 +356,16 @@ class Profile extends Component {
                                                 width: 70,
                                                 height: 70,
                                                 borderWidth: 1,
-                                                borderColor: 'blue',
+                                                borderColor: 'orange',
                                                 borderRadius: 50,
                                                 justifyContent: 'center',
                                             }}>
                                             <Icon
+                                                type="font-awesome"
+                                                color='orange'
                                                 name="calendar" style={{
                                                 fontSize: 30,
-                                                color: 'blue',
+
                                                 alignSelf: 'center',
                                                 position: 'absolute',
                                             }}/>
@@ -290,14 +392,16 @@ class Profile extends Component {
                                                 width: 70,
                                                 height: 70,
                                                 borderWidth: 1,
-                                                borderColor: '#1aed28',
+                                                borderColor: 'orange',
                                                 borderRadius: 50,
                                                 justifyContent: 'center',
                                             }}>
                                             <Icon
+                                                color='orange'
+                                                type="font-awesome"
                                                 name="bed" style={{
                                                 fontSize: 30,
-                                                color: '#1aed28',
+
                                                 alignSelf: 'center',
                                                 position: 'absolute',
                                             }}/>
@@ -329,10 +433,10 @@ class Profile extends Component {
                                                 justifyContent: 'center',
                                             }}>
                                             <Icon
-                                                type="FontAwesome"
+                                                color='#1da30b'
+                                                type="font-awesome"
                                                 name="bus" style={{
                                                 fontSize: 30,
-                                                color: 'orange',
                                                 alignSelf: 'center',
                                                 position: 'absolute',
                                             }}/>
@@ -367,15 +471,15 @@ class Profile extends Component {
                                                 width: 70,
                                                 height: 70,
                                                 borderWidth: 1,
-                                                borderColor: 'red',
+                                                borderColor: 'orange',
                                                 borderRadius: 50,
                                                 justifyContent: 'center',
                                             }}>
                                             <Icon
-                                                type="FontAwesome"
+                                                color='#1da30b'
+                                                type="font-awesome"
                                                 name="comments" style={{
                                                 fontSize: 30,
-                                                color: 'red',
                                                 alignSelf: 'center',
                                                 position: 'absolute',
                                             }}/>
@@ -389,7 +493,7 @@ class Profile extends Component {
                                             }}>FAQ</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
-                                        // onPress={!this.state.inClickPengaduan ? this.onClickButtonPengaduan : null}
+                                        onPress={!this.state.inClickPengaduan ? this.onClickButtonPengaduan : null}
                                         style={{
                                             marginRight: 2,
                                             width: '25%',
@@ -402,15 +506,14 @@ class Profile extends Component {
                                                 width: 70,
                                                 height: 70,
                                                 borderWidth: 1,
-                                                borderColor: 'purple',
+                                                borderColor: 'orange',
                                                 borderRadius: 50,
                                                 justifyContent: 'center',
                                             }}>
                                             <Icon
-
+                                                color='#1da30b'
                                                 name="headset" style={{
                                                 fontSize: 30,
-                                                color: 'purple',
                                                 alignSelf: 'center',
                                                 position: 'absolute',
                                             }}/>
@@ -442,10 +545,10 @@ class Profile extends Component {
                                                 justifyContent: 'center',
                                             }}>
                                             <Icon
-                                                type="FontAwesome"
+                                                color='#1da30b'
+                                                type="font-awesome"
                                                 name="tablet" style={{
                                                 fontSize: 30,
-                                                color: 'orange',
                                                 alignSelf: 'center',
                                                 position: 'absolute',
                                             }}/>
@@ -471,15 +574,15 @@ class Profile extends Component {
                                                 width: 70,
                                                 height: 70,
                                                 borderWidth: 1,
-                                                borderColor: '#f542b0',
+                                                borderColor: 'orange',
                                                 borderRadius: 50,
                                                 justifyContent: 'center',
                                             }}>
                                             <Icon
-                                                type="FontAwesome"
+                                                color='#1da30b'
+                                                type="font-awesome"
                                                 name="info" style={{
                                                 fontSize: 30,
-                                                color: '#f542b0',
                                                 alignSelf: 'center',
                                                 position: 'absolute',
                                             }}/>
@@ -495,6 +598,7 @@ class Profile extends Component {
                                 </View>
                             </View>
                         </View>
+
                         {/*<View style={{paddingTop: 16, paddingHorizontal: 16}}>*/}
                         {/*    <View>*/}
                         {/*        <Image source={require('../images/sepak-bola.jpg')}*/}
@@ -507,6 +611,98 @@ class Profile extends Component {
                         {/*    </View>*/}
                         {/*</View>*/}
                     </View>
+                    <Modal
+                        onSwipeComplete={() => {
+                            this.setModalUnvisible(!this.state.modalVisible);
+                        }}
+                        scrollHorizontal
+                        propagateSwipe
+                        swipeDirection={['down']}
+                        swipearea={50}
+                        onRequestClose={() => {
+                            this.setModalUnvisible(!this.state.modalVisible);
+                        }}
+                        animationType="slide"
+                        visible={this.state.modalVisible}
+                    >
+                        <ScrollView style={{backgroundColor: 'white'}}>
+                            <ListItem
+                                title={this.state.namaPasien}
+                                subtitle={moment(this.state.tanggalKunjungan).format('LLLL')
+                                }
+                            >
+                            </ListItem>
+                            <View style={{backgroundColor: 'white'}}>
+                                <StepIndicator
+                                    direction="horizontal"
+                                    stepCount={labels.length}
+                                    customStyles={customStyles}
+                                    currentPosition={this.state.currentPosition}
+                                    labels={labels}
+                                />
+                                <ViewShot ref="viewShot" style={{padding: 20, alignItems: 'center',backgroundColor: 'white'}}
+                                          options={{format: 'png', quality: 20}}>
+
+                                    <View>
+                                        {this.state.dataQrCode.length != 0  ?
+                                            <QRCode
+                                                size={200}
+                                                value={this.state.dataQrCode}
+                                                logoSize={30}
+                                                logoBackgroundColor='transparent'
+                                                getRef={(c) => (this.svg = c)}
+                                            />
+                                            :null}
+
+                                    </View>
+                                    <View style={{flexDirection: 'row',marginTop:10}}>
+                                        <View style={{width: 150, backgroundColor: 'white'}}>
+                                            <Text style={{fontSize: 12}}>Tanggal</Text>
+                                            <Text style={{fontSize: 12}}>No MR</Text>
+                                            <Text style={{fontSize: 12}}>Nama</Text>
+                                            <Text style={{fontSize: 12}}>Tgl Kunjungan</Text>
+                                            <Text style={{fontSize: 12}}>Jam Kunjungan</Text>
+                                            <Text style={{fontSize: 12}}>Poly Tujuan</Text>
+                                            <Text style={{fontSize: 12}}>Cara Bayar</Text>
+                                        </View>
+                                        <View style={{width: 150, backgroundColor: 'white'}}>
+                                            <Text style={{fontSize: 12}}>: {this.state.tanggalMendaftar}</Text>
+                                            <Text style={{fontSize: 12}}>: {this.state.nomorMr}</Text>
+                                            <Text style={{fontSize: 12}}>: {this.state.namaPasien}</Text>
+                                            <Text style={{fontSize: 12}}>: {this.state.tanggalKunjungan}</Text>
+                                            <Text style={{fontSize: 12}}>: {this.state.jamKunjunganAntrian}</Text>
+                                            <Text style={{fontSize: 12}}>: {this.state.namaRuang}</Text>
+                                            <Text style={{fontSize: 12}}>: {this.state.caraBayar}</Text>
+                                        </View>
+                                    </View>
+                                    <View style={{padding:10,backgroundColor: 'white'}}>
+                                        <Text style={{fontSize: 12}}>Mohon Diperhatikan</Text>
+                                        <Text style={{fontSize: 8}}>1. Pasien diharapkan hadir sebelum
+                                            pukul {this.state.jamKunjungan} </Text>
+                                        <Text style={{fontSize: 8}}>2. Silahkan datang ke counter checkin yang sudah kami
+                                            sediakan</Text>
+                                        <Text style={{fontSize: 8}}>3. bawalah bukti reservasi, Kartu Pasien, Kartu BPJS,
+                                            dan surat rujukan/Surat Kontrol ulang yang masih berlaku</Text>
+                                    </View>
+                                    <View style={{padding:10,backgroundColor: 'white'}}>
+                                        <Text style={{fontSize: 12}}>Catatan</Text>
+                                        <Text style={{fontSize: 8}}>1. Pasien yang mendaftar online akan dilayani jika,
+                                            Membawa bukti reservasi pendaftaran online, kartu bpjs, dan surat rujukan yang
+                                            masih berlaku (Rujukan faskes 1 berlaku selama 90 Hari)</Text>
+                                        <Text style={{fontSize: 8}}>2. Jika anda datang lewat dari jam kunjungan anda, anda
+                                            tidak akan dilayani</Text>
+                                    </View>
+                                </ViewShot>
+                            </View>
+                            <View style={{alignItems: 'center', padding:10,justifyContent: 'center'}}><TouchableOpacity
+                                style={styles.button} onPress={() => {
+                                this.saveQrToDisk();
+                            }}>
+                                <Text style={styles.buttonText}>Simpan Bukti Reservasi</Text>
+                            </TouchableOpacity>
+                            </View>
+                        </ScrollView>
+                    </Modal>
                 </ScrollView>
                 <FlashMessage position="top"/>
             </View>
@@ -521,6 +717,19 @@ const styles = StyleSheet.create({
     },
     view1: {},
     view2: {},
+    buttonText: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: '#ffffff',
+        textAlign: 'center',
+    },
+    button: {
+        width: 300,
+        backgroundColor: 'orange',
+        borderRadius: 25,
+        marginVertical: 2,
+        paddingVertical: 13,
+    },
 });
 mapStateToProps = (state) => ({
     getUser: state.userReducer.getUser,

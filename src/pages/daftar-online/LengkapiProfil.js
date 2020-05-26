@@ -9,8 +9,6 @@ import {
     Alert, TextInput, ScrollView, ActivityIndicator,
 } from 'react-native';
 import LoaderModal from '../../components/LoaderModal';
-import Logo from '../../components/Logo';
-import Form from '../../components/Form';
 import InputText from '../../components/InputText';
 import ValidationComponent from 'react-native-form-validator';
 import Loader from '../../components/Loader';
@@ -27,7 +25,6 @@ import {
     Spinner,
     Root,
     Container,
-    Header,
     Content,
     Button,
     ListItem,
@@ -43,6 +40,7 @@ import {connect} from 'react-redux';
 import Select2 from 'react-native-select-two';
 import {logoutUser} from '../../actions/auth.actions';
 import {showMessage} from 'react-native-flash-message';
+import {Header} from 'react-native-elements';
 
 const styles = StyleSheet.create({
     container: {
@@ -120,6 +118,7 @@ class LengkapiProfil extends ValidationComponent {
             pilihBahasa: '',
             dataNegara: [],
             pilihNegara: '',
+            pilihJenisKota:'',
             dataWn: [
                 {
                     id: 0,
@@ -179,38 +178,76 @@ class LengkapiProfil extends ValidationComponent {
                 isLoading: false,
                 loading: false,
                 dataProfil: responseJson.dataProfile,
-                tempatLahir: responseJson.dataProfile.tempat_lahir,
-                tanggalLahir: responseJson.dataProfile.tgl_lahir,
-                nama: responseJson.dataProfile.nama,
-                jenisKelamin: responseJson.dataProfile.jns_kelamin,
-                pilihAgama: responseJson.dataProfile.agama,
-                noTelpon: responseJson.dataProfile.no_telpon,
-                pekerjaan: responseJson.dataProfile.pekerjaan,
-                nik: responseJson.dataProfile.no_ktp,
-                statusKawin: responseJson.dataProfile.status_kawin,
-                pilihProvinsi: responseJson.dataProfile.nama_provinsi,
-                pilihKota: responseJson.dataProfile.nama_kab_kota,
-                pilihKecamatan: responseJson.dataProfile.nama_kecamatan,
-                pilihDesa: responseJson.dataProfile.nama_kelurahan,
-                pilihSuku: responseJson.dataProfile.suku,
-                pilihBahasa: responseJson.dataProfile.bahasa,
-                pilihWn: responseJson.dataProfile.kewarganegaraan,
-                pilihNegara: responseJson.dataProfile.nama_negara,
-                alamat: responseJson.dataProfile.alamat,
-                penanggungJawab: responseJson.dataProfile.penanggung_jawab,
-                noBpjs: responseJson.dataProfile.no_bpjs,
-                noHpPenanggungJawab: responseJson.dataProfile.no_penanggung_jawab,
+                tempatLahir: responseJson.dataProfile.tempat_lahir !== null ? responseJson.dataProfile.tempat_lahir : '',
+                tanggalLahir: responseJson.dataProfile.tgl_lahir !== null ? responseJson.dataProfile.tgl_lahir : '',
+                nama: responseJson.dataProfile.nama !== null ? responseJson.dataProfile.nama : '',
+                jenisKelamin: responseJson.dataProfile.jns_kelamin !== null ? responseJson.dataProfile.jns_kelamin : '',
+                pilihAgama: responseJson.dataProfile.agama !== null ? responseJson.dataProfile.agama : '',
+                noTelpon: responseJson.dataProfile.no_telpon !== null ? responseJson.dataProfile.no_telpon : '',
+                pekerjaan: responseJson.dataProfile.pekerjaan !== null ? responseJson.dataProfile.pekerjaan : '',
+                nik: responseJson.dataProfile.no_ktp !== null ? responseJson.dataProfile.no_ktp : '',
+                statusKawin: responseJson.dataProfile.status_kawin !== null ? responseJson.dataProfile.status_kawin : '',
+                pilihProvinsi: responseJson.dataProfile.nama_provinsi !== null ? responseJson.dataProfile.nama_provinsi : '',
+                pilihKota: responseJson.dataProfile.nama_kab_kota !== null ? responseJson.dataProfile.nama_kab_kota : '',
+                pilihKecamatan: responseJson.dataProfile.nama_kecamatan !== null ? responseJson.dataProfile.nama_kecamatan : '',
+                pilihDesa: responseJson.dataProfile.nama_kelurahan !== null ? responseJson.dataProfile.nama_kelurahan : '',
+                pilihSuku: responseJson.dataProfile.suku !== null ? responseJson.dataProfile.suku : '',
+                pilihBahasa: responseJson.dataProfile.bahasa !== null ? responseJson.dataProfile.bahasa : '',
+                pilihWn: responseJson.dataProfile.kewarganegaraan !== null ? responseJson.dataProfile.kewarganegaraan : '',
+                pilihNegara: responseJson.dataProfile.nama_negara !== null ? responseJson.dataProfile.nama_negara : '',
+                alamat: responseJson.dataProfile.alamat !== null ? responseJson.dataProfile.alamat : '',
+                penanggungJawab: responseJson.dataProfile.penanggung_jawab !== null ? responseJson.dataProfile.penanggung_jawab : '',
+                noBpjs: responseJson.dataProfile.no_bpjs !== null ? responseJson.dataProfile.no_bpjs : '',
+                noHpPenanggungJawab: responseJson.dataProfile.no_penanggung_jawab !== null ? responseJson.dataProfile.no_penanggung_jawab : '',
+            });
+
+            console.log({
+                tempatLahir: responseJson.dataProfile.tempat_lahir !== null ? responseJson.dataProfile.tempat_lahir : '',
+                tanggalLahir: responseJson.dataProfile.tgl_lahir !== null ? responseJson.dataProfile.tgl_lahir : '',
+                nama: responseJson.dataProfile.nama !== null ? responseJson.dataProfile.nama : '',
+                jenisKelamin: responseJson.dataProfile.jns_kelamin !== null ? responseJson.dataProfile.jns_kelamin : '',
+                pilihAgama: responseJson.dataProfile.agama !== null ? responseJson.dataProfile.agama : '',
+                noTelpon: responseJson.dataProfile.no_telpon !== null ? responseJson.dataProfile.no_telpon : '',
+                pekerjaan: responseJson.dataProfile.pekerjaan !== null ? responseJson.dataProfile.pekerjaan : '',
+                nik: responseJson.dataProfile.no_ktp !== null ? responseJson.dataProfile.no_ktp : '',
+                statusKawin: responseJson.dataProfile.status_kawin !== null ? responseJson.dataProfile.status_kawin : '',
+                pilihProvinsi: responseJson.dataProfile.nama_provinsi !== null ? responseJson.dataProfile.nama_provinsi : '',
+                pilihKecamatan: responseJson.dataProfile.nama_kecamatan !== null ? responseJson.dataProfile.nama_kecamatan : '',
+                pilihDesa: responseJson.dataProfile.nama_kelurahan !== null ? responseJson.dataProfile.nama_kelurahan : '',
+                pilihSuku: responseJson.dataProfile.suku !== null ? responseJson.dataProfile.suku : '',
+                pilihBahasa: responseJson.dataProfile.bahasa !== null ? responseJson.dataProfile.bahasa : '',
+                pilihWn: responseJson.dataProfile.kewarganegaraan !== null ? responseJson.dataProfile.kewarganegaraan : '',
+                pilihNegara: responseJson.dataProfile.nama_negara !== null ? responseJson.dataProfile.nama_negara : '',
+                alamat: responseJson.dataProfile.alamat !== null ? responseJson.dataProfile.alamat : '',
+                penanggungJawab: responseJson.dataProfile.penanggung_jawab !== null ? responseJson.dataProfile.penanggung_jawab : '',
+                noBpjs: responseJson.dataProfile.no_bpjs !== null ? responseJson.dataProfile.no_bpjs : '',
+                noHpPenanggungJawab: responseJson.dataProfile.no_penanggung_jawab !== null ? responseJson.dataProfile.no_penanggung_jawab : '',
             });
 
 
-            if (responseJson.dataProfile.nama_provinsi != null) {
-                this.showKota(responseJson.dataProfile.nama_provinsi);
-                this.showKecamatan(responseJson.dataProfile.nama_kab_kota);
-                this.showDesa(responseJson.dataProfile.nama_kecamatan);
+            var kota;
+            if(responseJson.dataProfile.nama_kab_kota !== null){
+                var cek = responseJson.dataProfile.nama_kab_kota.substr(0,2)
+                if(cek === 'Ka'){
+                    kota = responseJson.dataProfile.nama_kab_kota.slice(10)
+                    this.setState({
+                        pilihKota:responseJson.dataProfile.nama_kab_kota.slice(10)
+                    })
+                }else if(cek === 'Ko'){
+                    kota = responseJson.dataProfile.nama_kab_kota.slice(5)
+                    this.setState({
+                        pilihKota:responseJson.dataProfile.nama_kab_kota.slice(5)
+                    })
+                }
             }
 
+            console.log(kota)
+            if (responseJson.dataProfile.nama_provinsi !== null) {
+                this.showKota(responseJson.dataProfile.nama_provinsi);
+                this.showKecamatan(kota, responseJson.dataProfile.nama_provinsi);
+                this.showDesa(responseJson.dataProfile.nama_kecamatan, kota, responseJson.dataProfile.nama_provinsi);
+            }
 
-            console.log(responseJson.dataProfile);
         })
             .catch((error) => {
                 console.log(error);
@@ -372,6 +409,7 @@ class LengkapiProfil extends ValidationComponent {
                 this.state.dataKota.push({
                     id: i,
                     name: a[i].nama_kabkota,
+                    jenis:a[i].kabkota
                 });
             }
             this.setState({
@@ -384,8 +422,11 @@ class LengkapiProfil extends ValidationComponent {
         });
     }
 
-    showKecamatan(kota) {
-        this.state.dataKecamatan = [];
+    showKecamatan(kota, provinsi) {
+        this.setState({
+            dataKecamatan:[]
+        })
+        console.log(kota)
         const url = baseApi + '/user/kecamatan';
         fetch(url, {
             method: 'POST',
@@ -395,7 +436,7 @@ class LengkapiProfil extends ValidationComponent {
             },
             body: JSON.stringify({
                 kota: kota,
-                provinsi: this.state.pilihProvinsi,
+                provinsi: provinsi,
             }),
         }).then((response) => response.json()).then((responseJson) => {
             var a = responseJson.data;
@@ -442,7 +483,7 @@ class LengkapiProfil extends ValidationComponent {
         });
     }
 
-    showDesa(kecamatan) {
+    showDesa(kecamatan, kota, provinsi) {
         this.state.dataDesa = [];
         const url = baseApi + '/user/desa';
         fetch(url, {
@@ -452,8 +493,8 @@ class LengkapiProfil extends ValidationComponent {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                kota: this.state.pilihKota,
-                provinsi: this.state.pilihProvinsi,
+                kota: kota,
+                provinsi: provinsi,
                 kecamatan: kecamatan,
             }),
         }).then((response) => response.json()).then((responseJson) => {
@@ -483,9 +524,9 @@ class LengkapiProfil extends ValidationComponent {
             statusKawin: {required: true},
             chosenDate: {required: true},
             noTelpon: {minlength: 10, maxlength: 13, number: true, required: true},
-            tempatLahir: {minlength: 4, maxlength: 50, required: true},
+            tempatLahir: {minlength: 3, required: true},
             nama: {minlength: 4, maxlength: 50, required: true},
-            pekerjaan: {minlength: 4, maxlength: 50, required: true},
+            pekerjaan: {minlength: 4, maxlength: 50,required: true},
             nik: {minlength: 16, maxlength: 16, required: true},
             pilihProvinsi: {required: true},
             pilihKota: {required: true},
@@ -494,7 +535,7 @@ class LengkapiProfil extends ValidationComponent {
             pilihSuku: {required: true},
             pilihBahasa: {required: true},
             pilihWn: {required: true},
-            alamat: {required: true},
+            alamat: {minlength: 4,required: true},
         });
         if (this.isFormValid()) {
 
@@ -538,7 +579,7 @@ class LengkapiProfil extends ValidationComponent {
                                     pekerjaan: this.state.pekerjaan,
                                     nik: this.state.nik,
                                     pilihProvinsi: this.state.pilihProvinsi,
-                                    pilihKota: this.state.pilihKota,
+                                    pilihKota: this.state.pilihJenisKota + ' ' +this.state.pilihKota,
                                     pilihKecamatan: this.state.pilihKecamatan,
                                     pilihDesa: this.state.pilihDesa,
                                     pilihSuku: this.state.pilihSuku,
@@ -579,7 +620,7 @@ class LengkapiProfil extends ValidationComponent {
                                     showMessage({
                                         message: responseJson.message,
                                         type: 'success',
-                                        position: 'top',
+                                        position: 'bottom',
                                     });
                                     Actions.pop({
                                         refresh: {
@@ -594,7 +635,7 @@ class LengkapiProfil extends ValidationComponent {
                                     showMessage({
                                         message: responseJson.message,
                                         type: 'danger',
-                                        position: 'top',
+                                        position: 'bottom',
                                     });
                                 }
                             }).catch((error) => {
@@ -603,7 +644,7 @@ class LengkapiProfil extends ValidationComponent {
                                 showMessage({
                                     message: responseJson.message,
                                     type: 'danger',
-                                    position: 'top',
+                                    position: 'bottom',
                                 });
                             });
 
@@ -616,7 +657,7 @@ class LengkapiProfil extends ValidationComponent {
                             showMessage({
                                 message: 'BPJS Anda Tidak Aktif',
                                 type: 'danger',
-                                position: 'top',
+                                position: 'bottom',
                             });
                         }
 
@@ -627,7 +668,7 @@ class LengkapiProfil extends ValidationComponent {
                         showMessage({
                             message: 'Nomor Yang anda masukan tidak terdaftar',
                             type: 'danger',
-                            position: 'top',
+                            position: 'bottom',
                         });
                     }
 
@@ -640,7 +681,7 @@ class LengkapiProfil extends ValidationComponent {
                     showMessage({
                         message: error,
                         type: 'danger',
-                        position: 'top',
+                        position: 'bottom',
                     });
                 });
             } else {
@@ -705,7 +746,7 @@ class LengkapiProfil extends ValidationComponent {
                         showMessage({
                             message: responseJson.message,
                             type: 'success',
-                            position: 'top',
+                            position: 'bottom',
                         });
                         Actions.pop({
                             refresh: {
@@ -720,7 +761,7 @@ class LengkapiProfil extends ValidationComponent {
                         showMessage({
                             message: responseJson.message,
                             type: 'danger',
-                            position: 'top',
+                            position: 'bottom',
                         });
                     }
                 }).catch((error) => {
@@ -730,12 +771,18 @@ class LengkapiProfil extends ValidationComponent {
                     showMessage({
                         message: error,
                         type: 'danger',
-                        position: 'top',
+                        position: 'bottom',
                     });
                 });
             }
 
 
+        } else {
+            showMessage({
+                message: 'Isi Semua',
+                type: 'danger',
+                position: 'bottom',
+            });
         }
     }
 
@@ -867,7 +914,7 @@ class LengkapiProfil extends ValidationComponent {
                             colorTheme="#1da30b"
                             searchPlaceHolderText="Cari Kota Anda"
                             popupTitle="Pilih Kota"
-                            title={this.state.pilihKota != null ? this.state.pilihKota : 'Pilih Kota'}
+                            title={this.state.pilihKota != '' ? this.state.pilihKota : 'Pilih Kota'}
                             data={this.state.dataKota}
                             onSelect={data => {
                                 if (this.state.dataKecamatan.length != 0) {
@@ -884,8 +931,9 @@ class LengkapiProfil extends ValidationComponent {
                                 }
                                 this.setState({
                                     pilihKota: this.state.dataKota[data].name,
+                                    pilihJenisKota:this.state.dataKota[data].jenis
                                 });
-                                this.showKecamatan(this.state.dataKota[data].name);
+                                this.showKecamatan(this.state.dataKota[data].name, this.state.pilihProvinsi);
 
                             }}
                             onRemoveItem={data => {
@@ -912,7 +960,7 @@ class LengkapiProfil extends ValidationComponent {
                             colorTheme="#1da30b"
                             searchPlaceHolderText="Cari Kecamatan Anda"
                             popupTitle="Pilih Kecamatan"
-                            title={this.state.pilihKecamatan}
+                            title={this.state.pilihKecamatan !== '' ? this.state.pilihKecamatan : 'Pilih Kecamatan'}
                             data={this.state.dataKecamatan}
                             onSelect={data => {
                                 if (this.state.dataDesa.length != 0) {
@@ -924,7 +972,7 @@ class LengkapiProfil extends ValidationComponent {
                                 this.setState({
                                     pilihKecamatan: this.state.dataKecamatan[data].name,
                                 });
-                                this.showDesa(this.state.dataKecamatan[data].name);
+                                this.showDesa(this.state.dataKecamatan[data].name, this.state.pilihKota, this.state.pilihProvinsi);
 
                             }}
                             onRemoveItem={data => {
@@ -948,7 +996,7 @@ class LengkapiProfil extends ValidationComponent {
                             colorTheme="#1da30b"
                             searchPlaceHolderText="Cari Desa Anda"
                             popupTitle="Pilih Desa"
-                            title={this.state.pilihDesa}
+                            title={this.state.pilihDesa !== ''? this.state.pilihDesa : 'Pilih Desa'}
                             data={this.state.dataDesa}
                             onSelect={data => {
                                 this.setState({
@@ -980,7 +1028,7 @@ class LengkapiProfil extends ValidationComponent {
                             colorTheme="#1da30b"
                             searchPlaceHolderText="Cari Suku Anda"
                             popupTitle="Pilih Suku"
-                            title={this.state.pilihSuku != null ? this.state.pilihKota : 'Pilih Suku'}
+                            title={this.state.pilihSuku != '' ? this.state.pilihSuku : 'Pilih Suku'}
                             data={this.state.dataSuku}
                             onSelect={data => {
                                 this.setState({
@@ -1019,7 +1067,7 @@ class LengkapiProfil extends ValidationComponent {
                             colorTheme="#1da30b"
                             searchPlaceHolderText="Cari Bahasa Anda"
                             popupTitle="Pilih Bahasa"
-                            title={this.state.pilihBahasa != null ? this.state.pilihBahasa : 'Pilih Bahasa'}
+                            title={this.state.pilihBahasa != '' ? this.state.pilihBahasa : 'Pilih Bahasa'}
                             data={this.state.dataBahasa}
                             onSelect={data => {
                                 this.setState({
@@ -1148,16 +1196,26 @@ class LengkapiProfil extends ValidationComponent {
                     />
                     {this.isFieldInError('nama') && this.getErrorsInField('nama').map(errorMessage =>
                         <Text>{errorMessage}</Text>)}
-                    <TextInput
+
+                    {this.state.tempatLahir !== null ? <TextInput
                         defaultValue={this.state.tempatLahir}
-                        ref="tempat_lahir"
+                        ref="tempatLahir"
                         onChangeText={(tempatLahir) => this.setState({tempatLahir})}
                         style={styles.inputBox}
                         underlineColorAndroid="rgba(0,0,0,0)"
                         placeholder="Tempat Lahir"
                         placeholderTextColor="rgba(255,255,255,0.8)"
                         selectionColor="#999999"
-                    />
+                    /> : <TextInput
+                        ref="tempatLahir"
+                        onChangeText={(tempatLahir) => this.setState({tempatLahir})}
+                        style={styles.inputBox}
+                        underlineColorAndroid="rgba(0,0,0,0)"
+                        placeholder="Tempat Lahirrr"
+                        placeholderTextColor="rgba(255,255,255,0.8)"
+                        selectionColor="#999999"
+                    />}
+
                     {this.isFieldInError('tempatLahir') && this.getErrorsInField('tempatLahir').map(errorMessage =>
                         <Text>{errorMessage}</Text>)}
                     <DatePicker
@@ -1200,7 +1258,7 @@ class LengkapiProfil extends ValidationComponent {
                     </Picker>
                     {this.isFieldInError('statusKawin') && this.getErrorsInField('statusKawin').map(errorMessage =>
                         <Text>{errorMessage}</Text>)}
-                    <TextInput
+                    {this.state.pekerjaan !== null ? <TextInput
                         defaultValue={this.state.pekerjaan}
                         ref="pekerjaan"
                         onChangeText={(pekerjaan) => this.setState({pekerjaan})}
@@ -1209,12 +1267,20 @@ class LengkapiProfil extends ValidationComponent {
                         placeholder="Pekerjaan"
                         placeholderTextColor="rgba(255,255,255,0.8)"
                         selectionColor="#999999"
-                    />
+                    /> : <TextInput
+                        ref="pekerjaan"
+                        onChangeText={(pekerjaan) => this.setState({pekerjaan})}
+                        style={styles.inputBox}
+                        underlineColorAndroid="rgba(0,0,0,0)"
+                        placeholder="Pekerjaaaan"
+                        placeholderTextColor="rgba(255,255,255,0.8)"
+                        selectionColor="#999999"
+                    />}
                     {this.isFieldInError('pekerjaan') && this.getErrorsInField('pekerjaan').map(errorMessage =>
                         <Text>{errorMessage}</Text>)}
                     <TextInput
                         keyboardType={'numeric'}
-                        defaultValue={this.state.noTelpon}
+                        defaultValue={this.state.noTelpon != '' ? this.state.noTelpon : ''}
                         ref="noTelpon"
                         onChangeText={(noTelpon) => this.setState({noTelpon})}
                         style={styles.inputBox}
@@ -1229,10 +1295,10 @@ class LengkapiProfil extends ValidationComponent {
                     {this.state.pilihWn === '' ? <View></View> : this.state.pilihWn === 'WNI' ?
                         <View>
                             {listView}
-                            {this.state.pilihProvinsi != '' ? listViewKota : <View></View>}
-                            {this.state.pilihKota != '' && this.state.pilihProvinsi != '' ? listViewKecamatan :
+                            {this.state.pilihProvinsi !== '' ? listViewKota : <View></View>}
+                            {this.state.pilihKota !== '' && this.state.pilihProvinsi !== '' ? listViewKecamatan :
                                 <View></View>}
-                            {this.state.pilihKecamatan != '' && this.state.pilihKota != '' && this.state.pilihProvinsi != '' ? listViewDesa :
+                            {this.state.pilihKecamatan !== '' && this.state.pilihKota !== '' && this.state.pilihProvinsi !== '' ? listViewDesa :
                                 <View></View>}
 
                             {this.state.alamat != '' ?
@@ -1302,8 +1368,19 @@ class LengkapiProfil extends ValidationComponent {
         }
         return (
             <View style={styles.container}>
+                <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
+                <Header
+                    statusBarProps={{barStyle: 'light-content'}}
+                    containerStyle={{
+                        backgroundColor: '#1da30b',
+                        justifyContent: 'space-around',
+                    }}
+                    barStyle="light-content"
+                    placement="center"
+                    centerComponent={{text: 'Pendaftaran', style: {color: '#fff'}}}
+                />
                 {/*{this.state.loading === true ? <View><Loader/></View> : ''}*/}
-                <ScrollView style={{marginVertical: 15, backgroundColor: 'white'}}>
+                <ScrollView style={{backgroundColor: 'white'}}>
                     <LoaderModal
                         loading={this.state.isLoading}/>
                     {loadingView}
@@ -1311,21 +1388,6 @@ class LengkapiProfil extends ValidationComponent {
                     <TouchableOpacity style={styles.button} onPress={this._onSubmit.bind(this)}>
                         <Text style={styles.buttonText}>Update Profil</Text>
                     </TouchableOpacity>
-                    <AwesomeAlert
-                        show={showAlert}
-                        showProgress={false}
-                        title="Notifikasi"
-                        message={this.state.message}
-                        closeOnTouchOutside={true}
-                        closeOnHardwareBackPress={false}
-                        showCancelButton={false}
-                        showConfirmButton={true}
-                        confirmText=" Keluar "
-                        confirmButtonColor="#DD6B55"
-                        onConfirmPressed={() => {
-                            this.hideAlert();
-                        }}
-                    />
                 </ScrollView>
             </View>
         );

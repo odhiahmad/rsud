@@ -1,5 +1,6 @@
 import React, {Component, useEffect} from 'react';
 import {baseApi} from '../../service/api';
+import {ListItem, Header, Badge,Icon} from 'react-native-elements';
 import {
     ScrollView,
     StyleSheet,
@@ -7,45 +8,20 @@ import {
     View,
     ActivityIndicator,
     TouchableHighlight,
-    TouchableOpacity,
+    TouchableOpacity, StatusBar, FlatList,
 } from 'react-native';
 import Modal from 'react-native-modal';
-import {
-    Col, Row, Grid,
-    Item,
-    H2,
-    Spinner,
-    Root,
-    Container,
-    Header,
-    Content,
-    Button,
-    ListItem,
-    Icon,
-    Left,
-    Body,
-    Right,
-    Switch,
-    ActionSheet,
-    Card, CardItem,
-} from 'native-base';
-
-
-var BUTTONS = [
-    'Kelas 1', 'Kelas 2', 'Kelas 3', 'Isolasi', 'Incubator', 'Covis', 'HCU',
-
-];
-var DESTRUCTIVE_INDEX = 3;
-var CANCEL_INDEX = 4;
+import LoaderModal from '../../components/LoaderModal';
 
 export default class index extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
+            loading: false,
             namaKelas: null,
             isLoading: true,
-            dataSource: null,
+            data: null,
             dataDetail: null,
             isLoadingDataModal: true,
             isModalVisible: false,
@@ -54,11 +30,13 @@ export default class index extends Component {
     }
 
     componentDidMount() {
-
+        this.setState({
+            loading: true,
+        });
         return fetch(baseApi + '/user/ruangan').then((response) => response.json()).then((responseJson) => {
             this.setState({
-                isLoading: false,
-                dataSource: responseJson.data,
+                loading: false,
+                data: responseJson.data,
             });
         })
             .catch((error) => {
@@ -78,6 +56,7 @@ export default class index extends Component {
         this.setState({
             namaKelas: namaKelas,
             modalVisible: visible,
+            loadingModal:true
         });
         fetch(baseApi + '/user/detailRuangan', {
             method: 'POST',
@@ -93,6 +72,7 @@ export default class index extends Component {
             this.setState({
                 isLoadingDataModal: false,
                 dataDetail: responseJson.data,
+                loadingModal:false
 
             });
 
@@ -103,170 +83,93 @@ export default class index extends Component {
 
     }
 
+    renderRowDetail = ({item, index}) => {
+        var tersedia = (item.map_kapasitas) - item.map_isipr + item.map_isilk;
+        var terisi = item.map_isipr + item.map_isilk;
+        return (
+            <ListItem
+
+                title={item.get_kelas_ketersedian[0].kelas_nama}
+                subtitle={
+                    <View style={{flex: 1, flexDirection: 'row'}}>
+                        <View style={{width: 40}}>
+                            <Icon
+                                color='#1da30b'
+                                type="font-awesome"
+                                name="check" style={{
+                                fontSize: 12,
+                            }}/>
+                            <Icon
+                                fontSize={12}
+                                color='red'
+                                type="font-awesome"
+                                name="close" style={{
+                                fontSize: 12,
+                            }}/>
+                        </View>
+                        <View style={{width: 100}}>
+                            <Text style={{fontSize: 18,color: 'grey'}}>Tersedia</Text>
+                            <Text style={{fontSize: 18,color: 'grey'}}>Terisi</Text>
+                        </View>
+                        <View style={{width: 100}}>
+                            <Text style={{fontSize: 18,color: 'grey'}}>{tersedia}</Text>
+                            <Text style={{fontSize: 18,color: 'grey'}}>{terisi}</Text>
+                        </View>
+                    </View>
+                }
+                leftAvatar={{
+                    title: item.get_kelas_ketersedian[0].kelas_nama[0],
+                }}
+                bottomDivider
+            >
+            </ListItem>);
+    };
+
+    renderRow = ({item, index}) => {
+        return (
+            <ListItem onPress={() => {
+                this.setModalVisible(true, item.map_kamarid, item.get_ruangan_ketersedian.grNama);
+            }}
+
+                      title={<Text>{item.get_ruangan_ketersedian.grNama}</Text>}
+                      subtitle={<Text style={{color: 'gray'}}>Total Tersedia {item.total}</Text>}
+                      leftAvatar={{
+                          title: item.get_ruangan_ketersedian.grNama[0],
+                      }}
+                      chevron
+            />
+        );
+    };
+
+    renderFooter = () => {
+        return (
+            this.state.loadingModal ?
+                <View style={styles.loader}>
+                    <ActivityIndicator size="small"/>
+                </View> : null
+        );
+    };
 
     render() {
-
-        var listView = [];
-        if (this.state.dataDetail != null) {
-            for (let i = 0; i < this.state.dataDetail.length; i++) {
-                var tersedia = (this.state.dataDetail[i].map_kapasitas) - this.state.dataDetail[i].map_isipr + this.state.dataDetail[i].map_isilk;
-                var terisi = this.state.dataDetail[i].map_isipr + this.state.dataDetail[i].map_isilk;
-                var perempuan = this.state.dataDetail[i].map_isipr;
-                var laki = this.state.dataDetail[i].map_isilk;
-                listView.push(<View>
-                    {
-
-                        <Card>
-                            <CardItem>
-                                <Body>
-                                    <Text style={{
-                                        fontSize: 16,
-                                        fontWeight: 'bold',
-                                        textAlign: 'center',
-                                    }}> {this.state.dataDetail[i].get_kelas_ketersedian[0].kelas_nama}</Text>
-                                    <Grid>
-                                        <Col style={{height: 150}}>
-                                            <Item><Icon type="FontAwesome" name="medkit"></Icon><Text
-                                                style={{marginRight: 10}}>Tersedia</Text>{tersedia > 9 ?
-                                                <Button success style={{
-                                                    width: 35, height: 40, marginRight: 10, borderRadius: 5,
-                                                    marginVertical: 10,
-                                                    paddingVertical: 13,
-                                                }}><Text style={{
-                                                    color: '#ffffff',
-                                                    fontWeight: 'bold',
-                                                    paddingLeft: 5,
-                                                    textAlign: 'center',
-                                                }}> {tersedia}</Text></Button> : <Button success style={{
-                                                    width: 35, height: 40, marginRight: 10, borderRadius: 5,
-                                                    marginVertical: 10,
-                                                    paddingVertical: 13,
-                                                }}><Text style={{
-                                                    color: '#ffffff',
-                                                    fontWeight: 'bold',
-                                                    paddingLeft: 10,
-                                                    textAlign: 'center',
-                                                }}> {tersedia}</Text></Button>}</Item>
-                                            <Item><Icon type="FontAwesome"
-                                                        name="medkit"></Icon><Text
-                                                style={{marginRight: 30}}>Terisi</Text>{terisi > 9 ?
-                                                <Button danger style={{
-                                                    width: 35, height: 40, borderRadius: 5,
-                                                    marginVertical: 10,
-                                                    paddingVertical: 13,
-                                                }}><Text style={{
-                                                    color: '#ffffff',
-                                                    fontWeight: 'bold',
-                                                    paddingLeft: 5,
-                                                    textAlign: 'center',
-                                                }}> {terisi}</Text></Button> : <Button danger style={{
-                                                    width: 35, height: 40, borderRadius: 5,
-                                                    marginVertical: 10,
-                                                    paddingVertical: 13,
-                                                }}><Text style={{
-                                                    color: '#ffffff',
-                                                    fontWeight: 'bold',
-                                                    paddingLeft: 10,
-                                                    textAlign: 'center',
-                                                }}> {terisi}</Text></Button>}</Item>
-                                        </Col>
-                                        <Col style={{height: 150}}>
-                                            <Item><Icon type="FontAwesome" name="user"></Icon><Text
-                                                style={{marginRight: 10}}>Perempuan</Text>{perempuan > 9 ?
-                                                <Button primary style={{
-                                                    width: 35, height: 40, marginRight: 10, borderRadius: 5,
-                                                    marginVertical: 10,
-                                                    paddingVertical: 13,
-                                                }}><Text style={{
-                                                    color: '#ffffff',
-                                                    fontWeight: 'bold',
-                                                    paddingLeft: 5,
-                                                    textAlign: 'center',
-                                                }}> {perempuan}</Text></Button> : <Button primary style={{
-                                                    width: 35, height: 40, marginRight: 10, borderRadius: 5,
-                                                    marginVertical: 10,
-                                                    paddingVertical: 13,
-                                                }}><Text style={{
-                                                    color: '#ffffff',
-                                                    fontWeight: 'bold',
-                                                    paddingLeft: 10,
-                                                    textAlign: 'center',
-                                                }}> {perempuan}</Text></Button>}</Item>
-                                            <Item><Icon type="FontAwesome"
-                                                        name="user"></Icon><Text
-                                                style={{marginRight: 57}}>Pria</Text>{laki > 9 ?
-                                                <Button primary style={{
-                                                    width: 35, height: 40, borderRadius: 5,
-                                                    marginVertical: 10,
-                                                    paddingVertical: 13,
-                                                }}><Text style={{
-                                                    color: '#ffffff',
-                                                    fontWeight: 'bold',
-                                                    paddingLeft: 5,
-                                                    textAlign: 'center',
-                                                }}> {laki}</Text></Button> : <Button primary style={{
-                                                    width: 35, height: 40, borderRadius: 5,
-                                                    marginVertical: 10,
-                                                    paddingVertical: 13,
-                                                }}><Text style={{
-                                                    color: '#ffffff',
-                                                    fontWeight: 'bold',
-                                                    paddingLeft: 10,
-                                                    textAlign: 'center',
-                                                }}> {laki}</Text></Button>}</Item>
-                                        </Col>
-                                    </Grid>
-                                </Body>
-                            </CardItem>
-                        </Card>
-                    }
-                </View>);
-
-            }
-        } else {
-            listView.push(<View style={styles.container}>
-                {
-                    <Spinner color='green'/>
-                }</View>);
-        }
-
-
-        if (this.state.isLoading) {
-            return (
-                <View style={styles.container}>
-                    <ActivityIndicator/>
-                </View>
-            );
-        } else {
-            let data = this.state.dataSource.map(({total, get_ruangan_ketersedian, map_kamarid, perempuan, pria}, key) => {
-                let namaKelasData = get_ruangan_ketersedian.map((grNama, j) => <Text key={j}>{grNama.grNama}</Text>);
-                let icon = get_ruangan_ketersedian.map((grNama, j) => <Icon type="FontAwesome" name={grNama.icon}
-                                                                            key={j}/>);
-                if (total != 0) {
-                    return <TouchableOpacity key={key} style={styles.item}>
-                        <ListItem
-                            onPress={() => {
-                                this.setModalVisible(true, map_kamarid, namaKelasData);
-                            }}
-                            icon>
-                            <Left>
-                                <Button style={{backgroundColor: '#FF9501'}}>
-                                    {icon}
-                                </Button>
-                            </Left>
-                            <Body>
-                                <Text>{namaKelasData}</Text>
-                            </Body>
-                            <Right>
-                                <Text>{total}</Text>
-                            </Right>
-                        </ListItem>
-                    </TouchableOpacity>;
-                }
-
-            });
-
-            const modalDetail =
+        return (
+            <View>
+                <LoaderModal
+                    loading={this.state.loading}/>
+                <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
+                <Header
+                    statusBarProps={{barStyle: 'light-content'}}
+                    containerStyle={{
+                        backgroundColor: '#1da30b',
+                        justifyContent: 'space-around',
+                    }}
+                    barStyle="light-content"
+                    placement="center"
+                    centerComponent={{text: 'Monitoring Ketersedian Kamar', style: {color: '#fff'}}}
+                />
+                <FlatList
+                    renderItem={this.renderRow}
+                    keyExtractor={(item, index) => index.toString()}
+                    data={this.state.data}/>
                 <Modal
                     onHardwareBackPress={() => this.setModalUnvisible(!this.state.modalVisible)}
                     propagateSwipe={true}
@@ -275,56 +178,28 @@ export default class index extends Component {
                     animationType="slide"
                     transparent={false}
                     visible={this.state.modalVisible}
-                >
+                    onRequestClose={() => {
+                        this.setModalUnvisible(!this.state.modalVisible);
+                    }}>
                     <View style={{flex: 1}}>
                         <Text style={{
                             marginBottom: 10,
-                            fontSize: 16,
-                            fontWeight: '500',
+                            fontSize: 12,
+                            fontWeight: 'bold',
                             textAlign: 'center',
-                        }}>Kelas Layanan {this.state.namaKelas}</Text>
-                        <ScrollView>
-
-
-                            {listView}
-
-                            {/*<View style={{width:40,justifyContent: 'center'}}></View>*/}
-
-
-                        </ScrollView>
-                        <TouchableOpacity>
-                            <Button onPress={() => {
-                                this.setModalUnvisible(!this.state.modalVisible);
-                            }} full success>
-                                <Text style={{
-                                    fontSize: 16,
-                                    fontWeight: '500',
-                                    color: '#ffffff',
-                                    textAlign: 'center',
-                                }}>Keluar</Text>
-                            </Button>
-                        </TouchableOpacity>
+                        }}>JADWAL {this.state.namaKelas}</Text>
+                        <FlatList
+                            ListFooterComponent={this.renderFooter}
+                            renderItem={this.renderRowDetail}
+                            keyExtractor={(item, index) => index.toString()}
+                            data={this.state.dataDetail}/>
                     </View>
-
-
-                </Modal>;
-
-            return (
-                <Root>
-                    <Container>
-                        <Content>
-                            <View>
-                                {data}
-                                {modalDetail}
-                            </View>
-                        </Content>
-                    </Container>
-                </Root>
-
-            );
-        }
-
+                </Modal>
+            </View>
+        );
     }
+
+
 }
 
 const styles = StyleSheet.create({
@@ -333,5 +208,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    loader: {
+        marginTop: 18,
+        alignItems: 'center',
     },
 });

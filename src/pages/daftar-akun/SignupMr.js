@@ -39,6 +39,7 @@ import {
     ActionSheet,
     Card, CardItem,
 } from 'native-base';
+import {showMessage} from 'react-native-flash-message';
 
 const styles = StyleSheet.create({
     container: {
@@ -96,8 +97,6 @@ const styles = StyleSheet.create({
 });
 
 
-
-
 class SignupMr extends ValidationComponent {
 
 
@@ -113,11 +112,11 @@ class SignupMr extends ValidationComponent {
         super(props);
         this.toggleSwitch = this.toggleSwitch.bind(this);
         this.state = {
-            nama:'',
-            success:'',
+            nama: '',
+            success: '',
             showPassword: true,
             nomorMr: '',
-            nomr:'',
+            nomr: '',
             tahunLahir: '',
             emailValidasi: '',
             password: '',
@@ -126,7 +125,7 @@ class SignupMr extends ValidationComponent {
             showAlert: false,
             message: '',
             loading: false,
-            halamanSelanjutnya:false,
+            halamanSelanjutnya: false,
             nilaiTambahA: Math.floor(Math.random() * 10),
             nilaiTambahB: Math.floor(Math.random() * 10),
         };
@@ -145,18 +144,18 @@ class SignupMr extends ValidationComponent {
 
     hideAlert = () => {
 
-        if(this.state.halamanSelanjutnya === true){
+        if (this.state.halamanSelanjutnya === true) {
             this.setState({
                 showAlert: false,
             });
             console.log(this.state.nomr),
-            Actions.singupmr2({
-                nomorMr: this.state.nomr,
-                tahunLahir:this.state.tahunLahir,
-                success:this.state.success,
-                nama:this.state.nama
-            })
-        }else{
+                Actions.singupmr2({
+                    nomorMr: this.state.nomr,
+                    tahunLahir: this.state.tahunLahir,
+                    success: this.state.success,
+                    nama: this.state.nama,
+                });
+        } else {
             this.setState({
                 showAlert: false,
             });
@@ -166,16 +165,18 @@ class SignupMr extends ValidationComponent {
 
     _onSubmit() {
 
+        this.setState({
+            loading: true,
+        });
 
-        this.state.loading = true;
         this.validate({
-            nomorMr: {minlength: 6, maxlength: 6,numbers: true, required: true},
-            tahunLahir: {minlength: 4, maxlength: 4,numbers: true, required: true},
+            nomorMr: {minlength: 6, maxlength: 6, numbers: true, required: true},
+            tahunLahir: {minlength: 4, maxlength: 4, numbers: true, required: true},
             angka: {minlength: 1, required: true, numbers: true},
         });
         if (this.isFormValid()) {
             if (parseInt(this.state.angka) === this.state.nilaiTambahA + this.state.nilaiTambahB) {
-                this.state.nilaiTambahA =  Math.floor(Math.random() * 10);
+                this.state.nilaiTambahA = Math.floor(Math.random() * 10);
                 this.state.nilaiTambahB = Math.floor(Math.random() * 10);
                 fetch(baseApi + '/user/konfirmasiNomorMr', {
                     method: 'POST',
@@ -189,34 +190,69 @@ class SignupMr extends ValidationComponent {
                     }),
 
                 }).then((response) => response.json()).then((responseJson) => {
-                    this.state.message = responseJson.message;
-                    this.state.loading = false;
 
-                    if(responseJson.success === true){
-                        this.state.nomr = responseJson.nomorMr
-                        this.state.nama = responseJson.nama
-                        this.state.success = responseJson.success
-                        this.state.message = responseJson.message;
-                        this.state.halamanSelanjutnya = true
-                        this.showAlert();
-                    }else{
-                        this.state.message = responseJson.message;
-                        this.state.halamanSelanjutnya = false
-                        this.showAlert();
+                    if (responseJson.success === true) {
+                        this.setState({
+                            nomr: responseJson.nomorMr,
+                            nama: responseJson.nama,
+                            success: responseJson.success,
+                            tmessage: responseJson.message,
+                            halamanSelanjutnya: true,
+                            loading: false,
+                        });
+                        showMessage({
+                            message: responseJson.message,
+                            type: 'warning',
+                            position: 'bottom',
+                        });
+
+                        Actions.singupmr2({
+                            nomorMr: this.state.nomr,
+                            tahunLahir: this.state.tahunLahir,
+                            success: this.state.success,
+                            nama: this.state.nama,
+                        });
+
+
+                    } else {
+                        this.setState({
+                            message: responseJson.message,
+                            halamanSelanjutnya: false,
+                            loading: false,
+
+                        });
+                        showMessage({
+                            message: responseJson.message,
+                            type: 'danger',
+                            position: 'bottom',
+                        });
                     }
 
-                })
+                });
             } else {
-                this.state.loading = false;
-                this.state.message = 'Jumlah yang anda masukan tidak sama';
-                this.showAlert();
+                this.setState({
+                    message: 'Jumlah yang anda masukan tidak sama',
+                    halamanSelanjutnya: false,
+                    loading: false,
+                });
+                showMessage({
+                    message: 'Jumlah yang anda masukan tidak sama',
+                    type: 'danger',
+                    position: 'bottom',
+                });
             }
 
 
         } else {
-            this.state.loading = false;
-            this.state.message = 'Isi semua';
-            this.showAlert();
+            this.setState({
+                message: 'Isi semua',
+                loading: false,
+            });
+            showMessage({
+                message: 'Isi semua',
+                type: 'danger',
+                position: 'bottom',
+            });
 
         }
 
@@ -239,6 +275,7 @@ class SignupMr extends ValidationComponent {
                 <ScrollView style={{marginVertical: 15, backgroundColor: 'white'}}>
                     <Logo/>
                     <TextInput
+                        keyboardType={'numeric'}
                         ref="nomorMr"
                         onChangeText={(nomorMr) => this.setState({nomorMr})}
                         style={styles.inputBox}
@@ -250,6 +287,7 @@ class SignupMr extends ValidationComponent {
                     {this.isFieldInError('nomorMr') && this.getErrorsInField('nomorMr').map(errorMessage =>
                         <Text>{errorMessage}</Text>)}
                     <TextInput
+                        keyboardType={'numeric'}
                         ref="tahunLahir"
                         onChangeText={(tahunLahir) => this.setState({tahunLahir})}
                         style={styles.inputBox}
@@ -262,13 +300,14 @@ class SignupMr extends ValidationComponent {
                         <Text>{errorMessage}</Text>)}
                     <TextInput
                         editable={false}
-                        defaultValue={"Hasil dari "+this.state.nilaiTambahA +" + " + this.state.nilaiTambahB}
+                        defaultValue={'Hasil dari ' + this.state.nilaiTambahA + ' + ' + this.state.nilaiTambahB}
                         style={styles.inputBox}
                         underlineColorAndroid="rgba(0,0,0,0)"
                         placeholderTextColor="rgba(255,255,255,0.8)"
                         selectionColor="#999999"
                     />
                     <TextInput
+                        keyboardType={'numeric'}
                         ref="angka"
                         onChangeText={(angka) => this.setState({angka})}
                         style={styles.inputBox}
@@ -292,21 +331,6 @@ class SignupMr extends ValidationComponent {
 
                     </View>
 
-                    <AwesomeAlert
-                        show={showAlert}
-                        showProgress={false}
-                        title="Notifikasi"
-                        message={this.state.message}
-                        closeOnTouchOutside={true}
-                        closeOnHardwareBackPress={false}
-                        showCancelButton={false}
-                        showConfirmButton={true}
-                        confirmText=" Ok "
-                        confirmButtonColor="#DD6B55"
-                        onConfirmPressed={() => {
-                            this.hideAlert();
-                        }}
-                    />
                 </ScrollView>
             </View>
         );
