@@ -1323,6 +1323,7 @@ class LengkapiProfil extends ValidationComponent {
                     }
 
                     <TextInput
+                        keyboardType={'numeric'}
                         defaultValue={parseInt(this.state.noBpjs) === 0 ? null : this.state.noBpjs}
                         ref="noBpjs"
                         onChangeText={(noBpjs) => this.setState({noBpjs})}

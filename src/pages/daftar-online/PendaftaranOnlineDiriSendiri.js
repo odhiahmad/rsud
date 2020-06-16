@@ -55,6 +55,7 @@ import FlashMessage, {showMessage} from 'react-native-flash-message';
 import PhotoUpload from 'react-native-photo-upload';
 import moment from 'moment';
 
+
 const {height} = Dimensions.get('window');
 const styles = StyleSheet.create({
     container: {
@@ -1617,6 +1618,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 />
                 <LoaderModal
                     loading={this.state.loading}/>
+
                 {this.state.statusIsi === 0 ?
                     <View>
                         {/*<TextInput*/}

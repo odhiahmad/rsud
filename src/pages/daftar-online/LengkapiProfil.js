@@ -201,28 +201,7 @@ class LengkapiProfil extends ValidationComponent {
                 noHpPenanggungJawab: responseJson.dataProfile.no_penanggung_jawab !== null ? responseJson.dataProfile.no_penanggung_jawab : '',
             });
 
-            console.log({
-                tempatLahir: responseJson.dataProfile.tempat_lahir !== null ? responseJson.dataProfile.tempat_lahir : '',
-                tanggalLahir: responseJson.dataProfile.tgl_lahir !== null ? responseJson.dataProfile.tgl_lahir : '',
-                nama: responseJson.dataProfile.nama !== null ? responseJson.dataProfile.nama : '',
-                jenisKelamin: responseJson.dataProfile.jns_kelamin !== null ? responseJson.dataProfile.jns_kelamin : '',
-                pilihAgama: responseJson.dataProfile.agama !== null ? responseJson.dataProfile.agama : '',
-                noTelpon: responseJson.dataProfile.no_telpon !== null ? responseJson.dataProfile.no_telpon : '',
-                pekerjaan: responseJson.dataProfile.pekerjaan !== null ? responseJson.dataProfile.pekerjaan : '',
-                nik: responseJson.dataProfile.no_ktp !== null ? responseJson.dataProfile.no_ktp : '',
-                statusKawin: responseJson.dataProfile.status_kawin !== null ? responseJson.dataProfile.status_kawin : '',
-                pilihProvinsi: responseJson.dataProfile.nama_provinsi !== null ? responseJson.dataProfile.nama_provinsi : '',
-                pilihKecamatan: responseJson.dataProfile.nama_kecamatan !== null ? responseJson.dataProfile.nama_kecamatan : '',
-                pilihDesa: responseJson.dataProfile.nama_kelurahan !== null ? responseJson.dataProfile.nama_kelurahan : '',
-                pilihSuku: responseJson.dataProfile.suku !== null ? responseJson.dataProfile.suku : '',
-                pilihBahasa: responseJson.dataProfile.bahasa !== null ? responseJson.dataProfile.bahasa : '',
-                pilihWn: responseJson.dataProfile.kewarganegaraan !== null ? responseJson.dataProfile.kewarganegaraan : '',
-                pilihNegara: responseJson.dataProfile.nama_negara !== null ? responseJson.dataProfile.nama_negara : '',
-                alamat: responseJson.dataProfile.alamat !== null ? responseJson.dataProfile.alamat : '',
-                penanggungJawab: responseJson.dataProfile.penanggung_jawab !== null ? responseJson.dataProfile.penanggung_jawab : '',
-                noBpjs: responseJson.dataProfile.no_bpjs !== null ? responseJson.dataProfile.no_bpjs : '',
-                noHpPenanggungJawab: responseJson.dataProfile.no_penanggung_jawab !== null ? responseJson.dataProfile.no_penanggung_jawab : '',
-            });
+
 
 
             var kota;

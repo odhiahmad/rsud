@@ -148,8 +148,7 @@ class MenuPilihan extends Component {
                     </View>
                     <View style={styles.signupTextCont}>
                         <Text style={styles.signupText}>Sudah mempunyai akun?, silahkan</Text>
-                        <TouchableOpacity onPress={this.goBack}><Text style={styles.signupButton}> Login
-                            in</Text></TouchableOpacity>
+                        <TouchableOpacity onPress={this.goBack}><Text style={styles.signupButton}> Login</Text></TouchableOpacity>
 
                     </View>
                 </ScrollView>

@@ -16,6 +16,7 @@ import ShuttleBus from '../pages/shuttle-bus/ShuttleBus'
 import ShuttleBusDetail from '../pages/shuttle-bus/ShuttleBusDetail';
 import DaftarOnlineIndex from '../pages/daftar-online/PendaftaranOnline';
 import PendaftaranOnlineDiriSendiri from '../pages/daftar-online/PendaftaranOnlineDiriSendiri';
+import PendaftaranOnlineOrangLainBaru from '../pages/daftar-online/PendaftaranOnlineOrangLainBaru';
 import EditProfil from '../pages/profil/EditProfil';
 import Faq from '../pages/Faq';
 import Pengaduan from '../pages/pengaduan/Pengaduan'
@@ -31,6 +32,7 @@ import {connect} from 'react-redux';
 import GantiPassword from '../pages/profil/GantiPassword';
 import CariNomorMr from '../pages/daftar-online/CariNomorMr';
 import LengkapiProfil from '../pages/daftar-online/LengkapiProfil';
+import Obat from '../pages/Obat/Obat';
 import { createStackNavigator } from 'react-navigation-stack';
 let {width, height} = Dimensions.get('window');
 var backButtonPressedOnceToExit = false;
@@ -185,6 +187,12 @@ class Routes extends Component<{}> {
                                     component={PendaftaranOnlineDiriSendiri}
                                     title="Daftar Online"
                                 />
+                                <Scene
+                                    direction='vertical'
+                                    key="daftaronlineoranglainbaru"
+                                    component={PendaftaranOnlineOrangLainBaru}
+                                    title="Daftar Online"
+                                />
 
                                 <Scene
                                     direction='vertical'
@@ -197,6 +205,12 @@ class Routes extends Component<{}> {
                                     key="carinomormr"
                                     component={CariNomorMr}
                                     title="Input Nomor MR"
+                                />
+                                <Scene
+                                    hideNavBar={true}
+                                    key="obat"
+                                    component={Obat}
+                                    title="Obat Pasien"
                                 />
                                 <Scene
                                     hideNavBar={true}
@@ -240,6 +254,12 @@ class Routes extends Component<{}> {
                                     component={News}
                                     hideNavBar={true}
 
+                                />
+                                <Scene
+                                    hideNavBar={true}
+                                    key="notifikasi"
+                                    component={Notifikasi}
+                                    title="Notifikasi"
                                 />
                             </Scene>
                             <Scene  hideNavBar={true} duration={400} key="notifikasi" component={Riwayat} title="Riwayat" icon={TabIcon}>

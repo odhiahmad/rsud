@@ -19,7 +19,7 @@ export default class ShuttleBusDetail extends Component {
             inClick: false,
             idShuttle: this.props.id,
             curTime: '',
-            panjangData:null,
+            panjangData: null,
         };
     }
 
@@ -47,9 +47,8 @@ export default class ShuttleBusDetail extends Component {
             this.setState({
                 loading: false,
                 dataSource: responseJson.data,
-                panjangData:responseJson.data.length
+                panjangData: responseJson.data.length,
             });
-
 
 
         })
@@ -105,9 +104,6 @@ export default class ShuttleBusDetail extends Component {
         }
 
 
-        console.log(time);
-
-
         var posisiSekarang = 0;
         for (let i = 0; i < labels.length; i++) {
             if (i === 0) {
@@ -120,6 +116,8 @@ export default class ShuttleBusDetail extends Component {
             }
 
         }
+
+
         console.log(posisiSekarang);
         console.log(this.state.panjangData);
         if (this.state.panjangData === 0) {
@@ -129,6 +127,20 @@ export default class ShuttleBusDetail extends Component {
                 >
                 </ListItem>);
         } else {
+            var a = parseInt(this.state.dataSource[posisiSekarang - 1].jam.substr(3, 2)) + 1;
+
+
+            var b = this.state.dataSource[posisiSekarang - 1].jam.substr(0, 2);
+            var c = this.state.dataSource[posisiSekarang - 1].jam.substr(6, 2);
+            var total = '';
+            if (a <= 9) {
+                total = b + ':0' + a + ':' + c;
+            } else {
+                total = b + ':' + a + ':' + c;
+            }
+
+            console.log(total);
+
             return (
                 <ListItem
                     title={<Text>{item.jam}</Text>}
@@ -137,11 +149,19 @@ export default class ShuttleBusDetail extends Component {
                             menuju {this.Capitalize(item.rute)}</Text> :
                         index > posisiSekarang ?
                             <Text>Akan Sampai di {this.Capitalize(item.rute)}</Text> :
-                            (index - 1) === posisiSekarang ?
+                            (index === posisiSekarang - 1 && time <= total) ?
                                 <Text note>Sedang Berhenti {this.Capitalize(item.rute)}</Text> :
                                 <Text note>Sudah Melewati {this.Capitalize(item.rute)}</Text>}
                     leftAvatar={<View
                         style={index === posisiSekarang ? {
+                            margin: 10,
+                            width: 40,
+                            height: 40,
+                            borderWidth: 1,
+                            borderColor: 'green',
+                            borderRadius: 50,
+                            justifyContent: 'center',
+                        } : (index === posisiSekarang - 1 && time <= total) ? {
                             margin: 10,
                             width: 40,
                             height: 40,
@@ -158,11 +178,18 @@ export default class ShuttleBusDetail extends Component {
                             borderRadius: 50,
                             justifyContent: 'center',
                         }}>
-                        {index === posisiSekarang ? <Icon
-                            color='red'
+                        {index === posisiSekarang && time >= total ? <Icon
+                            color='green'
                             fontSize='30'
                             type="font-awesome"
                             name="step-forward" style={{
+                            alignSelf: 'center',
+                            position: 'absolute',
+                        }}/> : (index === posisiSekarang - 1 && time <= total) ? <Icon
+                            fontSize="20"
+                            color='red'
+                            type="font-awesome"
+                            name="stop" style={{
                             alignSelf: 'center',
                             position: 'absolute',
                         }}/> : index < posisiSekarang ? <Icon
@@ -170,13 +197,6 @@ export default class ShuttleBusDetail extends Component {
                             color='orange'
                             type="font-awesome"
                             name="check" style={{
-                            alignSelf: 'center',
-                            position: 'absolute',
-                        }}/> : (index - 1) === posisiSekarang ? <Icon
-                            fontSize="20"
-                            color='orange'
-                            type="font-awesome"
-                            name="circle" style={{
                             alignSelf: 'center',
                             position: 'absolute',
                         }}/> : <Icon
@@ -213,13 +233,16 @@ export default class ShuttleBusDetail extends Component {
                 />
                 <LoaderModal
                     loading={this.state.loading}/>
-                {this.state.panjangData === 0?
-                    <ListItem>
-
-                    </ListItem>:<FlatList
-                        renderItem={this.renderRow}
-                        keyExtractor={(item, index) => index.toString()}
-                        data={this.state.dataSource}/>
+                {this.state.panjangData === 0 && this.state.idShuttle === 1 ?
+                    <ListItem title={<Text>Tidak ada Jadwal Bus Pada Jam Ini</Text>}
+                              subtitle={<Text>Jadwal Bus Pada Jam 7 Pagi, 9 Pagi, dan 1 Siang WIB</Text>}
+                    ></ListItem> : this.state.panjangData === 0 && this.state.idShuttle === 2 ?
+                        <ListItem title={<Text>Tidak ada Jadwal Bus Pada Jam Ini</Text>}
+                                  subtitle={<Text>Jadwal Bus Pada Jam 8 Pagi, 10 Pagi, dan 2 Siang WIB</Text>}
+                        ></ListItem> : <FlatList
+                            renderItem={this.renderRow}
+                            keyExtractor={(item, index) => index.toString()}
+                            data={this.state.dataSource}/>
                 }
 
             </View>

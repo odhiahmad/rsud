@@ -132,6 +132,7 @@ class Step2 extends ValidationComponent {
             pilihBahasa: '',
             dataNegara: [],
             pilihNegara: '',
+            pilihJenisKota:'',
             dataWn: [
                 {
                     id: 0,
@@ -232,7 +233,7 @@ class Step2 extends ValidationComponent {
         if(this.state.pilihWn === 'WNI'){
             saveState({
                 pilihProvinsi: this.state.pilihProvinsi,
-                pilihKota: this.state.pilihKota,
+                pilihKota: this.state.pilihJenisKota + ' ' +this.state.pilihKota,
                 pilihKecamatan: this.state.pilihKecamatan,
                 pilihDesa: this.state.pilihDesa,
                 pilihSuku: this.state.pilihSuku,
@@ -401,6 +402,7 @@ class Step2 extends ValidationComponent {
                 this.state.dataKota.push({
                     id: i,
                     name: a[i].nama_kabkota,
+                    jenis:a[i].kabkota,
                 });
             }
             this.setState({
@@ -669,6 +671,7 @@ class Step2 extends ValidationComponent {
                                 }
                                 this.setState({
                                     pilihKota: this.state.dataKota[data].name,
+                                    pilihJenisKota:this.state.dataKota[data].jenis,
                                 });
                                 this.showKecamatan(this.state.dataKota[data].name);
 

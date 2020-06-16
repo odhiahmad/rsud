@@ -338,8 +338,7 @@ class Signup extends ValidationComponent {
                     </TouchableOpacity>
                     <View style={styles.signupTextCont}>
                         <Text style={styles.signupText}>Sudah mempunyai akun, silahkan?</Text>
-                        <TouchableOpacity onPress={this.goBack}><Text style={styles.signupButton}> Sign
-                            in</Text></TouchableOpacity>
+                        <TouchableOpacity onPress={this.goBack}><Text style={styles.signupButton}> Login</Text></TouchableOpacity>
 
                     </View>
 

@@ -1,5 +1,6 @@
 import {baseApi, baseApiBpjs, fetchApi} from '../service/api';
 import {Actions} from 'react-native-router-flux';
+import messaging from '@react-native-firebase/messaging';
 
 export const createNewUser = (payload) => {
     return async (dispatch) => {
@@ -48,6 +49,22 @@ export const loginUser = (payload) => {
 
 
             if (response.success) {
+
+                fetch(baseApi + '/user/updateStatusLogin', {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + response.responseBody.token,
+                    },
+                    body: JSON.stringify({
+                        id: response.responseBody.id,
+                    }),
+                }).then((response) => response.json()).then((responseJson) => {
+                    console.log('Success');
+                });
+
+
                 dispatch({
                     type: 'LOGIN_USER_SUCCESS',
                 });
@@ -98,7 +115,7 @@ export const getDataBPJS = (payload1, payload2) => {
                 }),
             }).then((response) => response.json()).then((responseJson) => {
 
-                if(responseJson.response != null){
+                if (responseJson.response != null) {
                     if (parseInt(responseJson.response.peserta.statusPeserta.kode) === 0) {
                         dispatch({
                             type: 'GET_DATA_BPJS',
@@ -113,7 +130,7 @@ export const getDataBPJS = (payload1, payload2) => {
                         throw responseJson.response;
                     }
 
-                }else{
+                } else {
                     dispatch({
                         type: 'GET_DATA_BPJS',
                         data: responseJson.response,
@@ -162,7 +179,7 @@ export const logoutUser = (userId) => {
                     }),
 
                 }).then((response) => response.json()).then((responseJson) => {
-                    console.log(responseJson)
+                    console.log(responseJson);
                     if (responseJson.success === true) {
                         dispatch({
                             type: 'USER_LOGGED_OUT_SUCCESS',

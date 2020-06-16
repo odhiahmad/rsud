@@ -188,92 +188,147 @@ class Step3 extends ValidationComponent<{}> {
             penanggungJawab: {minlength: 3, maxlength: 50, required: true},
             noTelpon: {minlength: 10, maxlength: 13, number: true, required: true},
         });
+
         if (this.isFormValid()) {
-            this.state.loading = true;
-            const url = baseApiBpjs + 'peserta_bpjs';
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    'username': '00004',
-                    'password': '551UU1BJ',
-                    'param': 'nokartu',
-                    'data': this.state.noBpjs,
-                }),
-            }).then((response) => response.json()).then((responseJson) => {
 
-                if(responseJson.response != null){
-                    if (parseInt(responseJson.response.peserta.statusPeserta.kode) === 0) {
-                        fetch(baseApi + '/user/updateProfil', {
-                            method: 'POST',
-                            headers: {
-                                Accept: 'application/json',
-                                'Content-Type': 'application/json',
-                                'Authorization': 'Bearer ' + this.props.getUser.userDetails.token,
-                            },
-                            body: JSON.stringify({
-                                id: this.props.getUser.userDetails.id,
-                                jenisKelamin: this.props.getState().jenisKelamin,
-                                statusKawin: this.props.getState().statusKawin,
-                                tanggalLahir: this.props.getState().tanggalLahir,
-                                noTelpon: this.props.getState().noTelpon,
-                                tempatLahir: this.props.getState().tempatLahir,
-                                nama: this.props.getState().nama,
-                                pekerjaan: this.props.getState().pekerjaan,
-                                nik: this.props.getState().nik,
-                                pilihProvinsi: this.props.getState().pilihProvinsi,
-                                pilihKota: this.props.getState().pilihKota,
-                                pilihKecamatan: this.props.getState().pilihKecamatan,
-                                pilihDesa: this.props.getState().pilihDesa,
-                                pilihSuku: this.props.getState().pilihSuku,
-                                pilihBahasa: this.props.getState().pilihBahasa,
-                                pilihWn: this.props.getState().pilihWn,
-                                pilihNegara: this.props.getState().pilihNegara,
-                                alamat: this.props.getState().alamat,
-                                penanggungJawab: this.state.penanggungJawab,
-                                noHpPenanggungJawab:this.state.noHpPenanggungJawab,
-                                noBpjs: this.state.noBpjs,
-                                agama:this.props.getState().pilihAgama,
-                            }),
-                        }).then((response) => response.json()).then((responseJson) => {
-                            console.log(this.props.getState())
-                            if (responseJson.success === true) {
-                                this.props.dispatch(logoutUser(this.props.getUser.userDetails.id));
-                                this.showFinish()
-
-                            } else {
-                                this.state.loading = false;
-                                this.state.message = responseJson.message;
-                                this.showAlert();
-                            }
-                        }).catch((error) => {
-                            this.state.loading = false;
-                            console.log(error);
-                            this.state.message = error;
-                            this.showAlert();
-                        });
-
+            if(this.state.noBpjs === ''){
+                fetch(baseApi + '/user/updateProfil', {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + this.props.getUser.userDetails.token,
+                    },
+                    body: JSON.stringify({
+                        id: this.props.getUser.userDetails.id,
+                        jenisKelamin: this.props.getState().jenisKelamin,
+                        statusKawin: this.props.getState().statusKawin,
+                        tanggalLahir: this.props.getState().tanggalLahir,
+                        noTelpon: this.props.getState().noTelpon,
+                        tempatLahir: this.props.getState().tempatLahir,
+                        nama: this.props.getState().nama,
+                        pekerjaan: this.props.getState().pekerjaan,
+                        nik: this.props.getState().nik,
+                        pilihProvinsi: this.props.getState().pilihProvinsi,
+                        pilihKota: this.props.getState().pilihKota,
+                        pilihKecamatan: this.props.getState().pilihKecamatan,
+                        pilihDesa: this.props.getState().pilihDesa,
+                        pilihSuku: this.props.getState().pilihSuku,
+                        pilihBahasa: this.props.getState().pilihBahasa,
+                        pilihWn: this.props.getState().pilihWn,
+                        pilihNegara: this.props.getState().pilihNegara,
+                        alamat: this.props.getState().alamat,
+                        penanggungJawab: this.state.penanggungJawab,
+                        noHpPenanggungJawab:this.state.noHpPenanggungJawab,
+                        noBpjs: this.state.noBpjs,
+                        agama:this.props.getState().pilihAgama,
+                    }),
+                }).then((response) => response.json()).then((responseJson) => {
+                    console.log(this.props.getState())
+                    if (responseJson.success === true) {
+                        this.props.dispatch(logoutUser(this.props.getUser.userDetails.id));
+                        this.showFinish()
 
                     } else {
                         this.state.loading = false;
-                        this.state.message = 'BPJS Anda Tidak Aktif';
+                        this.state.message = responseJson.message;
+                        this.showAlert();
+                    }
+                }).catch((error) => {
+                    this.state.loading = false;
+                    console.log(error);
+                    this.state.message = error;
+                    this.showAlert();
+                });
+
+            }else{
+                this.state.loading = true;
+                const url = baseApiBpjs + 'peserta_bpjs';
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        'username': '00004',
+                        'password': '551UU1BJ',
+                        'param': 'nokartu',
+                        'data': this.state.noBpjs,
+                    }),
+                }).then((response) => response.json()).then((responseJson) => {
+
+                    if(responseJson.response != null){
+                        if (parseInt(responseJson.response.peserta.statusPeserta.kode) === 0) {
+                            fetch(baseApi + '/user/updateProfil', {
+                                method: 'POST',
+                                headers: {
+                                    Accept: 'application/json',
+                                    'Content-Type': 'application/json',
+                                    'Authorization': 'Bearer ' + this.props.getUser.userDetails.token,
+                                },
+                                body: JSON.stringify({
+                                    id: this.props.getUser.userDetails.id,
+                                    jenisKelamin: this.props.getState().jenisKelamin,
+                                    statusKawin: this.props.getState().statusKawin,
+                                    tanggalLahir: this.props.getState().tanggalLahir,
+                                    noTelpon: this.props.getState().noTelpon,
+                                    tempatLahir: this.props.getState().tempatLahir,
+                                    nama: this.props.getState().nama,
+                                    pekerjaan: this.props.getState().pekerjaan,
+                                    nik: this.props.getState().nik,
+                                    pilihProvinsi: this.props.getState().pilihProvinsi,
+                                    pilihKota: this.props.getState().pilihKota,
+                                    pilihKecamatan: this.props.getState().pilihKecamatan,
+                                    pilihDesa: this.props.getState().pilihDesa,
+                                    pilihSuku: this.props.getState().pilihSuku,
+                                    pilihBahasa: this.props.getState().pilihBahasa,
+                                    pilihWn: this.props.getState().pilihWn,
+                                    pilihNegara: this.props.getState().pilihNegara,
+                                    alamat: this.props.getState().alamat,
+                                    penanggungJawab: this.state.penanggungJawab,
+                                    noHpPenanggungJawab:this.state.noHpPenanggungJawab,
+                                    noBpjs: this.state.noBpjs,
+                                    agama:this.props.getState().pilihAgama,
+                                }),
+                            }).then((response) => response.json()).then((responseJson) => {
+                                console.log(this.props.getState())
+                                if (responseJson.success === true) {
+                                    this.props.dispatch(logoutUser(this.props.getUser.userDetails.id));
+                                    this.showFinish()
+
+                                } else {
+                                    this.state.loading = false;
+                                    this.state.message = responseJson.message;
+                                    this.showAlert();
+                                }
+                            }).catch((error) => {
+                                this.state.loading = false;
+                                console.log(error);
+                                this.state.message = error;
+                                this.showAlert();
+                            });
+
+
+                        } else {
+                            this.state.loading = false;
+                            this.state.message = 'BPJS Anda Tidak Aktif';
+                            this.showAlert();
+                        }
+
+                    }else{
+                        this.state.loading = false;
+                        this.state.message = 'Nomor Yang anda masukan tidak terdaftar';
                         this.showAlert();
                     }
 
-                }else{
+
+                }).catch((error) => {
+                    console.log(error);
                     this.state.loading = false;
-                    this.state.message = 'Nomor Yang anda masukan tidak terdaftar';
-                    this.showAlert();
-                }
+                });
+            }
 
-
-            }).catch((error) => {
-                console.log(error);
-                this.state.loading = false;
-            });
 
         }
 
@@ -327,6 +382,7 @@ class Step3 extends ValidationComponent<{}> {
                     <Text>{errorMessage}</Text>)}
                 {this.props.getState().noHpPenanggungJawab != undefined ?
                     <TextInput
+                        keyboardType={'numeric'}
                         defaultValue={this.props.getState().noHpPenanggungJawab}
                         ref="noHpPenanggungJawab"
                         onChangeText={(noHpPenanggungJawab) => this.setState({noHpPenanggungJawab})}
@@ -337,6 +393,7 @@ class Step3 extends ValidationComponent<{}> {
                         selectionColor="#999999"
                     /> :
                     <TextInput
+                        keyboardType={'numeric'}
                         ref="noHpPenanggungJawab"
                         onChangeText={(noHpPenanggungJawab) => this.setState({noHpPenanggungJawab})}
                         style={styles.inputBox}
@@ -349,6 +406,7 @@ class Step3 extends ValidationComponent<{}> {
                     <Text>{errorMessage}</Text>)}
                 {this.props.getState().noBpjs != undefined ?
                     <TextInput
+                        keyboardType={'numeric'}
                         defaultValue={this.props.getState().noBpjs}
                     ref="noBpjs"
                     onChangeText={(noBpjs) => this.setState({noBpjs})}
@@ -358,6 +416,7 @@ class Step3 extends ValidationComponent<{}> {
                     placeholderTextColor="rgba(255,255,255,0.8)"
                     selectionColor="#999999"
                 />: <TextInput
+                        keyboardType={'numeric'}
                         ref="noBpjs"
                         onChangeText={(noBpjs) => this.setState({noBpjs})}
                         style={styles.inputBox}

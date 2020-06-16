@@ -141,22 +141,18 @@ class Profile extends Component <{}> {
                 <ListItem
                     title="Nama"
                     subtitle={userProfil != null ? userProfil.nama : ''}
-                    chevron
                 />
                 <ListItem
                     title="No Bpjs"
                     subtitle={userProfil != null ? userProfil.no_bpjs : ''}
-                    chevron
                 />
                 <ListItem
                     title="Penanggung Jawab"
                     subtitle={userProfil != null ? userProfil.penanggung_jawab : ''}
-                    chevron
                 />
                 <ListItem
                     title="Agama"
                     subtitle={userProfil != null ? userProfil.agama : ''}
-                    chevron
                 />
             </View>,
         );
@@ -294,7 +290,7 @@ class Profile extends Component <{}> {
                             <Text style={styles.buttonText}> Ganti Password </Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.buttonLogout} onPress={this.showAlert}>
-                            <Text style={styles.buttonText}> Keluar dari Akun </Text>
+                            <Text style={styles.buttonText}> Logout </Text>
                         </TouchableOpacity></View>
 
                     <AwesomeAlert

@@ -1848,7 +1848,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                                                 <View>
                                                     <TextInput
                                                         placeholder="Masukan No BPJS"
-                                                        onChangeText={(noBpjs) => this.setState({noBpjs})}
+                                                        onChangeText={ValueHolder => this.GetValueFunction(ValueHolder)}
                                                         defaultValue={this.state.noBpjs}
                                                         ref="noBpjs"
                                                         style={styles.inputBox}

@@ -163,8 +163,7 @@ class Login extends Component<{}> {
     };
 
     onSubmit = (values) => {
-
-
+        console.log(values)
         this.loginUser(values);
     };
 

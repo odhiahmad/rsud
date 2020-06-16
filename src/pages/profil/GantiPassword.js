@@ -27,7 +27,6 @@ import {
     Spinner,
     Root,
     Container,
-    Header,
     Content,
     Button,
     ListItem,
@@ -42,7 +41,7 @@ import {
 import {connect} from 'react-redux';
 import Select2 from 'react-native-select-two';
 import {logoutUser} from '../../actions/auth.actions';
-
+import {Header} from 'react-native-elements';
 const styles = StyleSheet.create({
     container: {
 
@@ -195,6 +194,17 @@ class EditProfil extends ValidationComponent {
 
         return (
             <View style={styles.container}>
+                <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
+                <Header
+                    statusBarProps={{barStyle: 'light-content'}}
+                    containerStyle={{
+                        backgroundColor: '#1da30b',
+                        justifyContent: 'space-around',
+                    }}
+                    barStyle="light-content"
+                    placement="center"
+                    centerComponent={{text: 'Ganti Password', style: {color: '#fff'}}}
+                />
                 {/*{this.state.loading === true ? <View><Loader/></View> : ''}*/}
                 <ScrollView style={{marginVertical: 15, backgroundColor: 'white'}}>
                     <LoaderModal

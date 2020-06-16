@@ -1,6 +1,6 @@
-const BASE_URL = "http://192.168.0.102/api";
+const BASE_URL = "http://192.168.0.103/api";
 const BASE_URL_SERVER = "http://rsud.padangpanjang.go.id/ws/mobile/";
-const BASE_FOTO_URL = "http://192.168.0.102/img/";
+const BASE_FOTO_URL = "http://192.168.0.103/img/";
 
 export const baseApi = BASE_URL
 export const baseApiBpjs = BASE_URL_SERVER

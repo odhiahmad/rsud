@@ -207,7 +207,7 @@ class PendaftaranOnline extends ValidationComponent {
 
             statusLengkap: 0,
 
-            pilihFoto:'',
+            pilihFoto: '',
             statusMendaftar: 0,
             idCaraBayar: '',
             tahunLahir: '',
@@ -293,7 +293,7 @@ class PendaftaranOnline extends ValidationComponent {
                     this.cekBPJS(responseJson.data.no_bpjs);
                 }
 
-                console.log(responseJson.data.nomr)
+                console.log(responseJson.data.nomr);
 
             } else {
                 showMessage({
@@ -579,9 +579,9 @@ class PendaftaranOnline extends ValidationComponent {
         }).then((response) => response.json()).then((responseJson) => {
             console.log(responseJson);
             var a = responseJson.data;
-            var temp = []
+            var temp = [];
             for (let i = 0; i < a.length; i++) {
-                if(a[i].jenis !== 0){
+                if (a[i].jenis !== 0) {
                     temp.push({
                         name: a[i].rujukan,
                         jenis: a[i].jenis,
@@ -594,7 +594,7 @@ class PendaftaranOnline extends ValidationComponent {
                     id: i,
                     name: temp[i].name,
                     jenis: temp[i].jenis,
-                })
+                });
             }
             this.setState({
                 loading: false,
@@ -1098,7 +1098,7 @@ class PendaftaranOnline extends ValidationComponent {
             pilihJamLabel: name,
             pilihDokter: this.state.dataDokter[0].name,
             pilihNrp: this.state.dataDokter[0].nrp,
-            pilihFoto:this.state.dataDokter[0].foto
+            pilihFoto: this.state.dataDokter[0].foto,
         });
         this.setModalUnvisibleDokter(!this.state.modalVisibleDokter);
     }
@@ -1180,7 +1180,7 @@ class PendaftaranOnline extends ValidationComponent {
         return (
             <View>
                 <List>
-                   <ListItem onPress={() => this.pilihJam(item.jam, item.name)} thumbnail>
+                    <ListItem onPress={() => this.pilihJam(item.jam, item.name)} thumbnail>
                         <Left>
                             <Text>Jam</Text>
                         </Left>

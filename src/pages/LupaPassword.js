@@ -17,6 +17,7 @@ import Logo from '../components/Logo';
 import Form from '../components/Form';
 import Loader from "../components/Loader";
 import {Actions} from 'react-native-router-flux';
+import {Header} from 'react-native-elements';
 
 
 const styles = StyleSheet.create({
@@ -136,6 +137,17 @@ class LupaPassword extends Component<{}> {
         console.log(loginUser);
         return(
             <View style={styles.container}>
+                <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
+                <Header
+                    statusBarProps={{barStyle: 'light-content'}}
+                    containerStyle={{
+                        backgroundColor: '#1da30b',
+                        justifyContent: 'space-around',
+                    }}
+                    barStyle="light-content"
+                    placement="center"
+                    centerComponent={{text: 'Edit Profil', style: {color: '#fff'}}}
+                />
                 {(loginUser && loginUser.isLoading) && <Loader />}
                 <Logo/>
                 <Field

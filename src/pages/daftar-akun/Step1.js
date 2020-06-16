@@ -484,6 +484,7 @@ class Step1 extends ValidationComponent <{}> {
                             <Text>{errorMessage}</Text>)}
 
                         {this.props.getState().nik != undefined ? <TextInput
+                            keyboardType={'numeric'}
                             defaultValue={this.props.getState().nik}
                             ref="nik"
                             onChangeText={(nik) => this.setState({nik})}
@@ -493,6 +494,7 @@ class Step1 extends ValidationComponent <{}> {
                             placeholderTextColor="rgba(255,255,255,0.8)"
                             selectionColor="#999999"
                         /> : <TextInput
+                            keyboardType={'numeric'}
                             ref="nik"
                             onChangeText={(nik) => this.setState({nik})}
                             style={styles.inputBox}
@@ -630,6 +632,7 @@ class Step1 extends ValidationComponent <{}> {
                             <Text>{errorMessage}</Text>)}
                         {this.props.getState().noTelpon != undefined ?
                             <TextInput
+                                keyboardType={'numeric'}
                                 defaultValue={this.props.getState().noTelpon}
                                 ref="noTelpon"
                                 onChangeText={(noTelpon) => this.setState({noTelpon})}
@@ -640,6 +643,7 @@ class Step1 extends ValidationComponent <{}> {
                                 selectionColor="#999999"
                             /> :
                             <TextInput
+                                keyboardType={'numeric'}
                                 ref="noTelpon"
                                 onChangeText={(noTelpon) => this.setState({noTelpon})}
                                 style={styles.inputBox}
