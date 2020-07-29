@@ -12,7 +12,7 @@ import {
     Body,
     Right,
     Button,
-    Root, Icon,
+    Root,
     Title,
     Fab, Textarea,
 } from 'native-base';
@@ -39,9 +39,10 @@ import {connect} from 'react-redux';
 
 const {height} = Dimensions.get('window');
 const imageUrl = '../../images/banner/banner1.jpg';
-import {Header} from 'react-native-elements';
+import {Header, Badge, Icon} from 'react-native-elements';
 import {showMessage} from 'react-native-flash-message';
 import ValidationComponent from 'react-native-form-validator';
+import {Actions} from 'react-native-router-flux';
 
 class Pengaduan extends ValidationComponent {
     constructor(props) {
@@ -66,6 +67,8 @@ class Pengaduan extends ValidationComponent {
             searchText: null,
             searchAktif: 0,
             pengaduan: '',
+
+            showTryAgain: false,
         };
     }
 
@@ -84,6 +87,10 @@ class Pengaduan extends ValidationComponent {
 
 
     getData = async () => {
+        this.setState({
+            loading: true,
+            showTryAgain: false,
+        });
         const url = baseApi + '/user/pengaduan';
         fetch(url, {
             method: 'POST',
@@ -99,10 +106,14 @@ class Pengaduan extends ValidationComponent {
             this.setState({
                 loading: false,
                 data: responseJson.data,
+                showTryAgain: false,
             });
-            console.log(responseJson.data);
+
         }).catch((error) => {
-            console.log(error);
+            this.setState({
+                loading: false,
+                showTryAgain: true,
+            });
         });
     };
 
@@ -121,7 +132,7 @@ class Pengaduan extends ValidationComponent {
             this.setState({
                 loading: true,
             });
-            console.log(this.props.getUser.userDetails.id);
+
             fetch(baseApi + '/user/inputPengaduan', {
                 method: 'POST',
                 headers: {
@@ -175,11 +186,14 @@ class Pengaduan extends ValidationComponent {
 
     render() {
         return (
-            <View style={{flex: 1, height: height}}>
+            <View style={{flex: 1}}>
                 <LoaderModal
                     loading={this.state.loading}/>
                 <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
                 <Header
+                    leftComponent={
+                        <Icon type='ionicon' name='arrow-back-outline' color='#fff'
+                              onPress={()=>Actions.pop()}/>}
                     statusBarProps={{barStyle: 'light-content'}}
                     containerStyle={{
                         backgroundColor: '#1da30b',
@@ -187,15 +201,28 @@ class Pengaduan extends ValidationComponent {
                     }}
                     barStyle="light-content"
                     placement="center"
-                    centerComponent={{text: 'Pengaduan Masyarakat', style: {fontWeight: 'bold', color: '#fff'}}}
+                    centerComponent={{text: 'Pengaduan Masyarakat', style: {color: '#fff'}}}
                 />
-
-                {this.state.data.length !== 0 ? <FlatList
+                {this.state.showTryAgain === true ?
+                    <View style={styles.container}>
+                        <Text style={{color: 'gray'}}>Koneksi Bermasalah :(</Text>
+                        <TouchableOpacity style={{
+                            width: 200,
+                            backgroundColor: 'red',
+                            borderRadius: 25,
+                            marginVertical: 2,
+                            paddingVertical: 13,
+                        }} onPress={() => this.getData()}>
+                            <Text style={{
+                                fontSize: 16,
+                                fontWeight: '500',
+                                color: '#ffffff',
+                                textAlign: 'center',
+                            }}>Refresh </Text>
+                        </TouchableOpacity></View>: <FlatList
                         renderItem={this.renderRow}
                         keyExtractor={(item, index) => index.toString()}
-                        data={this.state.data}/> :
-                    <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}><Text
-                        style={{color: 'gray'}}>Tidak Ada Data</Text></View>}
+                        data={this.state.data}/>}
 
 
                 <Fab
@@ -206,7 +233,7 @@ class Pengaduan extends ValidationComponent {
                     position="bottomRight"
                     onPress={() => this.setModalVisible(true)}
                 >
-                    <Icon name="add"/>
+                    <Icon name="add" color='#fff'/>
                 </Fab>
                 <Modal
                     onSwipeComplete={() => {
@@ -250,6 +277,7 @@ class Pengaduan extends ValidationComponent {
 }
 
 const styles = StyleSheet.create({
+
     button: {
         width: 345,
         backgroundColor: '#1c313a',
@@ -272,8 +300,10 @@ const styles = StyleSheet.create({
         color: '#FF3366', // make links coloured pink
     },
     container: {
-        marginBottom: 28,
-        backgroundColor: '#F5FCFF',
+        flex: 1,
+        backgroundColor: '#fff',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     inputBox: {
         width: 350,

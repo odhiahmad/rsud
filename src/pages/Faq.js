@@ -1,10 +1,12 @@
 import React, {Component} from 'react';
-import {Container, Content, Accordion, ListItem, Left, Button, Icon, Body, Root,List,Right} from 'native-base';
+import {Container, Content, Accordion, ListItem, Left, Button, Body, Root, List, Right} from 'native-base';
 import {baseApi} from '../service/api';
-import {Header} from 'react-native-elements';
-import {ActivityIndicator, StatusBar, StyleSheet, Text, View} from 'react-native';
+import {Header,Icon,Badge} from 'react-native-elements';
+import {ActivityIndicator, FlatList, StatusBar, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import LoaderModal from '../components/LoaderModal';
 import MapView from 'react-native-maps';
+import {Actions} from 'react-native-router-flux';
+
 export default class Faq extends Component {
     constructor(props) {
         super(props);
@@ -13,6 +15,7 @@ export default class Faq extends Component {
             isLoading: false,
             dataSource: null,
             dataArray: [],
+            showTryAgain: false,
             region: {
                 latitude: 37.78825,
                 longitude: -122.4324,
@@ -23,14 +26,20 @@ export default class Faq extends Component {
     }
 
     componentDidMount() {
+        this.getIndex();
+    }
+
+    getIndex() {
         this.setState({
             isLoading: true,
+            showTryAgain: false,
         });
         return fetch(baseApi + '/user/faq').then((response) => response.json()).then((responseJson) => {
             const dataArray = [];
 
 
             for (let i = 0; i < responseJson.data.length; i++) {
+
                 this.state.dataArray.push({
                     title: responseJson.data[i].pertanyaan,
                     content: responseJson.data[i].jawaban,
@@ -39,27 +48,34 @@ export default class Faq extends Component {
 
             this.setState({
                 isLoading: false,
+                showTryAgain: false,
             });
         })
             .catch((error) => {
-                console.log(error);
+                this.setState({
+                    isLoading: false,
+                    showTryAgain: true,
+                });
             });
     }
 
 
     onRegionChange(region) {
-        this.setState({ region });
+        this.setState({region});
     }
 
     render() {
 
 
         return (
-            <View>
+            <View style={{flex: 1}}>
                 <LoaderModal
                     loading={this.state.isLoading}/>
                 <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
                 <Header
+                    leftComponent={
+                        <Icon type='ionicon' name='arrow-back-outline' color='#fff'
+                              onPress={()=>Actions.pop()}/>}
                     statusBarProps={{barStyle: 'light-content'}}
                     containerStyle={{
                         backgroundColor: '#1da30b',
@@ -76,8 +92,8 @@ export default class Faq extends Component {
                     </ListItem>
                     <ListItem icon>
                         <Left>
-                            <Button style={{ backgroundColor: "#1da30b" }}>
-                                <Icon active name="home" />
+                            <Button style={{backgroundColor: '#1da30b'}}>
+                                <Icon color='#fff' active name="home"/>
                             </Button>
                         </Left>
                         <Body>
@@ -86,8 +102,8 @@ export default class Faq extends Component {
                     </ListItem>
                     <ListItem icon>
                         <Left>
-                            <Button style={{ backgroundColor: "#1da30b" }}>
-                                <Icon active name="contact" />
+                            <Button style={{backgroundColor: '#1da30b'}}>
+                                <Icon color='#fff' active name="phone"/>
                             </Button>
                         </Left>
                         <Body>
@@ -96,8 +112,8 @@ export default class Faq extends Component {
                     </ListItem>
                     <ListItem icon>
                         <Left>
-                            <Button style={{ backgroundColor: "#1da30b" }}>
-                                <Icon active name="mail" />
+                            <Button style={{backgroundColor: '#1da30b'}}>
+                                <Icon  color='#fff' active name="mail"/>
                             </Button>
                         </Left>
                         <Body>
@@ -106,18 +122,18 @@ export default class Faq extends Component {
                     </ListItem>
                     <ListItem icon>
                         <Left>
-                            <Button style={{ backgroundColor: "#1da30b" }}>
-                                <Icon active name="cloud-circle" />
+                            <Button style={{backgroundColor: '#1da30b'}}>
+                                <Icon color='#fff' active name="cloud-circle"/>
                             </Button>
                         </Left>
                         <Body>
                             <Text>rsud.padangpanjang.go.id</Text>
                         </Body>
                     </ListItem>
-                    <ListItem icon style={{marginBottom:20}}>
+                    <ListItem icon style={{marginBottom: 20}}>
                         <Left>
-                            <Button style={{ backgroundColor: "#1da30b" }}>
-                                <Icon active name="person" />
+                            <Button style={{backgroundColor: '#1da30b'}}>
+                                <Icon color='#fff' active name="person"/>
                             </Button>
                         </Left>
                         <Body>
@@ -131,11 +147,17 @@ export default class Faq extends Component {
                         <Text>FAQ</Text>
                     </ListItem>
 
-                        <Accordion
+                    {this.state.showTryAgain === true ?
+                        <View style={styles.container}>
+                            <TouchableOpacity style={styles.button}
+                                              onPress={() => this.getIndex()}>
+                                <Text style={styles.buttonText}>Refresh </Text>
+                            </TouchableOpacity></View> : <Accordion
                             dataArray={this.state.dataArray}
                             headerStyle={{backgroundColor: '#b7daf8'}}
                             contentStyle={{backgroundColor: '#ddecf8'}}
-                        />
+                        />}
+
 
                 </List>
 
@@ -149,11 +171,24 @@ export default class Faq extends Component {
 }
 
 const styles = StyleSheet.create({
+    buttonText: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: '#ffffff',
+        textAlign: 'center',
+    },
+    button: {
+        width: 300,
+        backgroundColor: 'orange',
+        borderRadius: 25,
+        marginVertical: 2,
+        paddingVertical: 13,
+    },
     container: {
-        flex: 1,
+        marginTop:10,
+        flex: 0,
         backgroundColor: '#fff',
         alignItems: 'center',
-        justifyContent: 'center',
     },
     avatar: {
         width: 40,

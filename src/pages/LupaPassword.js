@@ -3,13 +3,11 @@ import {
     StyleSheet,
     Text,
     View,
-    StatusBar ,
+    StatusBar,
     TouchableOpacity,
-    Alert
+    Alert, TextInput,
 } from 'react-native';
-import {connect} from "react-redux";
-import {compose} from "redux";
-import { Field, reduxForm } from 'redux-form';
+
 
 import InputText from "../components/InputText";
 import {loginUser} from "../actions/auth.actions";
@@ -18,6 +16,50 @@ import Form from '../components/Form';
 import Loader from "../components/Loader";
 import {Actions} from 'react-native-router-flux';
 import {Header} from 'react-native-elements';
+import ValidationComponent from 'react-native-form-validator';
+
+
+class LupaPassword extends ValidationComponent {
+
+    login() {
+        Actions.pop()
+    }
+
+    onSubmit = (values) => {
+        this.loginUser(values);
+    }
+    render() {
+
+        return(
+            <View style={styles.container}>
+                <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
+                {(loginUser && loginUser.isLoading) && <Loader />}
+                <Logo/>
+                <TextInput
+                    autoCapitalize='words'
+                    defaultValue={this.state.penanggungJawab}
+                    ref="penanggungJawab"
+                    onChangeText={(penanggungJawab) => this.setState({penanggungJawab})}
+                    style={styles.inputBox}
+                    underlineColorAndroid="rgba(0,0,0,0)"
+                    placeholder="Penanggung Jawab"
+                    placeholderTextColor="rgba(255,255,255,0.8)"
+                    selectionColor="#999999"
+                />
+                {this.isFieldInError('penanggungJawab') && this.getErrorsInField('penanggungJawab').map(errorMessage =>
+                    <Text>{errorMessage}</Text>)}
+                <TouchableOpacity style={styles.button}>
+                    <Text style={styles.buttonText}>Kirim Email</Text>
+                </TouchableOpacity>
+                <View style={styles.lupaPasswordTextCont}>
+                    <Text style={styles.signupText}>Sudah mempunyai akun, silahkan?</Text>
+                    <TouchableOpacity onPress={this.login()}><Text style={styles.signupButton}> Sign
+                        in</Text></TouchableOpacity>
+                </View>
+            </View>
+        )
+    }
+}
 
 
 const styles = StyleSheet.create({
@@ -26,6 +68,15 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems:'center',
         justifyContent :'center'
+    },
+    inputBox: {
+        width: 345,
+        backgroundColor: 'rgba(29, 163, 11,0.8)',
+        borderRadius: 25,
+        paddingHorizontal: 16,
+        fontSize: 16,
+        color: '#ffffff',
+        marginVertical: 2,
     },
     signupTextCont : {
 
@@ -62,137 +113,4 @@ const styles = StyleSheet.create({
         textAlign:'center'
     },
 });
-
-
-class LupaPassword extends Component<{}> {
-
-    signup() {
-        Actions.signup()
-    }
-
-
-    login() {
-        Actions.login()
-    }
-    loginUser = async (values) => {
-        try {
-            const response =  await this.props.dispatch(loginUser(values));
-            console.log(response);
-            if (!response.success) {
-                Alert.alert(
-                    'Login Error!',
-                    errorText,
-                    [
-                        {
-                            text: 'Password salah',
-                            onPress: () => console.log('Cancel Pressed'),
-                            style: 'cancel',
-                        },
-                    ]
-                );
-            }
-        } catch (error) {
-            let errorText;
-            if (error.message) {
-                errorText = error.message
-            }
-            errorText = error.responseBody;
-            Alert.alert(
-                'Login Error!',
-                errorText,
-                [
-                    {
-                        text: 'Cancel',
-                        onPress: () => console.log('Cancel Pressed'),
-                        style: 'cancel',
-                    },
-                ]
-            );
-        }
-    }
-
-    onSubmit = (values) => {
-        this.loginUser(values);
-    }
-
-    renderTextInput = (field) => {
-        const {meta: {touched, error}, label, secureTextEntry, maxLength, keyboardType, placeholder, input: {onChange, ...restInput}} = field;
-        return (
-            <View>
-                <InputText
-                    onChangeText={onChange}
-                    maxLength={maxLength}
-                    placeholder={placeholder}
-                    keyboardType={keyboardType}
-                    secureTextEntry={secureTextEntry}
-                    label={label}
-                    {...restInput} />
-                {(touched && error) && <Text style={styles.errorText}>{error}</Text>}
-            </View>
-        );
-    }
-
-    render() {
-        const { handleSubmit, loginUser} = this.props;
-        console.log(loginUser);
-        return(
-            <View style={styles.container}>
-                <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
-                <Header
-                    statusBarProps={{barStyle: 'light-content'}}
-                    containerStyle={{
-                        backgroundColor: '#1da30b',
-                        justifyContent: 'space-around',
-                    }}
-                    barStyle="light-content"
-                    placement="center"
-                    centerComponent={{text: 'Edit Profil', style: {color: '#fff'}}}
-                />
-                {(loginUser && loginUser.isLoading) && <Loader />}
-                <Logo/>
-                <Field
-                    name="email"
-                    placeholder="Email"
-                    component={this.renderTextInput} />
-                <TouchableOpacity style={styles.button} onPress={handleSubmit(this.onSubmit)}>
-                    <Text style={styles.buttonText}>Kirim Email</Text>
-                </TouchableOpacity>
-                <View style={styles.signupTextCont}>
-                    <Text style={styles.signupText}>Apakah anda belum mempunyai akun ?</Text>
-                    <TouchableOpacity onPress={this.signup}><Text style={styles.signupButton}> Signup</Text></TouchableOpacity>
-                </View>
-                <View style={styles.lupaPasswordTextCont}>
-                    <Text style={styles.signupText}>Sudah mempunyai akun, silahkan?</Text>
-                    <TouchableOpacity onPress={this.login()}><Text style={styles.signupButton}> Sign
-                        in</Text></TouchableOpacity>
-
-                </View>
-            </View>
-        )
-    }
-}
-
-const validate = (values) => {
-    const errors = {};
-
-    if(!values.email) {
-        errors.email = "Email is required"
-    }
-    return errors;
-};
-
-mapStateToProps = (state) => ({
-    loginUser: state.authReducer.loginUser
-})
-
-mapDispatchToProps = (dispatch) => ({
-    dispatch
-});
-
-export default compose(
-    connect(mapStateToProps, mapDispatchToProps),
-    reduxForm({
-        form: "lupapassword",
-        validate
-    })
-)(LupaPassword);
+export default (LupaPassword);

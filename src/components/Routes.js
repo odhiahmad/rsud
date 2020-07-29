@@ -32,7 +32,8 @@ import {connect} from 'react-redux';
 import GantiPassword from '../pages/profil/GantiPassword';
 import CariNomorMr from '../pages/daftar-online/CariNomorMr';
 import LengkapiProfil from '../pages/daftar-online/LengkapiProfil';
-import Obat from '../pages/Obat/Obat';
+import Obat from '../pages/Obat';
+import LupaPasswordSaya from '../pages/lupa-password/LupaPasswordSaya';
 import { createStackNavigator } from 'react-navigation-stack';
 let {width, height} = Dimensions.get('window');
 var backButtonPressedOnceToExit = false;
@@ -135,7 +136,7 @@ class Routes extends Component<{}> {
 
 
     render() {
-        console.log(this.props.getUser.status)
+
         return (
 
             // navigationBarStyle={{ backgroundColor: '#81b71a' }}
@@ -143,11 +144,12 @@ class Routes extends Component<{}> {
                 <Scene>
                     <Scene key="root" hideNavBar={true} initial={!this.props.isLoggedIn}>
                         <Scene key="login" component={Login} initial={true}/>
+                        <Scene key="lupapassword" component={LupaPasswordSaya} title="Lupa Password"/>
                         <Scene key="menupilihan" component={MenuPilihan}/>
                         <Scene key="signupmr" component={SignupMr}/>
                         <Scene key="singupmr2" component={SignupMrDua}/>
                         <Scene key="signup" component={Signup} title="Register"/>
-                        <Scene key="lupapassword" component={LupaPassword} title="Lupa Password"/>
+
                     </Scene>
                     <Scene key="app" hideNavBar={true} initial={this.props.isLoggedIn}>
                         <Scene

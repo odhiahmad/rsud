@@ -1,10 +1,10 @@
-package com.rsud;
+package com.rsudpadangpanjang;
 import android.os.Bundle; // here
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.ReactRootView;
 import com.swmansion.gesturehandler.react.RNGestureHandlerEnabledRootView;
-import com.rnfs.RNFSPackage;
+
 import org.devio.rn.splashscreen.SplashScreen; // here
 public class MainActivity extends ReactActivity {
 
@@ -19,7 +19,7 @@ public class MainActivity extends ReactActivity {
        }
   @Override
   protected String getMainComponentName() {
-    return "rsud";
+    return "rsudpadangpanjang";
   }
    @Override
   protected ReactActivityDelegate createReactActivityDelegate() {

@@ -165,9 +165,7 @@ class SignupMr extends ValidationComponent {
 
     _onSubmit() {
 
-        this.setState({
-            loading: true,
-        });
+
 
         this.validate({
             nomorMr: {minlength: 6, maxlength: 6, numbers: true, required: true},
@@ -175,6 +173,9 @@ class SignupMr extends ValidationComponent {
             angka: {minlength: 1, required: true, numbers: true},
         });
         if (this.isFormValid()) {
+            this.setState({
+                loading: true,
+            });
             if (parseInt(this.state.angka) === this.state.nilaiTambahA + this.state.nilaiTambahB) {
                 this.state.nilaiTambahA = Math.floor(Math.random() * 10);
                 this.state.nilaiTambahB = Math.floor(Math.random() * 10);

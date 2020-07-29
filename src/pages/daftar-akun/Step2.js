@@ -132,7 +132,7 @@ class Step2 extends ValidationComponent {
             pilihBahasa: '',
             dataNegara: [],
             pilihNegara: '',
-            pilihJenisKota:'',
+            pilihJenisKota: '',
             dataWn: [
                 {
                     id: 0,
@@ -155,14 +155,15 @@ class Step2 extends ValidationComponent {
             placeHolderText: 'Pilih Provinsi',
             selectedText: '',
             setModalVisible: false,
+
+            loading: false,
+            showError: 0,
         };
     }
 
     componentDidMount() {
-        this.showDataProvinsi();
-        this.showDataSuku();
-        this.showDataBahasa();
-        if(this.props.getState().pilihWn === 'WNI'){
+        this.showData();
+        if (this.props.getState().pilihWn === 'WNI') {
             if (this.props.getState().pilihKecamatan != undefined) {
                 this.state.pilihProvinsi = this.props.getState().pilihProvinsi;
                 this.state.pilihKota = this.props.getState().pilihKota;
@@ -176,7 +177,7 @@ class Step2 extends ValidationComponent {
         }
 
 
-        if(this.props.getState().pilihWn === 'WNA'){
+        if (this.props.getState().pilihWn === 'WNA') {
             this.state.pilihNegara = this.props.getState().pilihNegara;
         }
     }
@@ -230,22 +231,22 @@ class Step2 extends ValidationComponent {
         const {next, saveState} = this.props;
         // Save state for use in other steps
 
-        if(this.state.pilihWn === 'WNI'){
+        if (this.state.pilihWn === 'WNI') {
             saveState({
                 pilihProvinsi: this.state.pilihProvinsi,
-                pilihKota: this.state.pilihJenisKota + ' ' +this.state.pilihKota,
+                pilihKota: this.state.pilihJenisKota + ' ' + this.state.pilihKota,
                 pilihKecamatan: this.state.pilihKecamatan,
                 pilihDesa: this.state.pilihDesa,
                 pilihSuku: this.state.pilihSuku,
                 pilihBahasa: this.state.pilihBahasa,
                 pilihWn: this.state.pilihWn,
                 alamat: this.state.alamat,
-                pilihNegara:'INDONESIA'
+                pilihNegara: 'INDONESIA',
             });
-        }else{
+        } else {
             saveState({
                 pilihWn: this.state.pilihWn,
-                pilihNegara:this.state.pilihNegara
+                pilihNegara: this.state.pilihNegara,
             });
         }
 
@@ -279,8 +280,12 @@ class Step2 extends ValidationComponent {
         }
     };
 
-    showDataProvinsi() {
-        const url = baseApi + '/user/provinsi';
+    showData() {
+        this.setState({
+            loading: true,
+            showError: 0,
+        });
+        const url = baseApi + '/user/step2';
         fetch(url, {
             method: 'GET',
             headers: {
@@ -288,98 +293,49 @@ class Step2 extends ValidationComponent {
                 'Content-Type': 'application/json',
             },
         }).then((response) => response.json()).then((responseJson) => {
-            var a = responseJson.data;
+
+            var a = responseJson.dataProvinsi;
+            var b = responseJson.dataSuku;
+            var c = responseJson.dataBahasa;
+            var d = responseJson.dataNegara;
             for (let i = 0; i < a.length; i++) {
                 this.state.dataProvinsi.push({
                     id: i,
                     name: a[i].provinsi,
                 });
             }
-            this.setState({
-                isLoading: false,
-            });
 
-
-        }).catch((error) => {
-            console.log(error);
-        });
-    }
-
-    showDataSuku() {
-        const url = baseApi + '/user/suku';
-        fetch(url, {
-            method: 'GET',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-        }).then((response) => response.json()).then((responseJson) => {
-            var a = responseJson.data;
-            for (let i = 0; i < a.length; i++) {
+            for (let i = 0; i < b.length; i++) {
                 this.state.dataSuku.push({
                     id: i,
-                    name: a[i].suku_nama,
+                    name: b[i].suku_nama,
                 });
             }
-            this.setState({
-                isLoading: false,
-            });
 
-
-        }).catch((error) => {
-            console.log(error);
-        });
-    }
-
-    showDataBahasa() {
-        const url = baseApi + '/user/bahasa';
-        fetch(url, {
-            method: 'GET',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-        }).then((response) => response.json()).then((responseJson) => {
-            var a = responseJson.data;
-            for (let i = 0; i < a.length; i++) {
+            for (let i = 0; i < c.length; i++) {
                 this.state.dataBahasa.push({
                     id: i,
-                    name: a[i].bahasa_nama,
+                    name: c[i].bahasa_nama,
                 });
             }
-            this.setState({
-                isLoading: false,
-            });
 
-
-        }).catch((error) => {
-            console.log(error);
-        });
-    }
-
-    showNegara() {
-        const url = baseApi + '/user/negara';
-        fetch(url, {
-            method: 'GET',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-        }).then((response) => response.json()).then((responseJson) => {
-            var a = responseJson.data;
-            for (let i = 0; i < a.length; i++) {
+            for (let i = 0; i < d.length; i++) {
                 this.state.dataNegara.push({
                     id: i,
-                    name: a[i].nama_negara,
+                    name: d[i].nama_negara,
                 });
             }
             this.setState({
-                isLoading: false,
+                loading: false,
+                showError: 1,
             });
 
 
         }).catch((error) => {
-            console.log(error);
+            this.setState({
+                loading: false,
+                showError: 2,
+            });
         });
     }
 
@@ -402,7 +358,7 @@ class Step2 extends ValidationComponent {
                 this.state.dataKota.push({
                     id: i,
                     name: a[i].nama_kabkota,
-                    jenis:a[i].kabkota,
+                    jenis: a[i].kabkota,
                 });
             }
             this.setState({
@@ -503,104 +459,97 @@ class Step2 extends ValidationComponent {
         const loader = <Loader/>;
 
         var listView = [];
-        if (this.state.dataProvinsi.length != 0) {
-            listView.push(
-                <View>
-                    {this.props.getState().pilihProvinsi != undefined ? <Select2
-                        placeholderTextColor="#ffffff"
-                        listEmptyTitle="Tidak ada data"
-                        cancelButtonText="Keluar"
-                        selectButtonText="Pilih"
-                        isSelectSingle
-                        style={styles.inputBox}
-                        colorTheme="#1da30b"
-                        selectedTitleStyle={{color: 'white'}}
-                        searchPlaceHolderText="Cari Provinsi Anda"
-                        popupTitle="Pilih Provinsi"
-                        title={this.props.getState().pilihProvinsi}
-                        data={this.state.dataProvinsi}
-                        onSelect={data => {
-                            if (this.state.dataKota.length != 0) {
-                                this.setState({
-                                    dataKota: [],
-                                    pilihKota: '',
-                                });
-                            }
-                            if (this.state.dataKecamatan.length != 0) {
-                                this.setState({
-                                    pilihKecamatan: '',
-                                    dataKecamatan: [],
-                                });
-                            }
-                            if (this.state.dataDesa.length != 0) {
-                                this.setState({
-                                    pilihDesa: '',
-                                    dataDesa: [],
-                                });
-                            }
+        listView.push(
+            <View>
+                {this.props.getState().pilihProvinsi != undefined ? <Select2
+                    placeholderTextColor="#ffffff"
+                    listEmptyTitle="Tidak ada data"
+                    cancelButtonText="Keluar"
+                    selectButtonText="Pilih"
+                    isSelectSingle
+                    style={styles.inputBox}
+                    colorTheme="#1da30b"
+                    selectedTitleStyle={{color: 'white'}}
+                    searchPlaceHolderText="Cari Provinsi Anda"
+                    popupTitle="Pilih Provinsi"
+                    title={this.props.getState().pilihProvinsi}
+                    data={this.state.dataProvinsi}
+                    onSelect={data => {
+                        if (this.state.dataKota.length != 0) {
                             this.setState({
-                                pilihProvinsi: this.state.dataProvinsi[data].name,
+                                dataKota: [],
+                                pilihKota: '',
                             });
-                            this.showKota(this.state.dataProvinsi[data].name);
-
-                        }}
-                        onRemoveItem={data => {
-                            this.setState({pilihProvinsi: ''});
-                        }}
-                    /> : <Select2
-                        selectedTitleStyle={{color: 'white'}}
-                        placeholderTextColor="#ffffff"
-                        listEmptyTitle="Tidak ada data"
-                        cancelButtonText="Keluar"
-                        selectButtonText="Pilih"
-                        isSelectSingle
-                        style={styles.inputBox}
-                        colorTheme="#1da30b"
-                        searchPlaceHolderText="Cari Provinsi Anda"
-                        popupTitle="Pilih Provinsi"
-                        title="Pilih Provinsi"
-                        data={this.state.dataProvinsi}
-                        onSelect={data => {
-                            if (this.state.dataKota.length != 0) {
-                                this.setState({
-                                    dataKota: [],
-                                    pilihKota: '',
-                                });
-                            }
-                            if (this.state.dataKecamatan.length != 0) {
-                                this.setState({
-                                    pilihKecamatan: '',
-                                    dataKecamatan: [],
-                                });
-                            }
-                            if (this.state.dataDesa.length != 0) {
-                                this.setState({
-                                    pilihDesa: '',
-                                    dataDesa: [],
-                                });
-                            }
+                        }
+                        if (this.state.dataKecamatan.length != 0) {
                             this.setState({
-                                pilihProvinsi: this.state.dataProvinsi[data].name,
+                                pilihKecamatan: '',
+                                dataKecamatan: [],
                             });
-                            this.showKota(this.state.dataProvinsi[data].name);
+                        }
+                        if (this.state.dataDesa.length != 0) {
+                            this.setState({
+                                pilihDesa: '',
+                                dataDesa: [],
+                            });
+                        }
+                        this.setState({
+                            pilihProvinsi: this.state.dataProvinsi[data].name,
+                        });
+                        this.showKota(this.state.dataProvinsi[data].name);
 
-                        }}
-                        onRemoveItem={data => {
-                            this.setState({pilihProvinsi: ''});
-                        }}
-                    />}
+                    }}
+                    onRemoveItem={data => {
+                        this.setState({pilihProvinsi: ''});
+                    }}
+                /> : <Select2
+                    selectedTitleStyle={{color: 'white'}}
+                    placeholderTextColor="#ffffff"
+                    listEmptyTitle="Tidak ada data"
+                    cancelButtonText="Keluar"
+                    selectButtonText="Pilih"
+                    isSelectSingle
+                    style={styles.inputBox}
+                    colorTheme="#1da30b"
+                    searchPlaceHolderText="Cari Provinsi Anda"
+                    popupTitle="Pilih Provinsi"
+                    title="Pilih Provinsi"
+                    data={this.state.dataProvinsi}
+                    onSelect={data => {
+                        if (this.state.dataKota.length != 0) {
+                            this.setState({
+                                dataKota: [],
+                                pilihKota: '',
+                            });
+                        }
+                        if (this.state.dataKecamatan.length != 0) {
+                            this.setState({
+                                pilihKecamatan: '',
+                                dataKecamatan: [],
+                            });
+                        }
+                        if (this.state.dataDesa.length != 0) {
+                            this.setState({
+                                pilihDesa: '',
+                                dataDesa: [],
+                            });
+                        }
+                        this.setState({
+                            pilihProvinsi: this.state.dataProvinsi[data].name,
+                        });
+                        this.showKota(this.state.dataProvinsi[data].name);
 
-                    {this.isFieldInError('pilihProvinsi') && this.getErrorsInField('pilihProvinsi').map(errorMessage =>
-                        <Text>{errorMessage}</Text>)}
-                </View>,
-            );
-        } else {
-            listView.push(
-                <View style={styles.loader}>
-                    <ActivityIndicator size="large"/>
-                </View>,
-            );
-        }
+                    }}
+                    onRemoveItem={data => {
+                        this.setState({pilihProvinsi: ''});
+                    }}
+                />}
+
+                {this.isFieldInError('pilihProvinsi') && this.getErrorsInField('pilihProvinsi').map(errorMessage =>
+                    <Text>{errorMessage}</Text>)}
+            </View>,
+        );
+
 
         var listViewKota = [];
         if (this.state.dataProvinsi.length != 0) {
@@ -635,6 +584,7 @@ class Step2 extends ValidationComponent {
                                 }
                                 this.setState({
                                     pilihKota: this.state.dataKota[data].name,
+                                    pilihJenisKota:this.state.dataKota[data].jenis
                                 });
                                 this.showKecamatan(this.state.dataKota[data].name);
 
@@ -671,7 +621,7 @@ class Step2 extends ValidationComponent {
                                 }
                                 this.setState({
                                     pilihKota: this.state.dataKota[data].name,
-                                    pilihJenisKota:this.state.dataKota[data].jenis,
+                                    pilihJenisKota: this.state.dataKota[data].jenis,
                                 });
                                 this.showKecamatan(this.state.dataKota[data].name);
 
@@ -845,196 +795,174 @@ class Step2 extends ValidationComponent {
         }
 
         var listViewSuku = [];
-        if (this.state.dataSuku.length != 0) {
-            listViewSuku.push(
-                <View>
-                    {this.props.getState().pilihSuku != undefined ?
-                        <Select2
-                            selectedTitleStyle={{color: 'white'}}
-                            placeholderTextColor="#ffffff"
-                            listEmptyTitle="Tidak ada data"
-                            cancelButtonText="Keluar"
-                            selectButtonText="Pilih"
-                            isSelectSingle
-                            style={styles.inputBox}
-                            colorTheme="#1da30b"
-                            searchPlaceHolderText="Cari Suku Anda"
-                            popupTitle="Pilih Suku"
-                            title={this.props.getState().pilihSuku}
-                            data={this.state.dataSuku}
-                            onSelect={data => {
-                                this.setState({
-                                    pilihSuku: this.state.dataSuku[data].name,
-                                });
+        listViewSuku.push(
+            <View>
+                {this.props.getState().pilihSuku != undefined ?
+                    <Select2
+                        selectedTitleStyle={{color: 'white'}}
+                        placeholderTextColor="#ffffff"
+                        listEmptyTitle="Tidak ada data"
+                        cancelButtonText="Keluar"
+                        selectButtonText="Pilih"
+                        isSelectSingle
+                        style={styles.inputBox}
+                        colorTheme="#1da30b"
+                        searchPlaceHolderText="Cari Suku Anda"
+                        popupTitle="Pilih Suku"
+                        title={this.props.getState().pilihSuku}
+                        data={this.state.dataSuku}
+                        onSelect={data => {
+                            this.setState({
+                                pilihSuku: this.state.dataSuku[data].name,
+                            });
 
-                            }}
-                            onRemoveItem={data => {
-                                this.setState({pilihSuku: ''});
-                            }}
-                        /> :
-                        <Select2
-                            selectedTitleStyle={{color: 'white'}}
-                            placeholderTextColor="#ffffff"
-                            listEmptyTitle="Tidak ada data"
-                            cancelButtonText="Keluar"
-                            selectButtonText="Pilih"
-                            isSelectSingle
-                            style={styles.inputBox}
-                            colorTheme="#1da30b"
-                            searchPlaceHolderText="Cari Suku Anda"
-                            popupTitle="Pilih Suku"
-                            title="Pilih Suku"
-                            data={this.state.dataSuku}
-                            onSelect={data => {
-                                this.setState({
-                                    pilihSuku: this.state.dataSuku[data].name,
-                                });
+                        }}
+                        onRemoveItem={data => {
+                            this.setState({pilihSuku: ''});
+                        }}
+                    /> :
+                    <Select2
+                        selectedTitleStyle={{color: 'white'}}
+                        placeholderTextColor="#ffffff"
+                        listEmptyTitle="Tidak ada data"
+                        cancelButtonText="Keluar"
+                        selectButtonText="Pilih"
+                        isSelectSingle
+                        style={styles.inputBox}
+                        colorTheme="#1da30b"
+                        searchPlaceHolderText="Cari Suku Anda"
+                        popupTitle="Pilih Suku"
+                        title="Pilih Suku"
+                        data={this.state.dataSuku}
+                        onSelect={data => {
+                            this.setState({
+                                pilihSuku: this.state.dataSuku[data].name,
+                            });
 
-                            }}
-                            onRemoveItem={data => {
-                                this.setState({pilihSuku: ''});
-                            }}
-                        />}
+                        }}
+                        onRemoveItem={data => {
+                            this.setState({pilihSuku: ''});
+                        }}
+                    />}
 
-                    {this.isFieldInError('pilihSuku') && this.getErrorsInField('pilihSuku').map(errorMessage =>
-                        <Text>{errorMessage}</Text>)}
-                </View>,
-            );
-        } else {
-            listViewSuku.push(
-                <View style={styles.loader}>
-                    <ActivityIndicator size="large"/>
-                </View>,
-            );
-        }
+                {this.isFieldInError('pilihSuku') && this.getErrorsInField('pilihSuku').map(errorMessage =>
+                    <Text>{errorMessage}</Text>)}
+            </View>,
+        );
+
 
         var listViewBahasa = [];
-        if (this.state.dataBahasa.length != 0) {
-            listViewBahasa.push(
-                <View>
-                    {this.props.getState().pilihBahasa != undefined ?
-                        <Select2
-                            selectedTitleStyle={{color: 'white'}}
-                            placeholderTextColor="#ffffff"
-                            listEmptyTitle="Tidak ada data"
-                            cancelButtonText="Keluar"
-                            selectButtonText="Pilih"
-                            isSelectSingle
-                            style={styles.inputBox}
-                            colorTheme="#1da30b"
-                            searchPlaceHolderText="Cari Bahasa Anda"
-                            popupTitle="Pilih Bahasa"
-                            title={this.props.getState().pilihBahasa}
-                            data={this.state.dataBahasa}
-                            onSelect={data => {
-                                this.setState({
-                                    pilihBahasa: this.state.dataBahasa[data].name,
-                                });
+        listViewBahasa.push(
+            <View>
+                {this.props.getState().pilihBahasa != undefined ?
+                    <Select2
+                        selectedTitleStyle={{color: 'white'}}
+                        placeholderTextColor="#ffffff"
+                        listEmptyTitle="Tidak ada data"
+                        cancelButtonText="Keluar"
+                        selectButtonText="Pilih"
+                        isSelectSingle
+                        style={styles.inputBox}
+                        colorTheme="#1da30b"
+                        searchPlaceHolderText="Cari Bahasa Anda"
+                        popupTitle="Pilih Bahasa"
+                        title={this.props.getState().pilihBahasa}
+                        data={this.state.dataBahasa}
+                        onSelect={data => {
+                            this.setState({
+                                pilihBahasa: this.state.dataBahasa[data].name,
+                            });
 
-                            }}
-                            onRemoveItem={data => {
-                                this.setState({pilihBahasa: ''});
-                            }}
-                        /> :
-                        <Select2
-                            selectedTitleStyle={{color: 'white'}}
-                            placeholderTextColor="#ffffff"
-                            listEmptyTitle="Tidak ada data"
-                            cancelButtonText="Keluar"
-                            selectButtonText="Pilih"
-                            isSelectSingle
-                            style={styles.inputBox}
-                            colorTheme="#1da30b"
-                            searchPlaceHolderText="Cari Bahasa Anda"
-                            popupTitle="Pilih Bahasa"
-                            title="Pilih Bahasa"
-                            data={this.state.dataBahasa}
-                            onSelect={data => {
-                                this.setState({
-                                    pilihBahasa: this.state.dataBahasa[data].name,
-                                });
+                        }}
+                        onRemoveItem={data => {
+                            this.setState({pilihBahasa: ''});
+                        }}
+                    /> :
+                    <Select2
+                        selectedTitleStyle={{color: 'white'}}
+                        placeholderTextColor="#ffffff"
+                        listEmptyTitle="Tidak ada data"
+                        cancelButtonText="Keluar"
+                        selectButtonText="Pilih"
+                        isSelectSingle
+                        style={styles.inputBox}
+                        colorTheme="#1da30b"
+                        searchPlaceHolderText="Cari Bahasa Anda"
+                        popupTitle="Pilih Bahasa"
+                        title="Pilih Bahasa"
+                        data={this.state.dataBahasa}
+                        onSelect={data => {
+                            this.setState({
+                                pilihBahasa: this.state.dataBahasa[data].name,
+                            });
 
-                            }}
-                            onRemoveItem={data => {
-                                this.setState({pilihBahasa: ''});
-                            }}
-                        />}
+                        }}
+                        onRemoveItem={data => {
+                            this.setState({pilihBahasa: ''});
+                        }}
+                    />}
 
-                    {this.isFieldInError('pilihBahasa') && this.getErrorsInField('pilihBahasa').map(errorMessage =>
-                        <Text>{errorMessage}</Text>)}
-                </View>,
-            );
-        } else {
-            listViewSuku.push(
-                <View style={styles.loader}>
-                    <ActivityIndicator size="large"/>
-                </View>,
-            );
-        }
+                {this.isFieldInError('pilihBahasa') && this.getErrorsInField('pilihBahasa').map(errorMessage =>
+                    <Text>{errorMessage}</Text>)}
+            </View>,
+        );
 
         var listViewPilihNegara = [];
-        if (this.state.dataNegara.length != 0) {
-            listViewPilihNegara.push(
-                <View>
-                    {this.props.getState().pilihNegara != undefined ?
-                        <Select2
-                            selectedTitleStyle={{color: 'white'}}
-                            placeholderTextColor="white"
-                            listEmptyTitle="Tidak ada data"
-                            cancelButtonText="Keluar"
-                            selectButtonText="Pilih"
-                            isSelectSingle
-                            style={styles.inputBox}
-                            colorTheme="#1da30b"
-                            searchPlaceHolderText="Find Your Country"
-                            popupTitle="Pilih Negara"
-                            title={this.props.getState().pilihNegara}
-                            data={this.state.dataNegara}
-                            onSelect={data => {
-                                this.setState({
-                                    pilihNegara: this.state.dataNegara[data].name,
-                                });
+        listViewPilihNegara.push(
+            <View>
+                {this.props.getState().pilihNegara != undefined ?
+                    <Select2
+                        selectedTitleStyle={{color: 'white'}}
+                        placeholderTextColor="white"
+                        listEmptyTitle="Tidak ada data"
+                        cancelButtonText="Keluar"
+                        selectButtonText="Pilih"
+                        isSelectSingle
+                        style={styles.inputBox}
+                        colorTheme="#1da30b"
+                        searchPlaceHolderText="Find Your Country"
+                        popupTitle="Pilih Negara"
+                        title={this.props.getState().pilihNegara}
+                        data={this.state.dataNegara}
+                        onSelect={data => {
+                            this.setState({
+                                pilihNegara: this.state.dataNegara[data].name,
+                            });
 
-                            }}
-                            onRemoveItem={data => {
-                                this.setState({pilihNegara: ''});
-                            }}
-                        /> :
-                        <Select2
-                            selectedTitleStyle={{color: 'white'}}
-                            placeholderTextColor="white"
-                            listEmptyTitle="Tidak ada data"
-                            cancelButtonText="Keluar"
-                            selectButtonText="Pilih"
-                            isSelectSingle
-                            style={styles.inputBox}
-                            colorTheme="#1da30b"
-                            searchPlaceHolderText="Find Your Country"
-                            popupTitle="Pilih Negara"
-                            title="Pilih Negara"
-                            data={this.state.dataNegara}
-                            onSelect={data => {
-                                this.setState({
-                                    pilihNegara: this.state.dataNegara[data].name,
-                                });
+                        }}
+                        onRemoveItem={data => {
+                            this.setState({pilihNegara: ''});
+                        }}
+                    /> :
+                    <Select2
+                        selectedTitleStyle={{color: 'white'}}
+                        placeholderTextColor="white"
+                        listEmptyTitle="Tidak ada data"
+                        cancelButtonText="Keluar"
+                        selectButtonText="Pilih"
+                        isSelectSingle
+                        style={styles.inputBox}
+                        colorTheme="#1da30b"
+                        searchPlaceHolderText="Find Your Country"
+                        popupTitle="Pilih Negara"
+                        title="Pilih Negara"
+                        data={this.state.dataNegara}
+                        onSelect={data => {
+                            this.setState({
+                                pilihNegara: this.state.dataNegara[data].name,
+                            });
 
-                            }}
-                            onRemoveItem={data => {
-                                this.setState({pilihNegara: ''});
-                            }}
-                        />}
+                        }}
+                        onRemoveItem={data => {
+                            this.setState({pilihNegara: ''});
+                        }}
+                    />}
 
-                    {this.isFieldInError('pilihNegara') && this.getErrorsInField('pilihNegara').map(errorMessage =>
-                        <Text>{errorMessage}</Text>)}
-                </View>,
-            );
-        } else {
-            listViewPilihNegara.push(
-                <View style={styles.loader}>
-                    <ActivityIndicator size="large"/>
-                </View>,
-            );
-        }
+                {this.isFieldInError('pilihNegara') && this.getErrorsInField('pilihNegara').map(errorMessage =>
+                    <Text>{errorMessage}</Text>)}
+            </View>,
+        );
+
 
         var listViewWargaNegara = [];
         listViewWargaNegara.push(
@@ -1057,10 +985,7 @@ class Step2 extends ValidationComponent {
                             this.setState({
                                 pilihWn: this.state.dataWn[data].name,
                             });
-                            console.log(this.state.pilihWn);
-                            if (this.state.dataWn[data].name === 'WNA') {
-                                this.showNegara();
-                            }
+
 
 
                         }}
@@ -1085,11 +1010,6 @@ class Step2 extends ValidationComponent {
                             this.setState({
                                 pilihWn: this.state.dataWn[data].name,
                             });
-                            console.log(this.state.pilihWn);
-                            if (this.state.dataWn[data].name === 'WNA') {
-                                this.showNegara();
-                            }
-
 
                         }}
                         onRemoveItem={data => {
@@ -1104,85 +1024,91 @@ class Step2 extends ValidationComponent {
         return (
             <Container>
                 <View style={styles.container}>
-                    {/*<LoaderModal*/}
-                    {/*    loading={this.state.loading}/>*/}
-                    {/*{this.state.loading === true ? <View><Loader/></View> : ''}*/}
-                    <ScrollView style={{marginVertical: 0, backgroundColor: 'white'}}>
+                    <LoaderModal
+                        loading={this.state.loading}/>
+                    {this.state.showError === 2 ? <View style={styles.container}>
+                        <Text style={{color: 'gray'}}>Koneksi Bermasalah :(</Text>
+                        <TouchableOpacity style={styles.button}
+                                          onPress={() => this.showData()}>
+                            <Text style={styles.buttonText}>Refresh</Text>
+                        </TouchableOpacity></View> : this.state.showError === 0 ?
+                        <View></View> : this.state.showError === 1 ?
+                            <ScrollView style={{marginVertical: 0, backgroundColor: 'white'}}>
 
 
-                        <Grid style={{marginTop: 10}}>
-                            <Col style={{height: 25}}></Col>
-                            <Col style={{width: 110, height: 25}}>
-                                <Text
-                                    style={styles.currentStepText}
-                                >{`Langkah ${currentStep} dari ${totalSteps}`}</Text></Col>
-                            <Col style={{height: 25}}></Col>
-                        </Grid>
+                                <Grid style={{marginTop: 10}}>
+                                    <Col style={{height: 25}}></Col>
+                                    <Col style={{width: 110, height: 25}}>
+                                        <Text
+                                            style={styles.currentStepText}
+                                        >{`Langkah ${currentStep} dari ${totalSteps}`}</Text></Col>
+                                    <Col style={{height: 25}}></Col>
+                                </Grid>
 
-                        {listViewWargaNegara}
+                                {listViewWargaNegara}
 
-                        {this.state.pilihWn === '' ? <View></View> : this.state.pilihWn === 'WNI' ?
-                            <View>
-                                {listView}
-                                {this.state.pilihProvinsi != '' ? listViewKota : <View></View>}
-                                {this.state.pilihKota != '' && this.state.pilihProvinsi != '' ? listViewKecamatan :
-                                    <View></View>}
-                                {this.state.pilihKecamatan != '' && this.state.pilihKota != '' && this.state.pilihProvinsi != '' ? listViewDesa :
-                                    <View></View>}
+                                {this.state.pilihWn === '' ? <View></View> : this.state.pilihWn === 'WNI' ?
+                                    <View>
+                                        {listView}
+                                        {this.state.pilihProvinsi != '' ? listViewKota : <View></View>}
+                                        {this.state.pilihKota != '' && this.state.pilihProvinsi != '' ? listViewKecamatan :
+                                            <View></View>}
+                                        {this.state.pilihKecamatan != '' && this.state.pilihKota != '' && this.state.pilihProvinsi != '' ? listViewDesa :
+                                            <View></View>}
 
-                                {this.props.getState().alamat != undefined ?
-                                    <Textarea ref="alamat"
-                                              defaultValue={this.props.getState().alamat}
-                                              onChangeText={(alamat) => this.setState({alamat})}
-                                              placeholderTextColor="#ffffff"
-                                              style={styles.inputBox}
-                                              rowSpan={5} bordered
-                                              placeholder="Alamat"/> :
-                                    <Textarea ref="alamat"
-                                              onChangeText={(alamat) => this.setState({alamat})}
-                                              placeholderTextColor="#ffffff" style={styles.inputBox} rowSpan={5}
-                                              bordered
-                                              placeholder="Alamat"/>}
-                                {this.isFieldInError('alamat') && this.getErrorsInField('alamat').map(errorMessage =>
-                                    <Text>{errorMessage}</Text>)}
+                                        {this.props.getState().alamat != undefined ?
+                                            <Textarea ref="alamat"
+                                                      defaultValue={this.props.getState().alamat}
+                                                      onChangeText={(alamat) => this.setState({alamat})}
+                                                      placeholderTextColor="#ffffff"
+                                                      style={styles.inputBox}
+                                                      rowSpan={5} bordered
+                                                      placeholder="Alamat"/> :
+                                            <Textarea ref="alamat"
+                                                      onChangeText={(alamat) => this.setState({alamat})}
+                                                      placeholderTextColor="#ffffff" style={styles.inputBox} rowSpan={5}
+                                                      bordered
+                                                      placeholder="Alamat"/>}
+                                        {this.isFieldInError('alamat') && this.getErrorsInField('alamat').map(errorMessage =>
+                                            <Text>{errorMessage}</Text>)}
 
-                                {listViewSuku}
-                                {listViewBahasa}
-                            </View> : this.state.pilihWn === 'WNA' ?
-                                <View>{listViewPilihNegara}</View> : <View></View>
-                        }
+                                        {listViewSuku}
+                                        {listViewBahasa}
+                                    </View> : this.state.pilihWn === 'WNA' ?
+                                        <View>{listViewPilihNegara}</View> : <View></View>
+                                }
 
-                        <Grid style={{marginTop: 20}}>
-                            <Col style={{height: 80}}></Col>
-                            <Col style={{width: 150, height: 80}}>
-                                <Button style={{marginRight: 5}} rounded onPress={this.props.back} success>
-                                    <Icon type="FontAwesome" name='arrow-left'/>
-                                    <Text style={{color: '#ffffff'}}>Sebelumnya</Text>
-                                </Button></Col>
-                            <Col style={{width: 150, height: 80}}>
-                                <Button style={{marginLeft: 5, paddingLeft: 20}} rounded success
-                                        onPress={this._onSubmit.bind(this)}>
-                                    <Text style={{color: '#ffffff'}}>Selanjutnya</Text>
-                                    <Icon type="FontAwesome" name='arrow-right'/>
-                                </Button></Col>
-                            <Col style={{height: 80}}></Col>
-                        </Grid>
-                        <AwesomeAlert
-                            show={showAlert}
-                            showProgress={false}
-                            title="Notifikasi"
-                            message={this.state.message}
-                            closeOnTouchOutside={true}
-                            closeOnHardwareBackPress={false}
-                            showCancelButton={false}
-                            showConfirmButton={true}
-                            confirmText=" Keluar "
-                            confirmButtonColor="#DD6B55"
-                            onConfirmPressed={() => {
-                                this.hideAlert();
-                            }}
-                        />
-                    </ScrollView>
+                                <Grid style={{marginTop: 20}}>
+                                    <Col style={{height: 80}}></Col>
+                                    <Col style={{width: 150, height: 80}}>
+                                        <Button style={{marginRight: 5}} rounded onPress={this.props.back} success>
+                                            <Icon type="FontAwesome" name='arrow-left'/>
+                                            <Text style={{color: '#ffffff'}}>Sebelumnya</Text>
+                                        </Button></Col>
+                                    <Col style={{width: 150, height: 80}}>
+                                        <Button style={{marginLeft: 5, paddingLeft: 20}} rounded success
+                                                onPress={this._onSubmit.bind(this)}>
+                                            <Text style={{color: '#ffffff'}}>Selanjutnya</Text>
+                                            <Icon type="FontAwesome" name='arrow-right'/>
+                                        </Button></Col>
+                                    <Col style={{height: 80}}></Col>
+                                </Grid>
+                                <AwesomeAlert
+                                    show={showAlert}
+                                    showProgress={false}
+                                    title="Notifikasi"
+                                    message={this.state.message}
+                                    closeOnTouchOutside={true}
+                                    closeOnHardwareBackPress={false}
+                                    showCancelButton={false}
+                                    showConfirmButton={true}
+                                    confirmText=" Keluar "
+                                    confirmButtonColor="#DD6B55"
+                                    onConfirmPressed={() => {
+                                        this.hideAlert();
+                                    }}
+                                />
+                            </ScrollView> : <View></View>}
                 </View>
             </Container>
         );

@@ -42,6 +42,7 @@ class Profile extends Component <{}> {
             active: false,
             inClickEditProfil: false,
             inClickUbahPassword: false,
+            inClickUbahNomorHp: false,
         };
     }
 
@@ -67,10 +68,10 @@ class Profile extends Component <{}> {
                 refreshing: false,
             });
 
-            console.log(this.props.getUser.userDetails.id);
+
         })
             .catch((error) => {
-                console.log(error);
+
             });
     }
 
@@ -87,6 +88,14 @@ class Profile extends Component <{}> {
         Actions.gantiPassword();
         setTimeout(function () {
             this.setState({inClickUbahPassword: false});
+        }.bind(this), 2000);
+    };
+
+    onClickUbahNomorHp = () => {
+        this.setState({inClickUbahNomorHp: true});
+        Actions.gantiPassword();
+        setTimeout(function () {
+            this.setState({inClickUbahNomorHp: false});
         }.bind(this), 2000);
     };
 
@@ -125,7 +134,7 @@ class Profile extends Component <{}> {
         const userProfil = this.state.dataUser;
         const id = this.props.getUser.userDetails.id;
         const token = this.props.getUser.userDetails.token;
-        console.log(token);
+
         var listView = [];
         var listViewProfil = [];
 
@@ -147,8 +156,8 @@ class Profile extends Component <{}> {
                     subtitle={userProfil != null ? userProfil.no_bpjs : ''}
                 />
                 <ListItem
-                    title="Penanggung Jawab"
-                    subtitle={userProfil != null ? userProfil.penanggung_jawab : ''}
+                    title="Nomor Telpon"
+                    subtitle={userProfil != null ? userProfil.no_telpon : ''}
                 />
                 <ListItem
                     title="Agama"
@@ -218,12 +227,9 @@ class Profile extends Component <{}> {
                     containerStyle={styles.avatarPhoto}
                     onPhotoSelect={avatar => {
                         if (avatar) {
-                            console.log('Image base64 string: ', avatar);
+
                             if (avatar) {
-                                console.log({
-                                    id: this.props.getUser.userDetails.id,
-                                    photo: avatar,
-                                });
+
                                 fetch(baseApi + '/user/updatePhoto', {
                                     method: 'POST',
                                     headers: {
@@ -251,7 +257,7 @@ class Profile extends Component <{}> {
                                     }
                                 })
                                     .catch((error) => {
-                                        console.log(error);
+
                                     });
                             }
                         }
@@ -287,8 +293,12 @@ class Profile extends Component <{}> {
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.button}
                                           onPress={!this.state.inClickUbahPassword ? this.onClickUbahPassword : null}>
-                            <Text style={styles.buttonText}> Ganti Password </Text>
+                            <Text style={styles.buttonText}> Ubah Password </Text>
                         </TouchableOpacity>
+                        {/*<TouchableOpacity style={styles.button}*/}
+                        {/*                  onPress={!this.state.inClickUbahPassword ? this.onClickUbahNomorHp : null}>*/}
+                        {/*    <Text style={styles.buttonText}> Ubah Nomor Hp </Text>*/}
+                        {/*</TouchableOpacity>*/}
                         <TouchableOpacity style={styles.buttonLogout} onPress={this.showAlert}>
                             <Text style={styles.buttonText}> Logout </Text>
                         </TouchableOpacity></View>

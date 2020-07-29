@@ -14,7 +14,7 @@ import {
     ScrollView,
     Image,
     BackHandler,
-    Dimensions, StatusBar, Modal, FlatList,
+    Dimensions, StatusBar, Modal, FlatList, ActivityIndicator, ToastAndroid,
 } from 'react-native';
 import {connect} from 'react-redux';
 import {logoutUser} from '../actions/auth.actions';
@@ -32,7 +32,7 @@ import ViewShot from 'react-native-view-shot';
 import QRCode from 'react-native-qrcode-svg';
 import CameraRoll from '@react-native-community/cameraroll';
 import {baseApi, baseUrlFoto} from '../service/api';
-import PushNotificationIOS from '@react-native-community/push-notification-ios';
+
 import messaging from '@react-native-firebase/messaging';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
@@ -70,16 +70,12 @@ const options = [
 ];
 const labels = ['Mendaftar', 'Sedang Berobat', 'Selesai Berobat', 'Mendapatkan Obat', 'Selesai'];
 
-class Profile extends Component {
+class Home extends Component {
     constructor(props) {
         super(props);
         this.springValue = new Animated.Value(100);
         this.state = {
-            images: [
-                require('../images/banner/banner1.jpg'),
-                require('../images/banner/banner3.jpg'),
-                require('../images/banner/banner4.jpg'),
-            ],
+
             inClickNotifikasi: false,
             inClickHome: false,
             inClickHomeSendiri: false,
@@ -93,6 +89,8 @@ class Profile extends Component {
             inClickNews: false,
             inClickObat: false,
 
+            statusLoadingDokter: 0,
+            loadingDokter: false,
             status: false,
             nomorAntrian: '',
             tanggalKunjungan: '',
@@ -116,6 +114,7 @@ class Profile extends Component {
             activeIndex: 0,
             dataDashboard: [],
 
+            showErrorDokter:false,
         };
     }
 
@@ -163,16 +162,22 @@ class Profile extends Component {
 
 
     }
+
     componentWillUnmount() {
         this.getJadwalDokter();
     }
+
+    componentDidUpdate(){
+
+    }
+
     componentDidMount() {
         this.getJadwalDokter();
         // this.getDataDashboard();
         messaging()
             .getToken()
             .then(token => {
-                console.log(token);
+                console.log(token)
                 fetch(baseApi + '/user/updateToken', {
                     method: 'POST',
                     headers: {
@@ -185,9 +190,9 @@ class Profile extends Component {
                         token: token,
                     }),
                 }).then((response) => response.json()).then((responseJson) => {
-                    console.log('Success');
+
                 });
-            })
+            });
 
     }
 
@@ -204,34 +209,45 @@ class Profile extends Component {
             }),
         }).then((response) => response.json()).then((responseJson) => {
             this.setState({
-              dataDashboard:responseJson.data
+                dataDashboard: responseJson.data,
             });
         }).catch((error) => {
-            console.log(error);
+
         }).finally(() => {
 
-        });;
+        });
+        ;
     }
 
     getJadwalDokter() {
-        fetch(baseApi + '/user/liburDokter', {
-            method: 'GET',
+        this.setState({
+            loadingDokter: true,
+            showErrorDokter:false,
+        });
+
+        return fetch(baseApi + '/user/liburDokter', {
+            method: 'POST',
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
             },
         }).then((response) => response.json()).then((responseJson) => {
             this.setState({
+                loadingDokter: false,
+                showErrorDokter:false,
+                statusLoadingDokter: 1,
                 dataDokterLibur: responseJson.data,
                 dataDokterLiburKeterangan: responseJson.dataKeterangan,
             });
-
-            console.log(responseJson.dataKeterangan);
         }).catch((error) => {
             console.log(error);
-        }).finally(() => {
-
-        });;
+            this.setState({
+                loadingDokter: false,
+                statusLoadingDokter: 2,
+                showErrorDokter:true,
+            });
+        })
+        ;
     }
 
 
@@ -287,10 +303,10 @@ class Profile extends Component {
 
     saveQrToDisk() {
         this.refs.viewShot.capture().then(uri => {
-            console.log('do something with ', uri);
+
 
             CameraRoll.saveToCameraRoll(uri, 'photo');
-
+            ToastAndroid.show('Disimpan di galery !!', ToastAndroid.SHORT);
         });
     }
 
@@ -322,7 +338,7 @@ class Profile extends Component {
         Actions.jadwalpoliklinik();
         setTimeout(function () {
             this.setState({inClickJadwal: false});
-        }.bind(this), 2000);
+        }.bind(this), 1000);
     };
     onClickButtonBed = () => {
         this.setState({inClickBed: true});
@@ -376,52 +392,56 @@ class Profile extends Component {
     }
 
     _renderItem = ({item, index}) => {
-        // console.log(this.state.dataDokterLiburKeterangan.length)
+
         return (
-            <View style={{ borderWidth: 1,
+            <View style={{
+                borderWidth: 1,
                 borderColor: 'orange',
                 borderRadius: 0,
-                justifyContent: 'center',}}>
-            <ListItem
-                title={<Text>{item.dokter_nama}</Text>}
-                subtitle={
-                    <View>
-                        <Text style={{color: 'gray'}}>NRP {item.nrp}</Text>
-                        {/*{this.state.dataDokterLiburKeterangan.length !== 0 ? <Text*/}
-                        {/*    style={{color: 'gray'}}>Keterangan {this.state.dataDokterLiburKeterangan[index].libur_keterangan}</Text> : ''}*/}
+                justifyContent: 'center',
+            }}>
+                <ListItem
+                    title={<Text>{item.dokter_nama}</Text>}
+                    subtitle={
+                        <View>
+                            <Text style={{color: 'gray'}}>NRP {item.nrp}</Text>
+                            {/*{this.state.dataDokterLiburKeterangan.length !== 0 ? <Text*/}
+                            {/*    style={{color: 'gray'}}>Keterangan {this.state.dataDokterLiburKeterangan[index].libur_keterangan}</Text> : ''}*/}
 
-                    </View>
+                        </View>
 
-                }
-                leftAvatar={
-                    item.fhoto != null ?
-                        {
-                            rounded: true,
-                            height: 80,
-                            width: 80,
-                            source: this.state.urlImage && {uri: baseUrlFoto + 'dokter/' + item.fhoto},
-                            title: item.dokter_nama[0],
-                        }
-                        :
-                        {
-                            rounded: true,
-                            height: 80,
-                            width: 80,
-                            source: require('../images/dokter.png'),
-                            title: item.dokter_nama[0],
-                        }
-                }
-            />
+                    }
+                    leftAvatar={
+                        item.fhoto != null ?
+                            {
+                                rounded: true,
+                                height: 80,
+                                width: 80,
+                                source: this.state.urlImage && {uri: baseUrlFoto + 'dokter/' + item.fhoto},
+                                title: item.dokter_nama[0],
+                            }
+                            :
+                            {
+                                rounded: true,
+                                height: 80,
+                                width: 80,
+                                source: require('../images/dokter.png'),
+                                title: item.dokter_nama[0],
+                            }
+                    }
+                />
             </View>
         );
     };
 
     _renderItemMenu = ({item, index}) => {
         return (
-            <View style={{ borderWidth: 1,
+            <View style={{
+                borderWidth: 1,
                 borderColor: 'orange',
                 borderRadius: 0,
-                justifyContent: 'center',}}>
+                justifyContent: 'center',
+            }}>
                 <ListItem
                     title={<Text>Total {item.Jumlah}</Text>}
                     subtitle={<Text style={{color: 'gray'}}>{item.Keterangan}</Text>}
@@ -432,10 +452,14 @@ class Profile extends Component {
     };
 
     render() {
-
+        const images = [
+            require('../images/banner/banner1.jpg'),
+            require('../images/banner/banner3.jpg'),
+            require('../images/banner/banner4.jpg'),
+        ];
         const {showAlert} = this.state;
         const handlePress = (index) => {
-            console.log(index);
+
         };
         return (
             <View style={{flex: 1}}>
@@ -457,7 +481,6 @@ class Profile extends Component {
                 />
 
                 <ScrollView style={{flex: 1, backgroundColor: 'white'}}>
-
                     <ActionSheet
                         ref={o => this.ActionSheet = o}
                         title={<Text style={{color: '#000', fontSize: 18}}>Pilih Jenis Daftar</Text>}
@@ -469,7 +492,7 @@ class Profile extends Component {
                     />
                     <SliderBox
                         ImageComponentStyle={{borderRadius: 15, width: '97%', marginTop: 5}}
-                        images={this.state.images}
+                        images={images}
                         sliderBoxHeight={200}
                         parentWidth={this.state.width}
                         // onCurrentImagePressed={
@@ -501,25 +524,40 @@ class Profile extends Component {
                     <View style={{marginTop: 20, flex: 1, flexDirection: 'row', justifyContent: 'center'}}>
                         <Text style={{color: 'gray'}}>Dokter Yang Tidak Hadir Hari Ini</Text>
                     </View>
-                    {this.state.dataDokterLibur.length !== 0 ?
-                        <View style={{marginLeft:5,marginTop: 10,marginBottom:10, flex: 1, flexDirection: 'row', justifyContent: 'center'}}>
-                            <Carousel
-                                enableMomentum={true}
-                                autoplay={true}
-                                loop={true}
-                                layout={'default'}
-                                ref={(c) => {
-                                    this._carousel = c;
-                                }}
-                                onSnapToItem={index => this.setState({activeIndex: index})}
-                                data={this.state.dataDokterLibur}
-                                renderItem={this._renderItem}
-                                sliderWidth={300}
-                                itemWidth={300}
-                            />
-                        </View> :
-                        <View style={{marginTop: 20, flex: 1, flexDirection: 'row', justifyContent: 'center'}}>
-                            <Text style={{color: 'gray'}}>Tidak Ada Dokter Libur Hari Ini</Text>
+                    {this.state.loadingDokter === true ?
+                        <View>
+                            <ActivityIndicator size="small"/>
+                        </View> : <View>
+                            {this.state.statusLoadingDokter === 1 ?
+                                <View style={{
+                                    marginLeft: 5,
+                                    marginTop: 10,
+                                    marginBottom: 10,
+                                    flex: 1,
+                                    flexDirection: 'row',
+                                    justifyContent: 'center',
+                                }}>
+                                    <Carousel
+                                        enableMomentum={true}
+                                        autoplay={true}
+                                        loop={true}
+                                        layout={'default'}
+                                        ref={(c) => {
+                                            this._carousel = c;
+                                        }}
+                                        onSnapToItem={index => this.setState({activeIndex: index})}
+                                        data={this.state.dataDokterLibur}
+                                        renderItem={this._renderItem}
+                                        sliderWidth={300}
+                                        itemWidth={300}
+                                    />
+                                </View> : this.state.statusLoadingDokter === 2 ?
+                                    <View style={styles.container}>
+                                        <TouchableOpacity style={styles.button}
+                                                          onPress={() => this.getJadwalDokter()}>
+                                            <Text style={styles.buttonText}>Refresh </Text>
+                                        </TouchableOpacity></View> :
+                                    <View></View>}
                         </View>}
 
                     <View style={{flex: 1, backgroundColor: 'white'}}>
@@ -802,7 +840,14 @@ class Profile extends Component {
                         {/*    /!*</View>*!/*/}
                         {/*</View>*/}
                     </View>
-                    <View style={{marginLeft:5,marginTop: 10,marginBottom:10, flex: 1, flexDirection: 'row', justifyContent: 'center'}}>
+                    <View style={{
+                        marginLeft: 5,
+                        marginTop: 10,
+                        marginBottom: 10,
+                        flex: 1,
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                    }}>
                         <Carousel
                             enableMomentum={true}
                             autoplay={true}
@@ -878,12 +923,13 @@ class Profile extends Component {
                                             <Text style={{fontSize: 12}}>: {this.state.nomorMr}</Text>
                                             <Text style={{fontSize: 12}}>: {this.state.namaPasien}</Text>
                                             <Text style={{fontSize: 12}}>: {this.state.tanggalKunjungan}</Text>
-                                            <Text
-                                                style={{fontSize: 12}}>: {this.state.jamKunjunganAntrian}</Text>
+                                            <Text style={{fontSize: 12}}>: {this.state.jamKunjunganAntrian}</Text>
                                             <Text style={{fontSize: 12}}>: {this.state.namaRuang}</Text>
                                             <Text style={{fontSize: 12}}>: {this.state.caraBayar}</Text>
                                         </View>
                                     </View>
+                                    <View style={{flexDirection: 'row', marginTop: 10}}><Text style={{fontSize: 24}}>Nomor
+                                        Antrian: {this.state.nomorAntrian}</Text></View>
                                     <View style={{padding: 10, backgroundColor: 'white'}}>
                                         <Text style={{fontSize: 12}}>Mohon Diperhatikan</Text>
                                         <Text style={{fontSize: 8}}>1. Pasien diharapkan hadir sebelum
@@ -938,7 +984,9 @@ class Profile extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#ecf0f1',
+        backgroundColor: '#fff',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     view1: {},
     view2: {},
@@ -964,4 +1012,4 @@ mapDispatchToProps = (dispatch) => ({
     dispatch,
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Profile);
+export default connect(mapStateToProps, mapDispatchToProps)(Home);

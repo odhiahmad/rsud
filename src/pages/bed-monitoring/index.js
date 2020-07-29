@@ -1,6 +1,6 @@
 import React, {Component, useEffect} from 'react';
 import {baseApi} from '../../service/api';
-import {ListItem, Header, Badge,Icon} from 'react-native-elements';
+import {ListItem, Header, Badge, Icon} from 'react-native-elements';
 import {
     ScrollView,
     StyleSheet,
@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import Modal from 'react-native-modal';
 import LoaderModal from '../../components/LoaderModal';
+import {Actions} from 'react-native-router-flux';
 
 export default class index extends Component {
 
@@ -26,26 +27,37 @@ export default class index extends Component {
             isLoadingDataModal: true,
             isModalVisible: false,
             modalVisible: false,
+            showTryAgain: false,
         };
     }
 
     componentDidMount() {
+        this.getIndex();
+    }
+
+    componentWillUnmount() {
+
+    }
+
+    getIndex() {
         this.setState({
             loading: true,
+            showTryAgain: false,
         });
         return fetch(baseApi + '/user/ruangan').then((response) => response.json()).then((responseJson) => {
             this.setState({
                 loading: false,
                 data: responseJson.data,
+                showTryAgain: false,
             });
         })
             .catch((error) => {
-                console.log(error);
+                console.log(error)
+                this.setState({
+                    loading: false,
+                    showTryAgain: true,
+                });
             });
-    }
-
-    componentWillUnmount() {
-
     }
 
     setModalUnvisible(visible) {
@@ -56,7 +68,7 @@ export default class index extends Component {
         this.setState({
             namaKelas: namaKelas,
             modalVisible: visible,
-            loadingModal:true
+            loadingModal: true,
         });
         fetch(baseApi + '/user/detailRuangan', {
             method: 'POST',
@@ -72,7 +84,7 @@ export default class index extends Component {
             this.setState({
                 isLoadingDataModal: false,
                 dataDetail: responseJson.data,
-                loadingModal:false
+                loadingModal: false,
 
             });
 
@@ -108,12 +120,12 @@ export default class index extends Component {
                             }}/>
                         </View>
                         <View style={{width: 100}}>
-                            <Text style={{fontSize: 18,color: 'grey'}}>Tersedia</Text>
-                            <Text style={{fontSize: 18,color: 'grey'}}>Terisi</Text>
+                            <Text style={{fontSize: 18, color: 'grey'}}>Tersedia</Text>
+                            <Text style={{fontSize: 18, color: 'grey'}}>Terisi</Text>
                         </View>
                         <View style={{width: 100}}>
-                            <Text style={{fontSize: 18,color: 'grey'}}>{tersedia}</Text>
-                            <Text style={{fontSize: 18,color: 'grey'}}>{terisi}</Text>
+                            <Text style={{fontSize: 18, color: 'grey'}}>{tersedia}</Text>
+                            <Text style={{fontSize: 18, color: 'grey'}}>{terisi}</Text>
                         </View>
                     </View>
                 }
@@ -152,11 +164,14 @@ export default class index extends Component {
 
     render() {
         return (
-            <View>
+            <View style={{flex: 1}}>
                 <LoaderModal
                     loading={this.state.loading}/>
                 <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
                 <Header
+                    leftComponent={
+                        <Icon type='ionicon' name='arrow-back-outline' color='#fff'
+                              onPress={()=>Actions.pop()}/>}
                     statusBarProps={{barStyle: 'light-content'}}
                     containerStyle={{
                         backgroundColor: '#1da30b',
@@ -166,10 +181,27 @@ export default class index extends Component {
                     placement="center"
                     centerComponent={{text: 'Monitoring Ketersedian Kamar', style: {color: '#fff'}}}
                 />
-                <FlatList
-                    renderItem={this.renderRow}
-                    keyExtractor={(item, index) => index.toString()}
-                    data={this.state.data}/>
+                {this.state.showTryAgain === true ?
+                    <View style={styles.container}>
+                        <Text style={{color: 'gray'}}>Koneksi Bermasalah :(</Text>
+                        <TouchableOpacity style={{
+                            width: 200,
+                            backgroundColor: 'red',
+                            borderRadius: 25,
+                            marginVertical: 2,
+                            paddingVertical: 13,
+                        }} onPress={() => this.getIndex()}>
+                            <Text style={{
+                                fontSize: 16,
+                                fontWeight: '500',
+                                color: '#ffffff',
+                                textAlign: 'center',
+                            }}>Refresh </Text>
+                        </TouchableOpacity></View>:<FlatList
+                        renderItem={this.renderRow}
+                        keyExtractor={(item, index) => index.toString()}
+                        data={this.state.data}/>}
+
                 <Modal
                     onHardwareBackPress={() => this.setModalUnvisible(!this.state.modalVisible)}
                     propagateSwipe={true}
@@ -201,16 +233,39 @@ export default class index extends Component {
 
 
 }
-
 const styles = StyleSheet.create({
+    buttonText: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: '#ffffff',
+        textAlign: 'center',
+    },
+    button: {
+        width: 300,
+        backgroundColor: 'orange',
+        borderRadius: 25,
+        marginVertical: 2,
+        paddingVertical: 13,
+    },
+    loader: {
+        marginTop: 18,
+        alignItems: 'center',
+    },
     container: {
         flex: 1,
         backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
     },
-    loader: {
-        marginTop: 18,
-        alignItems: 'center',
+    avatar: {
+        width: 90,
+        height: 90,
+        borderRadius: 63,
+        borderWidth: 1,
+        borderColor: 'white',
+        marginBottom: 10,
+        alignSelf: 'center',
+        position: 'absolute',
+        marginTop: 10,
     },
 });

@@ -2,7 +2,7 @@ import React, {Component, useEffect} from 'react';
 import {baseApi, baseUrlFoto} from '../../service/api';
 import CustomLoader from '../../components/CustomLoader';
 import CustomLoader1 from '../../components/CustomLoader';
-import {ListItem, Header, Badge} from 'react-native-elements';
+import {ListItem, Header, Badge, Icon} from 'react-native-elements';
 import {
     StatusBar,
     ScrollView,
@@ -16,6 +16,7 @@ import {
 import Modal from 'react-native-modal';
 import LoaderModal from '../../components/LoaderModal';
 import moment from 'moment';
+import {Actions} from 'react-native-router-flux';
 
 export default class index extends Component {
 
@@ -25,6 +26,7 @@ export default class index extends Component {
             loadingModal: false,
             loading: false,
             namaKelas: null,
+            showTryAgain: false,
             isLoading: true,
             dataSource: null,
             data: [],
@@ -37,27 +39,36 @@ export default class index extends Component {
     }
 
     componentDidMount() {
+        this.getIndex();
+    }
+
+    getIndex() {
         this.setState({
             loading: true,
+            showTryAgain: false,
         });
         return fetch(baseApi + '/user/poly').then((response) => response.json()).then((responseJson) => {
             this.setState({
                 loading: false,
                 data: responseJson.data,
+                showTryAgain: false,
             });
         })
             .catch((error) => {
                 console.log(error);
+                this.setState({
+                    loading: false,
+                    showTryAgain: true,
+                });
             });
     }
-
 
     setModalUnvisible(visible) {
         this.setState({modalVisible: visible, dataDetail: null});
     }
 
     setModalVisible(visible, id, namaKelas) {
-        console.log(id);
+
         this.setState({
             namaKelas: namaKelas,
             modalVisible: visible,
@@ -83,13 +94,12 @@ export default class index extends Component {
 
         })
             .catch((error) => {
-                console.log(error);
+
             });
 
     }
 
     renderRowDetail = ({item, index}) => {
-        console.log(this.state.urlImage + '/' + item.get_dokter_jadwal[0].dokter_fhoto);
         return (
             <ListItem
                 title={item.get_dokter_jadwal[0].dokter_nama}
@@ -159,11 +169,14 @@ export default class index extends Component {
 
     render() {
         return (
-            <View>
+            <View style={{flex: 1}}>
                 <LoaderModal
                     loading={this.state.loading}/>
                 <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
                 <Header
+                    leftComponent={
+                        <Icon type='ionicon' name='arrow-back-outline' color='#fff'
+                              onPress={()=>Actions.pop()}/>}
                     statusBarProps={{barStyle: 'light-content'}}
                     containerStyle={{
                         backgroundColor: '#1da30b',
@@ -173,10 +186,26 @@ export default class index extends Component {
                     placement="center"
                     centerComponent={{text: 'Jadwal Poliklinik', style: {color: '#fff'}}}
                 />
-                <FlatList
-                    renderItem={this.renderRow}
-                    keyExtractor={(item, index) => index.toString()}
-                    data={this.state.data}/>
+                {this.state.showTryAgain === true ?
+                    <View style={styles.container}>
+                        <Text style={{color: 'gray'}}>Koneksi Bermasalah :(</Text>
+                        <TouchableOpacity style={{
+                            width: 200,
+                            backgroundColor: 'red',
+                            borderRadius: 25,
+                            marginVertical: 2,
+                            paddingVertical: 13,
+                        }} onPress={() => this.getIndex()}>
+                            <Text style={{
+                                fontSize: 16,
+                                fontWeight: '500',
+                                color: '#ffffff',
+                                textAlign: 'center',
+                            }}>Refresh </Text>
+                        </TouchableOpacity></View>: <FlatList
+                        renderItem={this.renderRow}
+                        keyExtractor={(item, index) => index.toString()}
+                        data={this.state.data}/>}
                 <Modal
                     onHardwareBackPress={() => this.setModalUnvisible(!this.state.modalVisible)}
                     propagateSwipe={true}
@@ -209,6 +238,19 @@ export default class index extends Component {
 }
 
 const styles = StyleSheet.create({
+    buttonText: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: '#ffffff',
+        textAlign: 'center',
+    },
+    button: {
+        width: 300,
+        backgroundColor: 'orange',
+        borderRadius: 25,
+        marginVertical: 2,
+        paddingVertical: 13,
+    },
     loader: {
         marginTop: 18,
         alignItems: 'center',

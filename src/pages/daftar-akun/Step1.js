@@ -19,10 +19,9 @@ import {Actions} from 'react-native-router-flux';
 import AwesomeAlert from 'react-native-awesome-alerts';
 import email from 'react-native-email';
 import PasswordInputText from 'react-native-hide-show-password-input';
-
+import {showMessage} from 'react-native-flash-message';
 import RNPicker from 'rn-modal-picker';
 import {
-    DatePicker,
     Col, Row, Grid,
     Item,
     H2,
@@ -45,7 +44,7 @@ import {
 } from 'native-base';
 import {connect} from 'react-redux';
 import Select2 from 'react-native-select-two';
-
+import DatePicker from 'react-native-datepicker';
 const styles = StyleSheet.create({
     itemSeparatorStyle: {
         height: 1,
@@ -171,12 +170,17 @@ class Step1 extends ValidationComponent <{}> {
         this.toggleSwitch = this.toggleSwitch.bind(this);
 
         this.state = {
+            showError: 0,
+
+
             tempatLahir: '',
-            tanggalLahir: '',
+            tanggalLahir: new Date('1980-03-25'),
             nama: '',
             jenisKelamin: '',
             dataAgama: [],
+            dataPekerjaan: [],
             pilihAgama: '',
+            pilihPekerjaan: '',
             noKartu: '',
             noTelpon: '',
             selected: undefined,
@@ -185,10 +189,12 @@ class Step1 extends ValidationComponent <{}> {
             currentStep: '',
             pekerjaan: '',
             nik: '',
+            noBpjs: '',
             statusKawin: '',
             selectedText: '',
             loading: false,
             chosenDate: new Date(),
+
 
         };
         this.setDate = this.setDate.bind(this);
@@ -196,16 +202,15 @@ class Step1 extends ValidationComponent <{}> {
 
 
     componentDidMount() {
-        this.showDataAgama()
+        this.showData();
         if (this.props.getState().nik != undefined) {
             this.state.pilihAgama = this.props.getState().pilihAgama;
             this.state.jenisKelamin = this.props.getState().jenisKelamin;
             this.state.statusKawin = this.props.getState().statusKawin;
             this.state.chosenDate = this.props.getState().tanggalLahir;
-            this.state.noTelpon = this.props.getState().noTelpon;
             this.state.tempatLahir = this.props.getState().tempatLahir;
             this.state.nama = this.props.getState().nama;
-            this.state.pekerjaan = this.props.getState().pekerjaan;
+            this.state.pilihPekerjaan = this.props.getState().pilihPekerjaan;
             this.state.nik = this.props.getState().nik;
         }
         ;
@@ -277,66 +282,170 @@ class Step1 extends ValidationComponent <{}> {
     };
 
     _onSubmit() {
-
-
         this.validate({
-            pilihAgama:{required:true},
+            noBpjs: {minlength: 13, maxlength: 13, number: true},
+            pilihAgama: {required: true},
             jenisKelamin: {required: true},
             statusKawin: {required: true},
             chosenDate: {required: true},
-            noTelpon: {minlength: 10, maxlength: 13, number: true, required: true},
             tempatLahir: {minlength: 4, maxlength: 50, required: true},
-            nama: {minlength: 4, maxlength: 50, required: true},
-            pekerjaan: {minlength: 4, maxlength: 50, required: true},
+            pilihPekerjaan: {required: true},
             nik: {minlength: 16, maxlength: 16, required: true},
 
         });
         if (this.isFormValid()) {
-            this.state.loading = true;
-            fetch(baseApi + '/user/cekKtp', {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    nik: this.state.nik,
-                }),
-
-            }).then((response) => response.json()).then((responseJson) => {
-
-                if (responseJson.success === true) {
-                    const {saveState} = this.props;
-                    // Save state for use in other steps
-                    saveState({
-                        jenisKelamin: this.state.jenisKelamin,
-                        statusKawin: this.state.statusKawin,
-                        tanggalLahir: this.state.chosenDate,
-                        noTelpon: this.state.noTelpon,
-                        tempatLahir: this.state.tempatLahir,
-                        nama: this.state.nama,
-                        pekerjaan: this.state.pekerjaan,
+            this.setState({
+                loading: true,
+            });
+            if (this.state.noBpjs === '') {
+                fetch(baseApi + '/user/cekKtp', {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
                         nik: this.state.nik,
-                        pilihAgama:this.state.pilihAgama
+                    }),
+
+                }).then((response) => response.json()).then((responseJson) => {
+
+                    if (responseJson.success === true) {
+                        const {saveState} = this.props;
+                        // Save state for use in other steps
+                        saveState({
+                            jenisKelamin: this.state.jenisKelamin,
+                            statusKawin: this.state.statusKawin,
+                            tanggalLahir: this.state.chosenDate,
+                            tempatLahir: this.state.tempatLahir,
+                            nama: this.state.nama,
+                            pilihPekerjaan: this.state.pilihPekerjaan,
+                            nik: this.state.nik,
+                            pilihAgama: this.state.pilihAgama,
+                            noBpjs: this.state.noBpjs,
+                        });
+                        this.setState({
+                            loading: false,
+                        });
+                        this.nextStep();
+
+
+                    } else {
+                        this.setState({
+                            loading: false,
+                        });
+                        showMessage({
+                            message: 'Koneksi Bermasalah',
+                            type: 'danger',
+                            position: 'bottom',
+                        });
+                    }
+
+
+                }).catch((error) => {
+                    this.setState({
+                        loading: false,
+                    });
+                    showMessage({
+                        message: 'Koneksi Bermasalah',
+                        type: 'danger',
+                        position: 'bottom',
                     });
 
-                    this.nextStep();
-                    this.state.loading = false;
+                });
+            } else {
+                const url = baseApiBpjs + 'peserta_bpjs';
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        'username': '00004',
+                        'password': '551UU1BJ',
+                        'param': 'nokartu',
+                        'data': this.props.getState().noBpjs,
+                    }),
+                }).then((response) => response.json()).then((responseJson) => {
 
-                } else {
-                    this.state.loading = false;
-                    this.state.message = responseJson.message;
-                    this.showAlert();
-                }
+                    if (responseJson.response != null) {
+                        if (parseInt(responseJson.response.peserta.statusPeserta.kode) === 0) {
+                            if (responseJson.response.peserta.nik === this.state.nik) {
+                                if (responseJson.success === true) {
+                                    const {saveState} = this.props;
+                                    // Save state for use in other steps
+                                    saveState({
+                                        jenisKelamin: this.state.jenisKelamin,
+                                        statusKawin: this.state.statusKawin,
+                                        tanggalLahir: this.state.chosenDate,
+                                        tempatLahir: this.state.tempatLahir,
+                                        nama: this.state.nama,
+                                        pilihPekerjaan: this.state.pilihPekerjaan,
+                                        nik: this.state.nik,
+                                        pilihAgama: this.state.pilihAgama,
+                                        noBpjs: this.state.noBpjs,
+                                    });
+                                    this.setState({
+                                        loading: false,
+                                    });
+                                    this.nextStep();
 
 
-            }).catch((error) => {
-                this.state.loading = false;
-                console.log(error);
-                this.state.message = error;
-                this.showAlert();
+                                } else {
+                                    this.setState({
+                                        loading: false,
+                                    });
+                                    showMessage({
+                                        message: 'Koneksi Bermasalah',
+                                        type: 'danger',
+                                        position: 'bottom',
+                                    });
+                                }
+                            } else {
+                                this.setState({
+                                    loading: false,
+                                });
+                                showMessage({
+                                    message: 'Ktp anda di bpjs tidak sesuai dengan yang anda masukan',
+                                    type: 'danger',
+                                    position: 'bottom',
+                                });
+                            }
 
-            });
+
+                        } else {
+                            this.setState({
+                                loading: false,
+                            });
+                            showMessage({
+                                message: 'BPJS Anda Tidak Aktif',
+                                type: 'danger',
+                                position: 'bottom',
+                            });
+                        }
+                    } else {
+                        this.setState({
+                            loading: false,
+                        });
+                        showMessage({
+                            message: 'Nomor Yang anda masukan tidak terdaftar',
+                            type: 'danger',
+                            position: 'bottom',
+                        });
+                    }
+                }).catch((error) => {
+                    this.setState({
+                        loading: false,
+                    });
+                    showMessage({
+                        message: 'Koneksi Bermasalah',
+                        type: 'danger',
+                        position: 'bottom',
+                    });
+                });
+            }
+
 
         }
 
@@ -346,8 +455,12 @@ class Step1 extends ValidationComponent <{}> {
         this.setState({showPassword: !this.state.showPassword});
     }
 
-    showDataAgama() {
-        const url = baseApi + '/user/agama';
+    showData() {
+        this.setState({
+            loading: true,
+            showError: 0,
+        });
+        const url = baseApi + '/user/step1';
         fetch(url, {
             method: 'GET',
             headers: {
@@ -355,20 +468,32 @@ class Step1 extends ValidationComponent <{}> {
                 'Content-Type': 'application/json',
             },
         }).then((response) => response.json()).then((responseJson) => {
-            var a = responseJson.data;
+            console.log(responseJson.data);
+            var a = responseJson.dataAgama;
+            var b = responseJson.dataPekerjaan;
             for (let i = 0; i < a.length; i++) {
                 this.state.dataAgama.push({
                     id: i,
                     name: a[i].agama,
                 });
             }
+
+            for (let i = 0; i < b.length; i++) {
+                this.state.dataPekerjaan.push({
+                    id: i,
+                    name: b[i].pekerjaan_nama,
+                });
+            }
             this.setState({
-                isLoading: false,
+                loading: false,
+                showError: 1,
             });
 
-
         }).catch((error) => {
-            console.log(error);
+            this.setState({
+                showError: 2,
+                loading: false,
+            });
         });
     }
 
@@ -377,313 +502,360 @@ class Step1 extends ValidationComponent <{}> {
         const {showAlert} = this.state;
         const {onChange} = this.props;
         var listView = [];
-        if (this.state.dataAgama.length != 0) {
-            listView.push(
-                <View>
-                    {this.props.getState().pilihAgama != undefined ?
-                        <Select2
-                            placeholderTextColor="#ffffff"
-                            listEmptyTitle="Tidak ada data"
-                            cancelButtonText="Keluar"
-                            selectButtonText="Pilih"
-                            isSelectSingle
-                            style={styles.inputBox}
-                            colorTheme="#1da30b"
-                            selectedTitleStyle={{color: 'white'}}
-                            searchPlaceHolderText="Cari Agama"
-                            popupTitle="Pilih Agama"
-                            title={this.props.getState().pilihAgama}
-                            data={this.state.dataAgama}
-                            onSelect={data => {
-                                this.setState({
-                                    pilihAgama: this.state.dataAgama[data].name,
-                                });
-
-                            }}
-                            onRemoveItem={data => {
-                                this.setState({pilihAgama: ''});
-                            }}
-                        /> :
-                        <Select2
-                            selectedTitleStyle={{color: 'white'}}
-                            placeholderTextColor="#ffffff"
-                            listEmptyTitle="Tidak ada data"
-                            cancelButtonText="Keluar"
-                            selectButtonText="Pilih"
-                            isSelectSingle
-                            style={styles.inputBox}
-                            colorTheme="#1da30b"
-                            searchPlaceHolderText="Cari Agama"
-                            popupTitle="Pilih Agama"
-                            title="Pilih Agama"
-                            data={this.state.dataAgama}
-                            onSelect={data => {
-                                this.setState({
-                                    pilihAgama: this.state.dataAgama[data].name,
-                                });
+        var listViewPekerjaan = [];
 
 
-                            }}
-                            onRemoveItem={data => {
-                                this.setState({pilihAgama: ''});
-                            }}
-                        />}
+        listView.push(
+            <View>
+                {this.props.getState().pilihAgama != undefined ?
+                    <Select2
+                        placeholderTextColor="#ffffff"
+                        listEmptyTitle="Tidak ada data"
+                        cancelButtonText="Keluar"
+                        selectButtonText="Pilih"
+                        isSelectSingle
+                        style={styles.inputBox}
+                        colorTheme="#1da30b"
+                        selectedTitleStyle={{color: 'white'}}
+                        searchPlaceHolderText="Cari Agama"
+                        popupTitle="Pilih Agama"
+                        title={this.props.getState().pilihAgama}
+                        data={this.state.dataAgama}
+                        onSelect={data => {
+                            this.setState({
+                                pilihAgama: this.state.dataAgama[data].name,
+                            });
 
-                    {this.isFieldInError('pilihAgama') && this.getErrorsInField('pilihAgama').map(errorMessage =>
-                        <Text>{errorMessage}</Text>)}
-                </View>,
-            );
-        } else {
-            listView.push(
-                <View style={styles.loader}>
-                    <ActivityIndicator size="small"/>
-                </View>,
-            );
-        }
+                        }}
+                        onRemoveItem={data => {
+                            this.setState({pilihAgama: ''});
+                        }}
+                    /> :
+                    <Select2
+                        selectedTitleStyle={{color: 'white'}}
+                        placeholderTextColor="#ffffff"
+                        listEmptyTitle="Tidak ada data"
+                        cancelButtonText="Keluar"
+                        selectButtonText="Pilih"
+                        isSelectSingle
+                        style={styles.inputBox}
+                        colorTheme="#1da30b"
+                        searchPlaceHolderText="Cari Agama"
+                        popupTitle="Pilih Agama"
+                        title="Pilih Agama"
+                        data={this.state.dataAgama}
+                        onSelect={data => {
+                            this.setState({
+                                pilihAgama: this.state.dataAgama[data].name,
+                            });
+
+
+                        }}
+                        onRemoveItem={data => {
+                            this.setState({pilihAgama: ''});
+                        }}
+                    />}
+
+                {this.isFieldInError('pilihAgama') && this.getErrorsInField('pilihAgama').map(errorMessage =>
+                    <Text>{errorMessage}</Text>)}
+            </View>,
+        );
+
+
+        listViewPekerjaan.push(
+            <View>
+                {this.props.getState().pilihPekerjaan != undefined ?
+                    <Select2
+                        placeholderTextColor="#ffffff"
+                        listEmptyTitle="Tidak ada data"
+                        cancelButtonText="Keluar"
+                        selectButtonText="Pilih"
+                        isSelectSingle
+                        style={styles.inputBox}
+                        colorTheme="#1da30b"
+                        selectedTitleStyle={{color: 'white'}}
+                        searchPlaceHolderText="Cari Pekerjaan"
+                        popupTitle="Pilih Pekerjaan"
+                        title={this.props.getState().pilihPekerjaan}
+                        data={this.state.dataPekerjaan}
+                        onSelect={data => {
+                            this.setState({
+                                pilihPekerjaan: this.state.dataPekerjaan[data].name,
+                            });
+
+                        }}
+                        onRemoveItem={data => {
+                            this.setState({pilihPekerjaan: ''});
+                        }}
+                    /> :
+                    <Select2
+                        selectedTitleStyle={{color: 'white'}}
+                        placeholderTextColor="#ffffff"
+                        listEmptyTitle="Tidak ada data"
+                        cancelButtonText="Keluar"
+                        selectButtonText="Pilih"
+                        isSelectSingle
+                        style={styles.inputBox}
+                        colorTheme="#1da30b"
+                        searchPlaceHolderText="Cari Pekerjaan"
+                        popupTitle="Pilih Pekerjaan"
+                        title="Pilih Pekerjaan"
+                        data={this.state.dataPekerjaan}
+                        onSelect={data => {
+                            this.setState({
+                                pilihPekerjaan: this.state.dataPekerjaan[data].name,
+                            });
+
+
+                        }}
+                        onRemoveItem={data => {
+                            this.setState({pilihPekerjaan: ''});
+                        }}
+                    />}
+
+                {this.isFieldInError('pilihPekerjaan') && this.getErrorsInField('pilihPekerjaan').map(errorMessage =>
+                    <Text>{errorMessage}</Text>)}
+            </View>,
+        );
+
 
         return (
 
             <Container>
                 <View style={styles.container}>
-                    {/*<LoaderModal*/}
-                    {/*    loading={this.state.loading}/>*/}
-                    {/*{this.state.loading === true ? <View><Loader/></View> : ''}*/}
-                    <ScrollView style={{marginVertical: 0, backgroundColor: 'white'}}>
-                        <LoaderModal
-                            loading={this.state.loading}/>
-                        <Grid style={{marginTop: 10}}>
-                            <Col style={{height: 25}}></Col>
-                            <Col style={{width: 110, height: 25}}>
-                                <Text
-                                    style={styles.currentStepText}
-                                >{`Langkah ${currentStep} dari ${totalSteps}`}</Text></Col>
-                            <Col style={{height: 25}}></Col>
-                        </Grid>
-                        {this.props.getState().nama != undefined ?
-                            <TextInput
-                                defaultValue={this.props.getState().nama}
-                                ref="nama"
-                                onChangeText={(nama) => this.setState({nama})}
-                                style={styles.inputBox}
-                                underlineColorAndroid="rgba(0,0,0,0)"
-                                placeholder="Nama"
-                                placeholderTextColor="rgba(255,255,255,0.8)"
-                                selectionColor="#999999"
-                            />
-                            :
-                            <TextInput
-                                ref="nama"
-                                onChangeText={(nama) => this.setState({nama})}
-                                style={styles.inputBox}
-                                underlineColorAndroid="rgba(0,0,0,0)"
-                                placeholder="Nama"
-                                placeholderTextColor="rgba(255,255,255,0.8)"
-                                selectionColor="#999999"
-                            />}
-                        {this.isFieldInError('nama') && this.getErrorsInField('nama').map(errorMessage =>
-                            <Text>{errorMessage}</Text>)}
+                    <LoaderModal
+                        loading={this.state.loading}/>
+                    {this.state.showError === 2 ? <View style={styles.container}>
+                        <Text style={{color: 'gray'}}>Koneksi Bermasalah :(</Text>
+                        <TouchableOpacity style={styles.button}
+                                          onPress={() => this.showData()}>
+                            <Text style={styles.buttonText}>Refresh</Text>
+                        </TouchableOpacity></View> : this.state.showError === 0 ?
+                        <View></View> : this.state.showError === 1 ?
+                            <ScrollView style={{marginVertical: 0, backgroundColor: 'white'}}>
+                                <Grid style={{marginTop: 10}}>
+                                    <Col style={{height: 25}}></Col>
+                                    <Col style={{width: 110, height: 25}}>
+                                        <Text
+                                            style={styles.currentStepText}
+                                        >{`Langkah ${currentStep} dari ${totalSteps}`}</Text></Col>
+                                    <Col style={{height: 25}}></Col>
+                                </Grid>
+                                {this.props.getState().nik != undefined ? <TextInput
+                                    keyboardType={'numeric'}
+                                    defaultValue={this.props.getState().nik}
+                                    ref="nik"
+                                    onChangeText={(nik) => this.setState({nik})}
+                                    style={styles.inputBox}
+                                    underlineColorAndroid="rgba(0,0,0,0)"
+                                    placeholder="NIK KTP"
+                                    placeholderTextColor="rgba(255,255,255,0.8)"
+                                    selectionColor="#999999"
+                                /> : <TextInput
+                                    keyboardType={'numeric'}
+                                    ref="nik"
+                                    onChangeText={(nik) => this.setState({nik})}
+                                    style={styles.inputBox}
+                                    underlineColorAndroid="rgba(0,0,0,0)"
+                                    placeholder="NIK KTP"
+                                    placeholderTextColor="rgba(255,255,255,0.8)"
+                                    selectionColor="#999999"
+                                />}
 
-                        {this.props.getState().nik != undefined ? <TextInput
-                            keyboardType={'numeric'}
-                            defaultValue={this.props.getState().nik}
-                            ref="nik"
-                            onChangeText={(nik) => this.setState({nik})}
-                            style={styles.inputBox}
-                            underlineColorAndroid="rgba(0,0,0,0)"
-                            placeholder="NIK KTP"
-                            placeholderTextColor="rgba(255,255,255,0.8)"
-                            selectionColor="#999999"
-                        /> : <TextInput
-                            keyboardType={'numeric'}
-                            ref="nik"
-                            onChangeText={(nik) => this.setState({nik})}
-                            style={styles.inputBox}
-                            underlineColorAndroid="rgba(0,0,0,0)"
-                            placeholder="NIK KTP"
-                            placeholderTextColor="rgba(255,255,255,0.8)"
-                            selectionColor="#999999"
-                        />}
+                                {this.isFieldInError('nik') && this.getErrorsInField('nik').map(errorMessage =>
+                                    <Text>{errorMessage}</Text>)}
+                                {this.props.getState().tempatLahir != undefined ?
+                                    <TextInput
+                                        defaultValue={this.props.getState().tempatLahir}
+                                        ref="tempatLahir"
+                                        onChangeText={(tempatLahir) => this.setState({tempatLahir})}
+                                        style={styles.inputBox}
+                                        underlineColorAndroid="rgba(0,0,0,0)"
+                                        placeholder="Tempat Lahir"
+                                        placeholderTextColor="rgba(255,255,255,0.8)"
+                                        selectionColor="#999999"
+                                    />
+                                    :
+                                    <TextInput
+                                        ref="tempatLahir"
+                                        onChangeText={(tempatLahir) => this.setState({tempatLahir})}
+                                        style={styles.inputBox}
+                                        underlineColorAndroid="rgba(0,0,0,0)"
+                                        placeholder="Tempat Lahir"
+                                        placeholderTextColor="rgba(255,255,255,0.8)"
+                                        selectionColor="#999999"
+                                    />}
+                                {this.isFieldInError('tempatLahir') && this.getErrorsInField('tempatLahir').map(errorMessage =>
+                                    <Text>{errorMessage}</Text>)}
+                                {this.props.getState().tanggalLahir != undefined ?
+                                    <DatePicker
+                                        customStyles={{
+                                            dateIcon: {
+                                                position: 'absolute',
+                                                left: 0,
+                                                top: 4,
+                                                marginLeft: 0,
+                                            },
+                                            dateInput: {
+                                                fontcolor: 'white',
+                                                borderWidth: 0,
+                                            },
+                                            // ... You can check the source to find the other keys.
+                                        }}
+                                        style={styles.inputBox}
+                                        placeholder="Ubah tanggal Lahir"
+                                        date={this.props.getState().tanggalLahir}
+                                        locale={'en'}
+                                        timeZoneOffsetInMinutes={undefined}
+                                        modalTransparent={false}
+                                        animationType={'fade'}
+                                        androidMode={'default'}
+                                        disabled={false}
+                                        onDateChange={(date) => {
+                                            this.setState({tanggalLahir: date});
+                                        }}
+                                    /> :
+                                    <DatePicker
+                                        customStyles={{
+                                            dateIcon: {
+                                                position: 'absolute',
+                                                left: 0,
+                                                top: 4,
+                                                marginLeft: 0,
+                                            },
+                                            dateInput: {
+                                                fontcolor: 'white',
+                                                borderWidth: 0,
+                                            },
+                                            // ... You can check the source to find the other keys.
+                                        }}
+                                        style={styles.inputBox}
+                                        placeholder="Ubah tanggal Lahir"
+                                        date={this.state.tanggalLahir}
+                                        locale={'en'}
+                                        timeZoneOffsetInMinutes={undefined}
+                                        modalTransparent={false}
+                                        animationType={'fade'}
+                                        androidMode={'default'}
+                                        disabled={false}
+                                        onDateChange={(date) => {
+                                            this.setState({tanggalLahir: date});
+                                        }}
+                                    />}
+                                {this.isFieldInError('tanggalLahir') && this.getErrorsInField('tanggalLahir').map(errorMessage =>
+                                    <Text>{errorMessage}</Text>)}
+                                {this.props.getState().jenisKelamin !== undefined ?
+                                    <Picker
+                                        mode="dropdown"
+                                        iosIcon={<Icon name="arrow-down"/>}
+                                        placeholder="Pilih Jenis Kelamin"
+                                        placeholderIconColor="#007aff"
 
-                        {this.isFieldInError('nik') && this.getErrorsInField('nik').map(errorMessage =>
-                            <Text>{errorMessage}</Text>)}
-                        {this.props.getState().tempatLahir != undefined ?
-                            <TextInput
-                                defaultValue={this.props.getState().tempatLahir}
-                                ref="tempatLahir"
-                                onChangeText={(tempatLahir) => this.setState({tempatLahir})}
-                                style={styles.inputBox}
-                                underlineColorAndroid="rgba(0,0,0,0)"
-                                placeholder="Tempat Lahir"
-                                placeholderTextColor="rgba(255,255,255,0.8)"
-                                selectionColor="#999999"
-                            />
-                            :
-                            <TextInput
-                                ref="tempatLahir"
-                                onChangeText={(tempatLahir) => this.setState({tempatLahir})}
-                                style={styles.inputBox}
-                                underlineColorAndroid="rgba(0,0,0,0)"
-                                placeholder="Tempat Lahir"
-                                placeholderTextColor="rgba(255,255,255,0.8)"
-                                selectionColor="#999999"
-                            />}
-                        {this.isFieldInError('tempatLahir') && this.getErrorsInField('tempatLahir').map(errorMessage =>
-                            <Text>{errorMessage}</Text>)}
-                        {this.props.getState().tanggalLahir != undefined ?
-                            <DatePicker
-                                style={styles.inputBox}
-                                defaultDate={this.props.getState().tanggalLahir}
-                                locale={'en'}
-                                timeZoneOffsetInMinutes={undefined}
-                                modalTransparent={false}
-                                animationType={'fade'}
-                                androidMode={'default'}
-                                disabled={false}
-                                onDateChange={this.setDate}
-                            /> :
-                            <DatePicker
-                                style={styles.inputBox}
-                                defaultDate={new Date(1995, 4, 4)}
-                                locale={'en'}
-                                timeZoneOffsetInMinutes={undefined}
-                                modalTransparent={false}
-                                animationType={'fade'}
-                                androidMode={'default'}
-                                placeHolderText="Pilih Tanggal Lahir"
-                                disabled={false}
-                                onDateChange={this.setDate}
-                            />}
-                        {this.isFieldInError('tanggalLahir') && this.getErrorsInField('tanggalLahir').map(errorMessage =>
-                            <Text>{errorMessage}</Text>)}
-                        {this.props.getState().jenisKelamin != undefined ?
-                            <Picker
-                                mode="dropdown"
-                                iosIcon={<Icon name="arrow-down"/>}
-                                placeholder="Pilih Jenis Kelamin"
-                                placeholderIconColor="#007aff"
+                                        selectedValue={this.props.getState().jenisKelamin}
+                                        onValueChange={this.onValueChange2.bind(this)}
+                                    >
+                                        <Picker.Item label="Pilih Jenis Kelamin" value=""/>
+                                        <Picker.Item label="Perempuan" value="0"/>
+                                        <Picker.Item label="Laki - Laki" value="1"/>
+                                    </Picker> :
+                                    <Picker
+                                        mode="dropdown"
+                                        iosIcon={<Icon name="arrow-down"/>}
+                                        placeholder="Pilih Jenis Kelamin"
+                                        placeholderIconColor="#007aff"
 
-                                selectedValue={this.props.getState().jenisKelamin}
-                                onValueChange={this.onValueChange2.bind(this)}
-                            >
-                                <Picker.Item label="Perempuan" value="1"/>
-                                <Picker.Item label="Laki - Laki" value="0"/>
-                            </Picker> :
-                            <Picker
-                                mode="dropdown"
-                                iosIcon={<Icon name="arrow-down"/>}
-                                placeholder="Pilih Jenis Kelamin"
-                                placeholderIconColor="#007aff"
+                                        selectedValue={this.state.jenisKelamin}
+                                        onValueChange={this.onValueChange2.bind(this)}
+                                    >
+                                        <Picker.Item label="Pilih Jenis Kelamin" value=""/>
+                                        <Picker.Item label="Perempuan" value="0"/>
+                                        <Picker.Item label="Laki - Laki" value="1"/>
+                                    </Picker>}
+                                {this.isFieldInError('jenisKelamin') && this.getErrorsInField('jenisKelamin').map(errorMessage =>
+                                    <Text>{errorMessage}</Text>)}
+                                {this.props.getState().statusKawin !== undefined ?
+                                    <Picker
+                                        mode="dropdown"
+                                        iosIcon={<Icon name="arrow-down"/>}
+                                        placeholder="Pilih Status Kawin"
+                                        placeholderIconColor="#007aff"
+                                        selectedValue={this.props.getState().statusKawin}
+                                        onValueChange={this.onValueChange1.bind(this)}
+                                    >
+                                        <Picker.Item label="Pilih Status Perkawinan" value=""/>
+                                        <Picker.Item label="Kawin" value="KAWIN"/>
+                                        <Picker.Item label="Belum Kawin" value="BELUM KAWIN"/>
+                                    </Picker> :
+                                    <Picker
+                                        mode="dropdown"
+                                        iosIcon={<Icon name="arrow-down"/>}
+                                        placeholder="Pilih Status Kawin"
+                                        placeholderIconColor="#007aff"
+                                        selectedValue={this.state.statusKawin}
+                                        onValueChange={this.onValueChange1.bind(this)}
+                                    >
+                                        <Picker.Item label="Pilih Status Perkawinan" value=""/>
+                                        <Picker.Item label="Kawin" value="KAWIN"/>
+                                        <Picker.Item label="Belum Kawin" value="BELUM KAWIN"/>
+                                    </Picker>}
+                                {this.isFieldInError('statusKawin') && this.getErrorsInField('statusKawin').map(errorMessage =>
+                                    <Text>{errorMessage}</Text>)}
+                                {listView}
+                                {listViewPekerjaan}
 
-                                selectedValue={this.state.jenisKelamin}
-                                onValueChange={this.onValueChange2.bind(this)}
-                            >
-                                <Picker.Item label="Perempuan" value="1"/>
-                                <Picker.Item label="Laki - Laki" value="0"/>
-                            </Picker>}
-                        {this.isFieldInError('jenisKelamin') && this.getErrorsInField('jenisKelamin').map(errorMessage =>
-                            <Text>{errorMessage}</Text>)}
-                        {this.props.getState().statusKawin != undefined ?
-                            <Picker
-                                mode="dropdown"
-                                iosIcon={<Icon name="arrow-down"/>}
-                                placeholder="Pilih Status Kawin"
-                                placeholderIconColor="#007aff"
-                                selectedValue={this.props.getState().statusKawin}
-                                onValueChange={this.onValueChange1.bind(this)}
-                            >
-                                <Picker.Item label="Kawin" value="KAWIN"/>
-                                <Picker.Item label="Belum Kawin" value="BELUM KAWIN"/>
-                            </Picker> :
-                            <Picker
-                                mode="dropdown"
-                                iosIcon={<Icon name="arrow-down"/>}
-                                placeholder="Pilih Status Kawin"
-                                placeholderIconColor="#007aff"
-                                selectedValue={this.state.statusKawin}
-                                onValueChange={this.onValueChange1.bind(this)}
-                            >
-                                <Picker.Item label="Kawin" value="KAWIN"/>
-                                <Picker.Item label="Belum Kawin" value="BELUM KAWIN"/>
-                            </Picker>}
-                        {this.isFieldInError('statusKawin') && this.getErrorsInField('statusKawin').map(errorMessage =>
-                            <Text>{errorMessage}</Text>)}
-                        {listView}
-                        {this.props.getState().pekerjaan != undefined ?
-                            <TextInput
-                                defaultValue={this.props.getState().pekerjaan}
-                                ref="pekerjaan"
-                                onChangeText={(pekerjaan) => this.setState({pekerjaan})}
-                                style={styles.inputBox}
-                                underlineColorAndroid="rgba(0,0,0,0)"
-                                placeholder="Pekerjaan"
-                                placeholderTextColor="rgba(255,255,255,0.8)"
-                                selectionColor="#999999"
-                            />
-                            : <TextInput
-                                ref="pekerjaan"
-                                onChangeText={(pekerjaan) => this.setState({pekerjaan})}
-                                style={styles.inputBox}
-                                underlineColorAndroid="rgba(0,0,0,0)"
-                                placeholder="Pekerjaan"
-                                placeholderTextColor="rgba(255,255,255,0.8)"
-                                selectionColor="#999999"
-                            />}
-                        {this.isFieldInError('pekerjaan') && this.getErrorsInField('pekerjaan').map(errorMessage =>
-                            <Text>{errorMessage}</Text>)}
-                        {this.props.getState().noTelpon != undefined ?
-                            <TextInput
-                                keyboardType={'numeric'}
-                                defaultValue={this.props.getState().noTelpon}
-                                ref="noTelpon"
-                                onChangeText={(noTelpon) => this.setState({noTelpon})}
-                                style={styles.inputBox}
-                                underlineColorAndroid="rgba(0,0,0,0)"
-                                placeholder="Nomor Telfon / No Hp"
-                                placeholderTextColor="rgba(255,255,255,0.8)"
-                                selectionColor="#999999"
-                            /> :
-                            <TextInput
-                                keyboardType={'numeric'}
-                                ref="noTelpon"
-                                onChangeText={(noTelpon) => this.setState({noTelpon})}
-                                style={styles.inputBox}
-                                underlineColorAndroid="rgba(0,0,0,0)"
-                                placeholder="Nomor Telfon / No Hp"
-                                placeholderTextColor="rgba(255,255,255,0.8)"
-                                selectionColor="#999999"
-                            />}
-                        {this.isFieldInError('noTelpon') && this.getErrorsInField('noTelpon').map(errorMessage =>
-                            <Text>{errorMessage}</Text>)}
+                                {this.props.getState().noBpjs != undefined ?
+                                    <TextInput
+                                        keyboardType={'numeric'}
+                                        defaultValue={this.props.getState().noBpjs}
+                                        ref="noBpjs"
+                                        onChangeText={(noBpjs) => this.setState({noBpjs})}
+                                        style={styles.inputBox}
+                                        underlineColorAndroid="rgba(0,0,0,0)"
+                                        placeholder="Nomor BPJS (Boleh dikosongkan)"
+                                        placeholderTextColor="rgba(255,255,255,0.8)"
+                                        selectionColor="#999999"
+                                    /> : <TextInput
+                                        keyboardType={'numeric'}
+                                        ref="noBpjs"
+                                        onChangeText={(noBpjs) => this.setState({noBpjs})}
+                                        style={styles.inputBox}
+                                        underlineColorAndroid="rgba(0,0,0,0)"
+                                        placeholder="Nomor BPJS (Boleh dikosongkan)"
+                                        placeholderTextColor="rgba(255,255,255,0.8)"
+                                        selectionColor="#999999"
+                                    />}
+                                {this.isFieldInError('noBpjs') && this.getErrorsInField('noBpjs').map(errorMessage =>
+                                    <Text>{errorMessage}</Text>)}
+                                <Grid style={{marginTop: 20}}>
+                                    <Col style={{height: 80}}></Col>
+                                    <Col style={{width: 140, height: 80}}>
+                                    </Col>
+                                    <Col style={{width: 150, height: 80}}>
+                                        <Button style={{marginLeft: 5, paddingLeft: 20}} rounded success
+                                                onPress={this._onSubmit.bind(this)}>
+                                            <Text style={{color: '#ffffff'}}>Selanjutnya</Text>
+                                            <Icon type="FontAwesome" name='arrow-right'/>
+                                        </Button></Col>
+                                    <Col style={{height: 80}}></Col>
+                                </Grid>
 
-                        <Grid style={{marginTop: 20}}>
-                            <Col style={{height: 80}}></Col>
-                            <Col style={{width: 140, height: 80}}>
-                            </Col>
-                            <Col style={{width: 150, height: 80}}>
-                                <Button style={{marginLeft: 5, paddingLeft: 20}} rounded success
-                                        onPress={this._onSubmit.bind(this)}>
-                                    <Text style={{color: '#ffffff'}}>Selanjutnya</Text>
-                                    <Icon type="FontAwesome" name='arrow-right'/>
-                                </Button></Col>
-                            <Col style={{height: 80}}></Col>
-                        </Grid>
+                                <AwesomeAlert
+                                    show={showAlert}
+                                    showProgress={false}
+                                    title="Notifikasi"
+                                    message={this.state.message}
+                                    closeOnTouchOutside={true}
+                                    closeOnHardwareBackPress={false}
+                                    showCancelButton={false}
+                                    showConfirmButton={true}
+                                    confirmText=" Keluar "
+                                    confirmButtonColor="#DD6B55"
+                                    onConfirmPressed={() => {
+                                        this.hideAlert();
+                                    }}
+                                />
+                            </ScrollView> : <View></View>}
 
-                        <AwesomeAlert
-                            show={showAlert}
-                            showProgress={false}
-                            title="Notifikasi"
-                            message={this.state.message}
-                            closeOnTouchOutside={true}
-                            closeOnHardwareBackPress={false}
-                            showCancelButton={false}
-                            showConfirmButton={true}
-                            confirmText=" Keluar "
-                            confirmButtonColor="#DD6B55"
-                            onConfirmPressed={() => {
-                                this.hideAlert();
-                            }}
-                        />
-                    </ScrollView>
                 </View>
             </Container>
 

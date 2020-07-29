@@ -24,6 +24,7 @@ export default class index extends Component {
             isLoading: true,
             data: [],
             inClick: false,
+            showTryAgain: false,
         };
     }
 
@@ -36,17 +37,26 @@ export default class index extends Component {
     };
 
     componentDidMount() {
+        this.getIndex()
+    }
+
+    getIndex(){
         this.setState({
             loading: true,
+            showTryAgain: false,
         });
         return fetch(baseApi + '/user/shuttle').then((response) => response.json()).then((responseJson) => {
             this.setState({
                 loading: false,
                 data: responseJson.data,
+                showTryAgain: false,
             });
         })
             .catch((error) => {
-                console.log(error);
+                this.setState({
+                    loading: false,
+                    showTryAgain: true,
+                });
             });
     }
 
@@ -68,11 +78,14 @@ export default class index extends Component {
 
     render() {
             return (
-                <View>
+                <View style={{flex: 1}}>
                     <LoaderModal
                         loading={this.state.loading}/>
                     <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
                     <Header
+                        leftComponent={
+                            <Icon type='ionicon' name='arrow-back-outline' color='#fff'
+                                  onPress={()=>Actions.pop()}/>}
                         statusBarProps={{barStyle: 'light-content'}}
                         containerStyle={{
                             backgroundColor: '#1da30b',
@@ -82,10 +95,27 @@ export default class index extends Component {
                         placement="center"
                         centerComponent={{text: 'Shuttle Bus', style: {color: '#fff'}}}
                     />
-                    <FlatList
-                        renderItem={this.renderRow}
-                        keyExtractor={(item, index) => index.toString()}
-                        data={this.state.data}/>
+                    {this.state.showTryAgain === true ?
+                        <View style={styles.container}>
+                            <Text style={{color: 'gray'}}>Koneksi Bermasalah :(</Text>
+                            <TouchableOpacity style={{
+                                width: 200,
+                                backgroundColor: 'red',
+                                borderRadius: 25,
+                                marginVertical: 2,
+                                paddingVertical: 13,
+                            }} onPress={() => this.getIndex()}>
+                                <Text style={{
+                                    fontSize: 16,
+                                    fontWeight: '500',
+                                    color: '#ffffff',
+                                    textAlign: 'center',
+                                }}>Refresh </Text>
+                            </TouchableOpacity></View> :<FlatList
+                            renderItem={this.renderRow}
+                            keyExtractor={(item, index) => index.toString()}
+                            data={this.state.data}/>}
+
                 </View>
             );
 
@@ -98,6 +128,19 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    buttonText: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: '#ffffff',
+        textAlign: 'center',
+    },
+    button: {
+        width: 300,
+        backgroundColor: 'orange',
+        borderRadius: 25,
+        marginVertical: 2,
+        paddingVertical: 13,
     },
     avatar: {
         width: 40,

@@ -42,6 +42,7 @@ import {connect} from 'react-redux';
 import Select2 from 'react-native-select-two';
 import {logoutUser} from '../../actions/auth.actions';
 import {Header} from 'react-native-elements';
+import {showMessage} from 'react-native-flash-message';
 const styles = StyleSheet.create({
     container: {
 
@@ -137,15 +138,17 @@ class EditProfil extends ValidationComponent {
     };
 
     _onSubmit() {
-        this.state.loading = true;
+
         this.validate({
             passwordLama: {required: true,minLength:6},
             passwordBaru: {required: true,minLength:6},
             konfirmasiPasswordBaru: {required: true,minLength:6},
         });
         if (this.isFormValid()) {
+            this.setState({
+                loading : true
+            })
             if(this.state.passwordBaru === this.state.konfirmasiPasswordBaru){
-
                 fetch(baseApi + '/user/updatePassword', {
                     method: 'POST',
                     headers: {
@@ -160,25 +163,47 @@ class EditProfil extends ValidationComponent {
                     }),
                 }).then((response) => response.json()).then((responseJson) => {
                     if (responseJson.success === true) {
-                        this.state.loading = false;
-                        this.state.message = responseJson.message;
-                        this.showAlert();
+                        this.setState({
+                            loading : false
+                        })
+                        showMessage({
+                            message: responseJson.message,
+                            type: 'success',
+                            position: 'bottom',
+                        });
+
                     } else {
-                        this.state.loading = false;
-                        this.state.message = responseJson.message;
-                        this.showAlert();
+                        this.setState({
+                            loading : false
+                        })
+                        showMessage({
+                            message: responseJson.message,
+                            type: 'danger',
+                            position: 'bottom',
+                        });
+
                     }
                 }).catch((error) => {
-                    this.state.loading = false;
-                    console.log(error);
-                    this.state.message = error;
-                    this.showAlert();
+                    console.log(error)
+                    this.setState({
+                        loading : false
+                    })
+                    showMessage({
+                        message: 'Koneksi Bermasalah',
+                        type: 'danger',
+                        position: 'bottom',
+                    });
                 });
 
             }else {
-                this.state.loading = false;
-                this.state.message = 'Password baru yang anda masukan tidak sama';
-                this.showAlert();
+                this.setState({
+                    loading : false
+                })
+                showMessage({
+                    message: 'Password baru yang anda masukan tidak sama',
+                    type: 'danger',
+                    position: 'bottom',
+                });
             }
 
 
@@ -196,6 +221,9 @@ class EditProfil extends ValidationComponent {
             <View style={styles.container}>
                 <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
                 <Header
+                    leftComponent={
+                        <Icon type='ionicon' name='arrow-back-outline' color='#fff'
+                              onPress={()=>Actions.pop()}/>}
                     statusBarProps={{barStyle: 'light-content'}}
                     containerStyle={{
                         backgroundColor: '#1da30b',

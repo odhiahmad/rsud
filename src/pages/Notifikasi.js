@@ -74,9 +74,9 @@ class Notifikasi extends Component {
                 loading: false,
                 data: responseJson.data,
             });
-            console.log(responseJson.data);
+
         }).catch((error) => {
-            console.log(error);
+
         });
     }
 

@@ -1,10 +1,20 @@
 import React, {Component} from 'react';
 import {ListItem, Header, Badge, Icon} from 'react-native-elements';
 import StepIndicator from 'react-native-step-indicator';
-import {ActivityIndicator, FlatList, ScrollView, StatusBar, StyleSheet, View, Text} from 'react-native';
+import {
+    ActivityIndicator,
+    FlatList,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    View,
+    Text,
+    TouchableOpacity,
+} from 'react-native';
 import {baseApi} from '../../service/api';
 import moment from 'moment';
 import LoaderModal from '../../components/LoaderModal';
+import {Actions} from 'react-native-router-flux';
 
 export default class ShuttleBusDetail extends Component {
 
@@ -20,10 +30,17 @@ export default class ShuttleBusDetail extends Component {
             idShuttle: this.props.id,
             curTime: '',
             panjangData: null,
+
+            showTryAgain: false,
+            statusJaringan: 0,
         };
     }
 
     componentDidMount() {
+        this.getIndex();
+    }
+
+    getIndex() {
         setInterval(() => {
             this.setState({
                 curTime: new Date().toLocaleString(),
@@ -32,8 +49,8 @@ export default class ShuttleBusDetail extends Component {
 
         this.setState({
             loading: true,
+            showTryAgain: false,
         });
-
         return fetch(baseApi + '/user/shuttleDetail', {
             method: 'POST',
             headers: {
@@ -44,19 +61,22 @@ export default class ShuttleBusDetail extends Component {
                 id: this.state.idShuttle,
             }),
         }).then((response) => response.json()).then((responseJson) => {
+
             this.setState({
+                showTryAgain: false,
+                statusJaringan: 1,
                 loading: false,
                 dataSource: responseJson.data,
                 panjangData: responseJson.data.length,
             });
-
-
-        })
-            .catch((error) => {
-                console.log(error);
+        }).catch((error) => {
+            this.setState({
+                showTryAgain: true,
+                statusJaringan: 2,
+                loading: false,
             });
+        });
     }
-
 
     Capitalize(str) {
         return str.charAt(0).toUpperCase() + str.slice(1);
@@ -64,7 +84,7 @@ export default class ShuttleBusDetail extends Component {
 
     renderRow = ({item, index}) => {
 
-        console.log(this.state.curTime);
+
         var labels = [];
 
         for (let i = 0; i < this.state.dataSource.length; i++) {
@@ -118,8 +138,6 @@ export default class ShuttleBusDetail extends Component {
         }
 
 
-        console.log(posisiSekarang);
-        console.log(this.state.panjangData);
         if (this.state.panjangData === 0) {
             return (
                 <ListItem
@@ -139,7 +157,6 @@ export default class ShuttleBusDetail extends Component {
                 total = b + ':' + a + ':' + c;
             }
 
-            console.log(total);
 
             return (
                 <ListItem
@@ -219,9 +236,12 @@ export default class ShuttleBusDetail extends Component {
     render() {
 
         return (
-            <View>
+            <View style={{flex: 1}}>
                 <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
                 <Header
+                    leftComponent={
+                        <Icon type='ionicon' name='arrow-back-outline' color='#fff'
+                              onPress={()=>Actions.pop()}/>}
                     statusBarProps={{barStyle: 'light-content'}}
                     containerStyle={{
                         backgroundColor: '#1da30b',
@@ -233,26 +253,69 @@ export default class ShuttleBusDetail extends Component {
                 />
                 <LoaderModal
                     loading={this.state.loading}/>
-                {this.state.panjangData === 0 && this.state.idShuttle === 1 ?
-                    <ListItem title={<Text>Tidak ada Jadwal Bus Pada Jam Ini</Text>}
-                              subtitle={<Text>Jadwal Bus Pada Jam 7 Pagi, 9 Pagi, dan 1 Siang WIB</Text>}
-                    ></ListItem> : this.state.panjangData === 0 && this.state.idShuttle === 2 ?
-                        <ListItem title={<Text>Tidak ada Jadwal Bus Pada Jam Ini</Text>}
-                                  subtitle={<Text>Jadwal Bus Pada Jam 8 Pagi, 10 Pagi, dan 2 Siang WIB</Text>}
-                        ></ListItem> : <FlatList
-                            renderItem={this.renderRow}
-                            keyExtractor={(item, index) => index.toString()}
-                            data={this.state.dataSource}/>
-                }
+                {this.state.showTryAgain === true ?
+                    <View style={styles.container}>
+                        <Text style={{color: 'gray'}}>Koneksi Bermasalah :(</Text>
+                        <TouchableOpacity style={{
+                            width: 200,
+                            backgroundColor: 'red',
+                            borderRadius: 25,
+                            marginVertical: 2,
+                            paddingVertical: 13,
+                        }} onPress={() => this.getIndex()}>
+                            <Text style={{
+                                fontSize: 16,
+                                fontWeight: '500',
+                                color: '#ffffff',
+                                textAlign: 'center',
+                            }}>Refresh </Text>
+                        </TouchableOpacity></View>
+                    :
+                    <View>
+                        {this.state.statusJaringan === 2 ?
+                            <ListItem title={<Text>Tidak ada Jadwal Bus Pada Jam Ini</Text>}
+                                      subtitle={<Text>Jadwal Bus Pada Jam 7 Pagi, 9 Pagi, dan 1 Siang WIB</Text>}
+                            ></ListItem> : this.state.statusJaringan === 1 ? <View>
+                                    {this.state.panjangData === 0 && this.state.idShuttle === 1 ?
+                                        <ListItem title={<Text>Tidak ada Jadwal Bus Pada Jam Ini</Text>}
+                                                  subtitle={<Text>Jadwal Bus Pada Jam 7 Pagi, 9 Pagi, dan 1 Siang
+                                                      WIB</Text>}
+                                        ></ListItem> : this.state.panjangData === 0 && this.state.idShuttle === 2 ?
+                                            <ListItem title={<Text>Tidak ada Jadwal Bus Pada Jam Ini</Text>}
+                                                      subtitle={<Text>Jadwal Bus Pada Jam 8 Pagi, 10 Pagi, dan 2 Siang
+                                                          WIB</Text>}
+                                            ></ListItem> : <FlatList
+                                                renderItem={this.renderRow}
+                                                keyExtractor={(item, index) => index.toString()}
+                                                data={this.state.dataSource}/>
+                                    }</View>
+                                : <View></View>}
+                    </View>}
+
 
             </View>
         );
     }
 }
 const styles = StyleSheet.create({
+    buttonText: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: '#ffffff',
+        textAlign: 'center',
+    },
+    button: {
+        width: 300,
+        backgroundColor: 'orange',
+        borderRadius: 25,
+        marginVertical: 2,
+        paddingVertical: 13,
+    },
     container: {
         flex: 1,
         backgroundColor: '#fff',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     avatar: {
         width: 40,

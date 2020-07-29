@@ -159,7 +159,7 @@ class InputBaru extends ValidationComponent {
                 }),
             }).then((response) => response.json()).then((responseJson) => {
                 if (responseJson.success === true) {
-                    console.log(responseJson.data)
+
                     Actions.daftaronlinesendiri({
                         nomorMr:this.state.nomorMr,
                     })
@@ -180,7 +180,7 @@ class InputBaru extends ValidationComponent {
                 }
             }).catch((error) => {
                 this.state.loading = false;
-                console.log(error);
+
                 this.state.message = error;
             });
         }
@@ -208,7 +208,7 @@ class InputBaru extends ValidationComponent {
                     nama: responseJson.data.nama,
                 });
                 this.state.loading = false;
-                console.log(this.state.status);
+
                 this.state.message = responseJson.data;
                 showMessage({
                     message: responseJson.message,
@@ -216,7 +216,7 @@ class InputBaru extends ValidationComponent {
                     position: 'bottom',
                 });
             } else {
-                console.log(responseJson.message);
+
                 this.state.loading = false;
                 this.state.message = responseJson.message;
                 showMessage({
@@ -227,7 +227,7 @@ class InputBaru extends ValidationComponent {
             }
         }).catch((error) => {
             this.state.loading = false;
-            console.log(error);
+
             this.state.message = error;
         });
 

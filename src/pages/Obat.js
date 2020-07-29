@@ -2,11 +2,11 @@ import React, {Component} from 'react';
 import QRCode from 'react-native-qrcode-svg';
 import RNFS from 'react-native-fs';
 import CameraRoll from '@react-native-community/cameraroll';
-import {Header, ListItem} from 'react-native-elements';
-import ModalKomponen from '../../components/Modal';
-import CustomRow from '../../components/CustomRow';
-import {baseApi, baseUrlFoto} from '../../service/api';
-import LoaderModal from '../../components/LoaderModal';
+import {Header, Icon, ListItem} from 'react-native-elements';
+import ModalKomponen from '../components/Modal';
+import CustomRow from '../components/CustomRow';
+import {baseApi, baseUrlFoto} from '../service/api';
+import LoaderModal from '../components/LoaderModal';
 
 import {
     ScrollView,
@@ -28,6 +28,7 @@ import HTMLView from 'react-native-htmlview';
 import {connect} from 'react-redux';
 import StepIndicator from 'react-native-step-indicator';
 import ViewShot from 'react-native-view-shot';
+import {Actions} from 'react-native-router-flux';
 
 const {height} = Dimensions.get('window');
 const resources = {
@@ -77,6 +78,7 @@ class Obat extends Component {
             isLoadingDataModal: true,
             isModalVisible: false,
             modalVisible: false,
+            modalVisibleRiwayat: false,
             loading: true,
             data: [],
             page: 1,
@@ -107,6 +109,7 @@ class Obat extends Component {
             jamKunjunganLabel: '',
             caraBayar: '',
 
+            showTryAgain: false,
 
         };
     }
@@ -116,17 +119,19 @@ class Obat extends Component {
     }
 
     componentDidMount() {
-
-        this.setState({
-            isLoading: true,
-        }, this.getData);
-
+        this.getData()
     }
 
 
     setModalUnvisible(visible) {
         this.setState({
             modalVisible: visible,
+        });
+    }
+
+    setModalUnvisibleRiwayat(visible) {
+        this.setState({
+            modalVisibleRiwayat: visible,
         });
     }
 
@@ -159,6 +164,11 @@ class Obat extends Component {
     };
 
     getData = async () => {
+        this.setState({
+            loading: true,
+            showTryAgain: false,
+        });
+
         const url = baseApi + '/user/getNotifikasiObat?page=' + this.state.page;
         fetch(url, {
             method: 'POST',
@@ -173,20 +183,22 @@ class Obat extends Component {
 
         }).then((response) => response.json()).then((responseJson) => {
             this.setState({
-                isLoading: false,
+                loading: false,
+                showTryAgain: false,
                 data: this.state.data.concat(responseJson.data.data),
             });
         }).catch((error) => {
-            console.log(error);
-        }).finally(() => {
             this.setState({
-                isLoading: false,
+                loading: false,
+                showTryAgain: true,
             });
+
+            console.log(this.state.showTryAgain)
         });
     };
 
     showData = async () => {
-        console.log(this.props.getUser.userDetails.id);
+
         const url = baseApi + '/user/getRiwayatPendaftaran?page=' + this.state.page;
         fetch(url, {
             method: 'POST',
@@ -204,9 +216,9 @@ class Obat extends Component {
                 data: responseJson.data.data,
             });
 
-            console.log(responseJson.data.data);
+
         }).catch((error) => {
-            console.log(error);
+
         });
     };
 
@@ -228,10 +240,17 @@ class Obat extends Component {
             this.setState({
                 dataDetail: responseJson.data,
             });
-            console.log(responseJson.data);
 
         }).catch((error) => {
-            console.log(error);
+
+        });
+
+
+    }
+
+    setModalVisibleRiwayat(visible) {
+        this.setState({
+            modalVisibleRiwayat: visible,
         });
 
 
@@ -245,7 +264,7 @@ class Obat extends Component {
 
     _onChangeSearchText(text) {
 
-        console.log(text);
+
         if (text === '') {
             this.setState({
                 searchAktif: 0,
@@ -261,7 +280,6 @@ class Obat extends Component {
 
 
     renderRow = ({item, index}) => {
-        moment.locale('id');
         var time = moment(item.tgl_masuk).format('LLLL');
         return (
             <ListItem onPress={() => {
@@ -300,34 +318,70 @@ class Obat extends Component {
     render() {
         let base64Logo = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAA..';
         return (
-            <View>
+            <View style={{flex: 1}}>
+                <LoaderModal
+                    loading={this.state.loading}/>
                 <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
                 <Header
+                    leftComponent={
+                        <Icon type='ionicon' name='arrow-back-outline' color='#fff'
+                              onPress={()=>Actions.pop()}/>}
                     statusBarProps={{barStyle: 'light-content'}}
                     containerStyle={{
                         backgroundColor: '#1da30b',
                         justifyContent: 'space-around',
                     }}
+                    // rightComponent={
+                    //     <Icon name='history' color='#fff'
+                    //           onPress={() => this.setModalVisibleRiwayat(true)}/>}
                     barStyle="light-content"
                     placement="center"
                     centerComponent={{text: 'Obat Pasien', style: {fontWeight: 'bold', color: '#fff'}}}
                 />
 
-                {this.state.data.length !== 0 ?<FlatList
-                        refreshControl={
-                            <RefreshControl
-                                refreshing={this.state.refreshing}
-                                onRefresh={this._onRefresh}
-                            />}
-                        renderItem={this.renderRow}
-                        keyExtractor={(item, index) => index.toString()}
-                        onEndReached={this.handleLoadMore}
-                        onEndReachedThreshold={0.1}
-                        ListFooterComponent={this.renderFooter}
-                        data={this.state.data}/> :
-                    <View style={{alignItems: 'center', justifyContent: 'center'}}><Text
-                        style={{color: 'gray'}}>Tidak Ada Data</Text></View>}
+                {this.state.showTryAgain === true ?
+                    <View style={styles.container}>
+                        <TouchableOpacity style={styles.button}
+                                          onPress={() => this.getData()}>
+                            <Text style={styles.buttonText}>Refresh </Text>
+                        </TouchableOpacity></View> :
+                    <View>
+                        {this.state.data.length !== 0 ? <FlatList
+                                refreshControl={
+                                    <RefreshControl
+                                        refreshing={this.state.refreshing}
+                                        onRefresh={this._onRefresh}
+                                    />}
+                                renderItem={this.renderRow}
+                                keyExtractor={(item, index) => index.toString()}
+                                onEndReached={this.handleLoadMore}
+                                onEndReachedThreshold={0.1}
+                                ListFooterComponent={this.renderFooter}
+                                data={this.state.data}/> :
+                            <View style={{alignItems: 'center', justifyContent: 'center'}}><Text
+                                style={{color: 'gray'}}>Tidak Ada Data</Text></View>}
+                    </View>
+                }
 
+
+                <Modal
+                    onSwipeComplete={() => {
+                        this.setModalUnvisibleRiwayat(!this.state.modalVisibleRiwayat);
+                    }}
+                    scrollHorizontal
+                    propagateSwipe
+                    swipeDirection={['down']}
+                    swipearea={50}
+                    onRequestClose={() => {
+                        this.setModalUnvisibleRiwayat(!this.state.modalVisibleRiwayat);
+                    }}
+                    animationType="slide"
+                    visible={this.state.modalVisibleRiwayat}
+                    backdropOpacity={1}>
+                    <View style={{flex: 1}}>
+
+                    </View>
+                </Modal>
                 <Modal
                     onSwipeComplete={() => {
                         this.setModalUnvisible(!this.state.modalVisible);
@@ -369,8 +423,10 @@ const styles = StyleSheet.create({
         color: '#FF3366', // make links coloured pink
     },
     container: {
-        marginBottom: 28,
-        backgroundColor: '#F5FCFF',
+        flex: 1,
+        backgroundColor: '#fff',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     loader: {
         marginTop: 18,

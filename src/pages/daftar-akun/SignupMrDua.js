@@ -98,8 +98,6 @@ const styles = StyleSheet.create({
 });
 
 
-
-
 class SignupMrDua extends ValidationComponent {
 
     goBack() {
@@ -114,6 +112,7 @@ class SignupMrDua extends ValidationComponent {
         super(props);
         this.toggleSwitch = this.toggleSwitch.bind(this);
         this.state = {
+            noTelpon: '',
             showPassword: true,
             nama: this.props.nama,
             email: '',
@@ -122,21 +121,23 @@ class SignupMrDua extends ValidationComponent {
             passwordKonfirmasi: '',
             angka: '',
             nomorMr: this.props.nomorMr,
-            tahunLahir:this.props.tahunLahir,
-            success:this.props.success,
+            tahunLahir: this.props.tahunLahir,
+            success: this.props.success,
             showAlert: false,
             message: '',
             loading: false,
             nilaiTambahA: Math.floor(Math.random() * 10),
             nilaiTambahB: Math.floor(Math.random() * 10),
-            statusLogin:false,
+            statusLogin: false,
+            step: 1,
+            kodeOtp:'',
         };
     }
 
     componentDidMount() {
 
-        if(this.state.success === false){
-            Actions.signupmr()
+        if (this.state.success === false) {
+            Actions.signupmr();
         }
     }
 
@@ -147,12 +148,12 @@ class SignupMrDua extends ValidationComponent {
     };
 
     hideAlert = () => {
-        if(this.state.statusLogin === true){
-            Actions.login()
+        if (this.state.statusLogin === true) {
+            Actions.login();
             this.setState({
                 showAlert: false,
             });
-        }else{
+        } else {
             this.setState({
                 showAlert: false,
             });
@@ -162,12 +163,103 @@ class SignupMrDua extends ValidationComponent {
     _onSubmit() {
 
         this.validate({
+            angka: {minlength: 1, required: true, numbers: true},
+            kodeOtp: {minlength: 4, maxlength: 4, required: true, numbers: true},
+        });
+        if (this.isFormValid()) {
+            this.setState({
+                loading: true,
+            });
+
+            if (parseInt(this.state.angka) === this.state.nilaiTambahA + this.state.nilaiTambahB) {
+                this.setState({
+                    nilaiTambahA: Math.floor(Math.random() * 10),
+                    nilaiTambahB: Math.floor(Math.random() * 10),
+                });
+
+                fetch(baseApi + '/user/create', {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        nomorMr: this.state.nomorMr,
+                        kode_otp: this.state.kodeOtp,
+                        no_hp: this.state.noTelpon,
+                        nama: this.state.nama,
+                        email: this.state.email,
+                        password: this.state.password,
+                    }),
+
+                }).then((response) => response.json()).then((responseJson) => {
+
+                    if (responseJson.success === true) {
+                        this.setState({
+                            loading: false,
+                            statusLogin: true,
+                            message: responseJson.message,
+                        });
+                        this.showAlert();
+                    } else {
+                        this.setState({
+                            loading: false,
+                            statusLogin: false,
+                        });
+                        showMessage({
+                            message: responseJson.message,
+                            type: 'danger',
+                            position: 'bottom',
+                        });
+                    }
+
+
+                }).catch((error) => {
+                    this.setState({
+                        loading: false,
+                        statusLogin: false,
+                    });
+                    showMessage({
+                        message: 'Koneksi Bermasalah',
+                        type: 'danger',
+                        position: 'bottom',
+                    });
+
+                });
+            } else {
+                this.setState({
+                    loading: false,
+                    statusLogin: false,
+                });
+                showMessage({
+                    message: 'Jumlah yang anda masukan tidak sama',
+                    type: 'danger',
+                    position: 'bottom',
+                });
+            }
+
+
+        } else {
+            this.setState({
+                loading: false,
+                statusLogin: false,
+            });
+            showMessage({
+                message: 'Isi semua',
+                type: 'danger',
+                position: 'bottom',
+            });
+        }
+
+    }
+    nextStep() {
+        this.validate({
+            noTelpon: {required: true, minlength: 9, maxlength: 12},
             nama: {minlength: 4, maxlength: 20, required: true},
             email: {email: true, required: true},
             emailValidasi: {email: true, required: true},
             password: {minlength: 5, required: true},
             passwordKonfirmasi: {minlength: 5, required: true},
-            angka: {minlength: 1, required: true, numbers: true},
         });
         if (this.isFormValid()) {
             this.setState({
@@ -175,114 +267,83 @@ class SignupMrDua extends ValidationComponent {
             });
             if (this.state.email === this.state.emailValidasi) {
                 if (this.state.password === this.state.passwordKonfirmasi) {
-                    if (parseInt(this.state.angka) === this.state.nilaiTambahA + this.state.nilaiTambahB) {
-                        this.state.nilaiTambahA =  Math.floor(Math.random() * 10);
-                        this.state.nilaiTambahB = Math.floor(Math.random() * 10);
-                        console.log(this.state.nomorMr)
-                        fetch(baseApi + '/user/create', {
-                            method: 'POST',
-                            headers: {
-                                Accept: 'application/json',
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                nama: this.state.nama,
-                                email: this.state.email,
-                                password: this.state.password,
-                                nomorMr: this.state.nomorMr,
-                                tahunLahir: this.state.tahunLahir,
-                            }),
+                    fetch(baseApi + '/user/kirimOtp', {
+                        method: 'POST',
+                        headers: {
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            no_hp: this.state.noTelpon,
+                        }),
+                    }).then((response) => response.json()).then((responseJson) => {
 
-                        }).then((response) => response.json()).then((responseJson) => {
-
-
-                            if(responseJson.success === true){
-                                this.setState({
-                                    loading: false,
-                                    message :responseJson.message,
-                                    statusLogin:true,
-                                });
-                                showMessage({
-                                    message: responseJson.message,
-                                    type: 'warning',
-                                    position: 'bottom',
-                                });
-                            }else{
-                                this.setState({
-                                    loading: false,
-                                    message :responseJson.message,
-                                    statusLogin:false,
-                                });
-                                showMessage({
-                                    message: responseJson.message,
-                                    type: 'danger',
-                                    position: 'bottom',
-                                });
-                            }
-
-
-                        }).catch((error) => {
+                        if (responseJson.success === true) {
                             this.setState({
-                                loading: false,
-                                statusLogin:false,
+                                step: 2,
+                                loading:false,
                             });
                             showMessage({
-                                message: error,
+                                message: responseJson.message,
+                                type: 'success',
+                                position: 'bottom',
+                            });
+                        } else {
+                            this.setState({
+                                loading: false,
+                            });
+                            showMessage({
+                                message: responseJson.message,
                                 type: 'danger',
                                 position: 'bottom',
                             });
-
-                        });
-                    } else {
+                        }
+                    }).catch((error)=>{
                         this.setState({
                             loading: false,
-                            statusLogin:false,
                         });
                         showMessage({
-                            message: 'Jumlah yang anda masukan tidak sama',
+                            message: responseJson.message,
                             type: 'danger',
                             position: 'bottom',
                         });
-
-                    }
+                    })
 
                 } else {
                     this.setState({
                         loading: false,
-                        statusLogin:false,
                     });
                     showMessage({
-                        message:'Password konfirmasi tidak sama',
+                        message: 'Password konfirmasi tidak sama',
                         type: 'danger',
                         position: 'bottom',
                     });
-
                 }
             } else {
                 this.setState({
                     loading: false,
-                    statusLogin:false,
                 });
                 showMessage({
-                    message:'Email atau Password konfirmasi tidak sama',
+                    message: 'Email atau Password konfirmasi tidak sama',
                     type: 'danger',
                     position: 'bottom',
                 });
             }
 
         } else {
-
-            this.setState({
-                loading: false,
-                statusLogin:false,
-            });
             showMessage({
-                message:'Isi semua',
+                message: 'Isi semua',
                 type: 'danger',
                 position: 'bottom',
             });
         }
 
+    }
+
+    backStep() {
+        this.setState({
+            step: 1,
+        });
     }
 
     toggleSwitch() {
@@ -299,116 +360,164 @@ class SignupMrDua extends ValidationComponent {
                 <LoaderModal
                     loading={this.state.loading}/>
                 {/*{this.state.loading === true ? <View><Loader/></View> : ''}*/}
-                <ScrollView style={{marginVertical: 15, backgroundColor: 'white'}}>
-                    <Logo/>
-                    <TextInput
-                        editable={false}
-                        defaultValue={this.state.nama}
-                        ref="nama"
-                        onChangeText={(nama) => this.setState({nama})}
-                        style={styles.inputBox}
-                        underlineColorAndroid="rgba(0,0,0,0)"
-                        placeholder="Nama"
-                        placeholderTextColor="rgba(255,255,255,0.8)"
-                        selectionColor="#999999"
-                    />
-                    {this.isFieldInError('nama') && this.getErrorsInField('nama').map(errorMessage =>
-                        <Text>{errorMessage}</Text>)}
-                    <TextInput
-                        keyboardType={'email'}
-                        ref="email"
-                        onChangeText={(email) => this.setState({email})}
-                        style={styles.inputBox}
-                        underlineColorAndroid="rgba(0,0,0,0)"
-                        placeholder="Email"
-                        placeholderTextColor="rgba(255,255,255,0.8)"
-                        selectionColor="#999999"
-                    />
-                    {this.isFieldInError('email') && this.getErrorsInField('email').map(errorMessage =>
-                        <Text>{errorMessage}</Text>)}
-                    <TextInput
-                        keyboardType={'email'}
-                        ref="emailValidasi"
-                        onChangeText={(emailValidasi) => this.setState({emailValidasi})}
-                        style={styles.inputBox}
-                        underlineColorAndroid="rgba(0,0,0,0)"
-                        placeholder="Ulangi Email"
-                        placeholderTextColor="rgba(255,255,255,0.8)"
-                        selectionColor="#999999"
-                    />
-                    {this.isFieldInError('emailValidasi') && this.getErrorsInField('emailValidasi').map(errorMessage =>
-                        <Text>{errorMessage}</Text>)}
-                    <TextInput
-                        ref="password"
-                        onChangeText={(password) => this.setState({password})}
-                        style={styles.inputBox}
-                        underlineColorAndroid="rgba(0,0,0,0)"
-                        placeholder="Password"
-                        placeholderTextColor="rgba(255,255,255,0.8)"
-                        selectionColor="#999999"
-                        secureTextEntry={this.state.showPassword}
-                    />
-                    {this.isFieldInError('password') && this.getErrorsInField('password').map(errorMessage =>
-                        <Text>{errorMessage}</Text>)}
+                {this.state.step === 1 ?
+                    <ScrollView style={{marginVertical: 15, backgroundColor: 'white'}}>
+                        <Logo/>
+                        <TextInput
+                            editable={false}
+                            defaultValue={this.state.nama}
+                            ref="nama"
+                            onChangeText={(nama) => this.setState({nama})}
+                            style={styles.inputBox}
+                            underlineColorAndroid="rgba(0,0,0,0)"
+                            placeholder="Nama"
+                            placeholderTextColor="rgba(255,255,255,0.8)"
+                            selectionColor="#999999"
+                        />
+                        {this.isFieldInError('nama') && this.getErrorsInField('nama').map(errorMessage =>
+                            <Text>{errorMessage}</Text>)}
+                        <TextInput
+                            keyboardType={'numeric'}
+                            defaultValue={this.state.noTelpon != '' ? this.state.noTelpon : ''}
+                            ref="noTelpon"
+                            onChangeText={(noTelpon) => this.setState({noTelpon})}
+                            style={styles.inputBox}
+                            underlineColorAndroid="rgba(0,0,0,0)"
+                            placeholder="Nomor HP"
+                            placeholderTextColor="rgba(255,255,255,0.8)"
+                            selectionColor="#999999"
+                        />
+                        {this.isFieldInError('noTelpon') && this.getErrorsInField('noTelpon').map(errorMessage =>
+                            <Text>{errorMessage}</Text>)}
+                        <TextInput
+                            keyboardType={'email'}
+                            ref="email"
+                            onChangeText={(email) => this.setState({email})}
+                            style={styles.inputBox}
+                            underlineColorAndroid="rgba(0,0,0,0)"
+                            placeholder="Email"
+                            placeholderTextColor="rgba(255,255,255,0.8)"
+                            selectionColor="#999999"
+                        />
+                        {this.isFieldInError('email') && this.getErrorsInField('email').map(errorMessage =>
+                            <Text>{errorMessage}</Text>)}
+                        <TextInput
+                            keyboardType={'email'}
+                            ref="emailValidasi"
+                            onChangeText={(emailValidasi) => this.setState({emailValidasi})}
+                            style={styles.inputBox}
+                            underlineColorAndroid="rgba(0,0,0,0)"
+                            placeholder="Ulangi Email"
+                            placeholderTextColor="rgba(255,255,255,0.8)"
+                            selectionColor="#999999"
+                        />
+                        {this.isFieldInError('emailValidasi') && this.getErrorsInField('emailValidasi').map(errorMessage =>
+                            <Text>{errorMessage}</Text>)}
+                        <TextInput
+                            ref="password"
+                            onChangeText={(password) => this.setState({password})}
+                            style={styles.inputBox}
+                            underlineColorAndroid="rgba(0,0,0,0)"
+                            placeholder="Password"
+                            placeholderTextColor="rgba(255,255,255,0.8)"
+                            selectionColor="#999999"
+                            secureTextEntry={this.state.showPassword}
+                        />
+                        {this.isFieldInError('password') && this.getErrorsInField('password').map(errorMessage =>
+                            <Text>{errorMessage}</Text>)}
 
-                    <TextInput
-                        ref="passwordKonfirmasi"
-                        onChangeText={(passwordKonfirmasi) => this.setState({passwordKonfirmasi})}
-                        style={styles.inputBox}
-                        underlineColorAndroid="rgba(0,0,0,0)"
-                        placeholder="Password Konfirmasi"
-                        placeholderTextColor="rgba(255,255,255,0.8)"
-                        selectionColor="#999999"
-                        secureTextEntry={this.state.showPassword}
-                    />
-                    {this.isFieldInError('passwordKonfirmasi') && this.getErrorsInField('passwordKonfirmasi').map(errorMessage =>
-                        <Text>{errorMessage}</Text>)}
-                    <ListItem icon>
-                        <Left>
-                            <Text>Lihat Password</Text>
-                        </Left>
-                        <Body>
+                        <TextInput
+                            ref="passwordKonfirmasi"
+                            onChangeText={(passwordKonfirmasi) => this.setState({passwordKonfirmasi})}
+                            style={styles.inputBox}
+                            underlineColorAndroid="rgba(0,0,0,0)"
+                            placeholder="Password Konfirmasi"
+                            placeholderTextColor="rgba(255,255,255,0.8)"
+                            selectionColor="#999999"
+                            secureTextEntry={this.state.showPassword}
+                        />
+                        {this.isFieldInError('passwordKonfirmasi') && this.getErrorsInField('passwordKonfirmasi').map(errorMessage =>
+                            <Text>{errorMessage}</Text>)}
+                        <ListItem icon>
+                            <Left>
+                                <Text>Lihat Password</Text>
+                            </Left>
+                            <Body>
 
-                        </Body>
-                        <Right><Switch
-                            onValueChange={this.toggleSwitch}
-                            value={!this.state.showPassword}
-                        /></Right>
-                    </ListItem>
-                    <TextInput
-                        editable={false}
-                        defaultValue={"Hasil dari "+this.state.nilaiTambahA +" + " + this.state.nilaiTambahB}
-                        style={styles.inputBox}
-                        underlineColorAndroid="rgba(0,0,0,0)"
-                        placeholderTextColor="rgba(255,255,255,0.8)"
-                        selectionColor="#999999"
-                    />
-                    <TextInput
-                        keyboardType={'numeric'}
-                        ref="angka"
-                        onChangeText={(angka) => this.setState({angka})}
-                        style={styles.inputBox}
-                        underlineColorAndroid="rgba(0,0,0,0)"
-                        placeholder="Masukan Jumlah diatas"
-                        placeholderTextColor="rgba(255,255,255,0.8)"
-                        selectionColor="#999999"
-                    />
-                    {this.isFieldInError('angka') && this.getErrorsInField('angka').map(errorMessage =>
-                        <Text>{errorMessage}</Text>)}
-                    <TouchableOpacity style={styles.button} onPress={this._onSubmit.bind(this)}>
-                        <Text style={styles.buttonText}>Buat Akun</Text>
-                    </TouchableOpacity>
-                    <Text>
+                            </Body>
+                            <Right><Switch
+                                onValueChange={this.toggleSwitch}
+                                value={!this.state.showPassword}
+                            /></Right>
+                        </ListItem>
+                        <TouchableOpacity style={styles.button} onPress={this.nextStep.bind(this)}>
+                            <Text style={styles.buttonText}>Submit</Text>
+                        </TouchableOpacity>
+                        <Text>
 
-                    </Text>
-                    <View style={styles.signupTextCont}>
-                        <Text style={styles.signupText}>Sudah mempunyai akun, silahkan?</Text>
-                        <TouchableOpacity onPress={this.goBack}><Text style={styles.signupButton}> Sign
-                            in</Text></TouchableOpacity>
+                        </Text>
 
-                    </View>
 
-                </ScrollView>
+                    </ScrollView>
+                    :
+                    <ScrollView style={{marginVertical: 15, backgroundColor: 'white'}}>
+                        <Logo/>
+                        <TextInput
+                            keyboardType="numeric"
+                            defaultValue={this.state.kodeOtp}
+                            ref="kodeOtp"
+                            onChangeText={(kodeOtp) => this.setState({kodeOtp})}
+                            style={styles.inputBox}
+                            underlineColorAndroid="rgba(0,0,0,0)"
+                            placeholder="Kode Otp"
+                            placeholderTextColor="rgba(255,255,255,0.8)"
+                            selectionColor="#999999"
+                        />
+                        {this.isFieldInError('kodeOtp') && this.getErrorsInField('kodeOtp').map(errorMessage =>
+                            <Text>{errorMessage}</Text>)}
+                        <TextInput
+                            editable={false}
+                            defaultValue={'Hasil dari ' + this.state.nilaiTambahA + ' + ' + this.state.nilaiTambahB}
+                            style={styles.inputBox}
+                            underlineColorAndroid="rgba(0,0,0,0)"
+                            placeholderTextColor="rgba(255,255,255,0.8)"
+                            selectionColor="#999999"
+                        />
+                        <TextInput
+                            keyboardType={'numeric'}
+                            ref="angka"
+                            onChangeText={(angka) => this.setState({angka})}
+                            style={styles.inputBox}
+                            underlineColorAndroid="rgba(0,0,0,0)"
+                            placeholder="Masukan Jumlah diatas"
+                            placeholderTextColor="rgba(255,255,255,0.8)"
+                            selectionColor="#999999"
+                        />
+                        {this.isFieldInError('angka') && this.getErrorsInField('angka').map(errorMessage =>
+                            <Text>{errorMessage}</Text>)}
+                        <TouchableOpacity style={styles.button} onPress={this._onSubmit.bind(this)}>
+                            <Text style={styles.buttonText}>Submit</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.button} onPress={this.backStep.bind(this)}>
+                            <Text style={styles.buttonText}>Kembali</Text>
+                        </TouchableOpacity>
+                        <AwesomeAlert
+                            show={showAlert}
+                            showProgress={false}
+                            title="Notifikasi"
+                            message={this.state.message}
+                            closeOnTouchOutside={true}
+                            closeOnHardwareBackPress={false}
+                            showCancelButton={false}
+                            showConfirmButton={true}
+                            confirmText=" Keluar "
+                            confirmButtonColor="#DD6B55"
+                            onConfirmPressed={() => {
+                                this.hideAlert();
+                            }}
+                        />
+                    </ScrollView>}
+
             </View>
         );
     }

@@ -193,14 +193,14 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
             dataDokter: [],
             dataTanggal: [],
             dataJam: [
-                {id: 0, name: '08:00:00 - 09:00:00', jam: '08:00:00',tersedia:30},
-                {id: 1, name: '09:00:00 - 10:00:00', jam: '09:00:00',tersedia:30},
-                {id: 2, name: '10:00:00 - 11:00:00', jam: '10:00:00',tersedia:30},
-                {id: 3, name: '11:00:00 - 12:00:00', jam: '11:00:00',tersedia:30},
-                {id: 4, name: '13:00:00 - 14:00:00', jam: '13:00:00',tersedia:30},
-                {id: 5, name: '14:00:00 - 15:00:00', jam: '14:00:00',tersedia:30},
-                {id: 6, name: '15:00:00 - 16:00:00', jam: '15:00:00',tersedia:30},
-                {id: 7, name: '16:00:00 - 17:00:00', jam: '16:00:00',tersedia:30},
+                {id: 0, name: '08:00:00 - 09:00:00', jam: '08:00:00'},
+                {id: 1, name: '09:00:00 - 10:00:00', jam: '09:00:00'},
+                {id: 2, name: '10:00:00 - 11:00:00', jam: '10:00:00'},
+                {id: 3, name: '11:00:00 - 12:00:00', jam: '11:00:00'},
+                {id: 4, name: '13:00:00 - 14:00:00', jam: '13:00:00'},
+                {id: 5, name: '14:00:00 - 15:00:00', jam: '14:00:00'},
+                {id: 6, name: '15:00:00 - 16:00:00', jam: '15:00:00'},
+                {id: 7, name: '16:00:00 - 17:00:00', jam: '16:00:00'},
             ],
 
             page: 1,
@@ -250,7 +250,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
     }
 
     componentWillReceiveProps(value) {
-        console.log(value.nomorMr);
+
 
         if (value.nomorMr !== undefined && value.tahunLahir !== undefined) {
             this.setState({
@@ -310,7 +310,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                         loading: false,
                     });
                     this.state.loading = false;
-                    console.log(responseJson.data.jns_kelamin);
+
                     this.state.message = responseJson.data;
 
                 } else {
@@ -322,14 +322,14 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                     this.setState({
                         loading: false,
                     });
-                    console.log(responseJson.message);
+
 
                 }
             }).catch((error) => {
                 this.setState({
                     loading: false,
                 });
-                console.log(error);
+
                 this.state.message = error;
             });
 
@@ -409,7 +409,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
 
         });
 
-        console.log(this.state.dataRujukanBpjs);
+
     }
 
     setModalUnvisibleBpjs(visible) {
@@ -419,7 +419,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
     }
 
     pilihNoRujukan(data) {
-        console.log(data.noKunjungan);
+
         const url = baseApiBpjs + 'rujukan';
         fetch(url, {
             method: 'POST',
@@ -435,7 +435,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
             }),
         }).then((response) => response.json()).then((responseJson) => {
             if (responseJson.metaData.code === '200') {
-                console.log(data.tglKunjungan);
+
                 const tglKunjungan = data.tglKunjungan;
                 const tahun = tglKunjungan.substring(0, 4);
                 const bulan = tglKunjungan.substring(5, 7);
@@ -525,7 +525,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
     GetValueFunction = (ValueHolder) => {
 
         var Value = ValueHolder.length;
-        console.log(Value);
+
         if (Value === 13) {
 
             this.setState({
@@ -632,14 +632,14 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                     loading: false,
                     statusMendaftar: 0,
                 });
-                console.log(responseJson.message);
+
 
             }
         }).catch((error) => {
             this.setState({
                 loading: false,
             });
-            console.log(error);
+
             this.state.message = error;
         });
     }
@@ -675,7 +675,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 'Content-Type': 'application/json',
             },
         }).then((response) => response.json()).then((responseJson) => {
-            console.log(responseJson);
+
             var a = responseJson.data;
             for (let i = 0; i < a.length; i++) {
                 this.state.dataCaraBayar.push({
@@ -690,11 +690,11 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 loading: false,
             });
 
-            console.log(this.state.dataCaraBayar);
+
 
 
         }).catch((error) => {
-            console.log(error);
+
         });
     }
 
@@ -710,7 +710,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 'Content-Type': 'application/json',
             },
         }).then((response) => response.json()).then((responseJson) => {
-            console.log(responseJson);
+
             var a = responseJson.data;
             for (let i = 0; i < a.length; i++) {
                 this.state.dataPoly.push({
@@ -723,16 +723,16 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 loading: false,
             });
 
-            console.log(this.state.dataPoly);
+
 
 
         }).catch((error) => {
-            console.log(error);
+
         });
     }
 
     showDataDokter(id) {
-        console.log(this.state.tanggalMasuk);
+
         this.setState({
             loading: true,
             dataDokter: [],
@@ -764,32 +764,10 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 loading: false,
             });
 
-            var jam = []
-            for (let i = 0; i < responseJson.dataJam.length; i++) {
-                jam.push(responseJson.dataJam[i].jam_kunjungan)
-            }
-            console.log(jam)
-            var angka = []
-            for (let i = 0; i < jam.length ; i++) {
-                console.log(jam[i])
-                for (let j = 0; j < this.state.dataJam.length; j++) {
-
-                    if(this.state.dataJam[j].jam === jam[i]){
-
-                        this.state.dataJam[j].tersedia = this.state.dataJam[j].tersedia - (j+1)
-                        this.setState({
-                            dataJam: this.state.dataJam,
-                        });
-
-                    }
-                }
-            }
-            console.log(this.state.dataJam);
-            console.log(this.state.dataDokter);
 
 
         }).catch((error) => {
-            console.log(error);
+
         });
     }
 
@@ -805,7 +783,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 'Content-Type': 'application/json',
             },
         }).then((response) => response.json()).then((responseJson) => {
-            console.log(responseJson);
+
             var a = responseJson.data;
             for (let i = 0; i < a.length; i++) {
 
@@ -820,11 +798,11 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 loading: false,
             });
 
-            console.log(this.state.dataRujukan);
+
 
 
         }).catch((error) => {
-            console.log(error);
+
         });
     }
 
@@ -882,7 +860,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
             }
 
         }).catch((error) => {
-            console.log(error);
+
         });
     };
     searchData = async () => {
@@ -903,9 +881,9 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 isLoading: false,
             });
 
-            console.log(this.state.data);
+
         }).catch((error) => {
-            console.log(error);
+
         });
     };
 
@@ -913,12 +891,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
         this.setState({
             loading: true,
         });
-        console.log(this.state.noBpjs);
-        console.log({
-            'username': '00004',
-            'password': '551UU1BJ',
-            'data': this.state.noBpjs,
-        });
+
         if (jenis === 1) {
             const url = baseApiBpjs + 'list_rujukan';
             fetch(url, {
@@ -933,7 +906,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                     'data': this.state.noBpjs,
                 }),
             }).then((response) => response.json()).then((responseJson) => {
-                console.log(responseJson);
+
                 if (responseJson.metaData.code === '200') {
                     this.setState({
                         loading: false,
@@ -1002,7 +975,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                     'data': this.state.noBpjs,
                 }),
             }).then((response) => response.json()).then((responseJson) => {
-                console.log(responseJson);
+
                 if (responseJson.metaData.code === '200') {
                     this.setState({
                         loading: false,
@@ -1058,14 +1031,14 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
             });
         }
 
-        console.log(this.state.cekRujukan);
+
 
 
     }
 
     _onChangeSearchText(text) {
 
-        console.log(text);
+
         if (text === '') {
             this.setState({
                 searchAktif: 0,
@@ -1111,7 +1084,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                     this.showDataCaraBayar();
                     this.showDataPoly();
                     this.setModalUnvisible(!this.state.modalVisible);
-                    console.log(responseJson.data);
+
                     this.setState({
                         data: this.state.data.concat(responseJson.data),
                         loading: false,
@@ -1139,7 +1112,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 }
             }).catch((error) => {
                 this.state.loading = false;
-                console.log(error);
+
                 this.state.message = error;
             });
         }
@@ -1211,7 +1184,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 }
 
                 this.state.loading = false;
-                console.log(responseJson.data.jns_kelamin);
+
                 this.state.message = responseJson.data;
 
             } else {
@@ -1223,14 +1196,14 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 this.setState({
                     loading: false,
                 });
-                console.log(responseJson.message);
+
 
             }
         }).catch((error) => {
             this.setState({
                 loading: false,
             });
-            console.log(error);
+
             this.state.message = error;
         });
 
@@ -1268,6 +1241,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                         pilihCaraBayar: this.state.pilihCaraBayar,
                         pilihJamLabel:this.state.pilihJamLabel,
                         tanggalKunjungan: this.state.pilihTanggalKunjungan,
+                        tanggalDaftar:new Date(),
                         namaRuang: this.state.pilihPoly,
                         idRuang: this.state.pilihIdPoly,
                         caraBayar: this.state.caraBayar,
@@ -1297,7 +1271,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                                 namaPasien: responseJson.data.nama_pasien,
                                 namaRuang: responseJson.data.nama_ruang,
                                 caraBayar: responseJson.data.cara_bayar,
-                                tanggalMendaftar: responseJson.data.updated_at,
+                                tanggalMendaftar: responseJson.data.tanggal_daftar,
                                 namaDokter: responseJson.data.namaDokterJaga,
                                 tanggalLahir: responseJson.data.tgl_lahir,
                                 nomorMr: responseJson.data.nomr,
@@ -1315,13 +1289,13 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                         this.setState({
                             loading: false,
                         });
-                        console.log(responseJson.message);
+
                     }
                 }).catch((error) => {
                     this.setState({
                         loading: false,
                     });
-                    console.log(error);
+
                     this.state.message = error;
                 });
             }
@@ -1371,6 +1345,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                             nomorRujukan: this.state.no_jaminan,
                             kelas: this.state.kelas,
                             idKelas: this.state.idKelas,
+                            tanggalDaftar:new Date(),
                         }),
                     }).then((response) => response.json()).then((responseJson) => {
                         if (responseJson.success === true) {
@@ -1392,7 +1367,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                                     namaPasien: responseJson.data.nama_pasien,
                                     namaRuang: responseJson.data.nama_ruang,
                                     caraBayar: responseJson.data.cara_bayar,
-                                    tanggalMendaftar: responseJson.data.updated_at,
+                                    tanggalMendaftar: responseJson.data.tanggal_daftar,
                                     namaDokter: responseJson.data.namaDokterJaga,
                                     tanggalLahir: responseJson.data.tgl_lahir,
                                     nomorMr: responseJson.data.nomr,
@@ -1410,13 +1385,13 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                             this.setState({
                                 loading: false,
                             });
-                            console.log(responseJson.message);
+
                         }
                     }).catch((error) => {
                         this.setState({
                             loading: false,
                         });
-                        console.log(error);
+
                         this.state.message = error;
                     });
                 }
@@ -1532,7 +1507,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
     };
 
     pilihJam(jam,name) {
-        console.log(name);
+
         this.setState({
             pilihJam: jam,
             pilihJamLabel:name,
@@ -1607,6 +1582,9 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
             <View style={styles.container}>
                 <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
                 <Header
+                    leftComponent={
+                        <Icon type='ionicon' name='arrow-back-outline' color='#fff'
+                              onPress={()=>Actions.pop()}/>}
                     statusBarProps={{barStyle: 'light-content'}}
                     containerStyle={{
                         backgroundColor: '#1da30b',
@@ -1621,19 +1599,6 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
 
                 {this.state.statusIsi === 0 ?
                     <View>
-                        {/*<TextInput*/}
-                        {/*    onTouchStart={() => this.setModalVisible(true)}*/}
-                        {/*    pointerEvents="none"*/}
-                        {/*    onChangeText={(nomor_mr) => this.setState({nomor_mr})}*/}
-                        {/*    defaultValue={this.state.nomor_mr}*/}
-                        {/*    onFocus={() => this.setModalVisible(true)}*/}
-                        {/*    ref="nomor_mr"*/}
-                        {/*    style={styles.inputBox}*/}
-                        {/*    underlineColorAndroid="rgba(0,0,0,0)"*/}
-                        {/*    placeholder="Masukan Nomor MR"*/}
-                        {/*    placeholderTextColor="rgba(255,255,255,0.8)"*/}
-                        {/*    selectionColor="#999999"*/}
-                        {/*/>*/}
                         {this.state.status === 'after' ?
                             <View style={{padding: 5}}>
                                 <View style={{marginBottom: 10, padding: 5}}>
@@ -1645,17 +1610,6 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                                     <Text style={styles.signupButton}>Nama</Text>
                                     <Text style={styles.signupText}>{this.state.nama}</Text>
                                 </View>
-                                {/*<ListItem style={{padding: 5}} icon>*/}
-                                {/*    <Left>*/}
-                                {/*        <Text>Ingin menyimpan sebagai favorit?</Text>*/}
-                                {/*    </Left>*/}
-                                {/*    <Body>*/}
-                                {/*        <Switch*/}
-                                {/*            onValueChange={this.toggleSwitch}*/}
-                                {/*            value={this.state.simpanFavorite}*/}
-                                {/*        />*/}
-                                {/*    </Body>*/}
-                                {/*</ListItem>*/}
                                 <TouchableOpacity style={styles.button}
                                                   onPress={this._onSubmitNama.bind(this)}>
                                     <Text style={styles.buttonText}>Lanjutkan</Text>
@@ -1699,12 +1653,9 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                                         quality={30}
                                         onPhotoSelect={avatar => {
                                             if (avatar) {
-                                                console.log('Image base64 string: ', avatar);
+
                                                 if (avatar) {
-                                                    console.log({
-                                                        id: this.props.getUser.userDetails.id,
-                                                        photo: avatar,
-                                                    });
+
                                                     fetch(baseApi + '/user/updatePhoto', {
                                                         method: 'POST',
                                                         headers: {
@@ -1717,10 +1668,10 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                                                             photo: avatar,
                                                         }),
                                                     }).then((response) => response.json()).then((responseJson) => {
-                                                        console.log(responseJson);
+
                                                     })
                                                         .catch((error) => {
-                                                            console.log(error);
+
                                                         });
                                                 }
                                             }
@@ -1781,7 +1732,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                                     <View style={{justifyContent: 'center', alignItems: 'center'}}>
                                         <TouchableOpacity style={styles.button}
                                                           onPress={!this.state.inClickLengkapiProfil ? this.onClickButtonLengkapiProfil : null}>
-                                            <Text style={styles.buttonText}>Lengkapi Profil Anda Terlebih dahulu</Text></TouchableOpacity>
+                                            <Text style={styles.buttonText}>Lengkapi Profil Anda Terlebih Dahulu</Text></TouchableOpacity>
                                     </View> :
                                     <View style={{justifyContent: 'center', alignItems: 'center'}}>
                                         <Select2 placeholderTextColor="#ffffff"
@@ -1988,9 +1939,6 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                                                                             <Text note>{this.state.pilihDokter}</Text>
                                                                         </View>
                                                                     </Body>
-                                                                    <Right>
-                                                                        <Text>{this.state.pilihJam}</Text>
-                                                                    </Right>
                                                                 </ListItem>
                                                             </List>
                                                         </View>

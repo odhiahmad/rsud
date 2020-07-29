@@ -3,7 +3,8 @@ import {
     StyleSheet,
     View,
     Modal,
-    ActivityIndicator
+    ActivityIndicator,
+    Text
 } from 'react-native';
 import { CirclesLoader, PulseLoader, TextLoader, DotsLoader,ColorDotsLoader } from 'react-native-indicator';
 

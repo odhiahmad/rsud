@@ -1,34 +1,34 @@
 {
   "project_info": {
-    "project_number": "1011852562465",
-    "firebase_url": "https://rsud-smart-hospital.firebaseio.com",
-    "project_id": "rsud-smart-hospital",
-    "storage_bucket": "rsud-smart-hospital.appspot.com"
+    "project_number": "791399850258",
+    "firebase_url": "https://rsud-padang-panjang.firebaseio.com",
+    "project_id": "rsud-padang-panjang",
+    "storage_bucket": "rsud-padang-panjang.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1011852562465:android:e92a19ad7800a4c34ed360",
+        "mobilesdk_app_id": "1:791399850258:android:8ac2ecb3c28d08195153cb",
         "android_client_info": {
-          "package_name": "com.rsud"
+          "package_name": "com.rsudpadangpanjang"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1011852562465-4uo74jdf6r78qmnp0lmmqotub0qiug1d.apps.googleusercontent.com",
+          "client_id": "791399850258-t56lsinasckhd7eeqsrdfq196druhq18.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCjsdJjCMgzfBtFwGVloeU550Jacy_8u0M"
+          "current_key": "AIzaSyCUyUTjlDMUTgTs_EIqthQbQgUOWuXtwgY"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "1011852562465-4uo74jdf6r78qmnp0lmmqotub0qiug1d.apps.googleusercontent.com",
+              "client_id": "791399850258-t56lsinasckhd7eeqsrdfq196druhq18.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

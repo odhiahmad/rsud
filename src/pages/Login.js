@@ -20,7 +20,8 @@ import AwesomeAlert from 'react-native-awesome-alerts';
 import {Body, Left, ListItem, Right, Switch} from 'native-base';
 import ValidationComponent from 'react-native-form-validator';
 import {baseApi} from '../service/api';
-
+import LoaderModal from '../components/LoaderModal';
+import {showMessage} from 'react-native-flash-message';
 
 const required = value => value ? undefined : 'Required';
 const maxLength = max => value =>
@@ -131,20 +132,37 @@ class Login extends Component<{}> {
 
 
         if (parseInt(this.state.angka) === this.state.nilaiTambahA + this.state.nilaiTambahB) {
-            this.state.nilaiTambahA = Math.floor(Math.random() * 10);
-            this.state.nilaiTambahB = Math.floor(Math.random() * 10);
+            this.setState({
+                loading: true,
+                nilaiTambahA: Math.floor(Math.random() * 10),
+                nilaiTambahB:Math.floor(Math.random() * 10)
+            })
             const response = await this.props.dispatch(loginUser(values));
-            // console.log(response);
+
             if (!response.success) {
 
-                this.showAlert();
-                console.log(response.responseBody);
-                this.state.message = response.responseBody.message;
+                this.setState({
+                    loading: false,
+                    message:  response.responseBody.message,
+                });
+                showMessage({
+                    message: response.responseBody.message,
+                    type: 'danger',
+                    position: 'bottom',
+                });
+
             }
         } else {
-            this.state.loading = false;
-            this.state.message = 'Jumlah angka yang anda masukan tidak sama';
-            this.showAlert();
+            this.setState({
+                loading: false,
+                message: 'Jumlah angka yang anda masukan tidak sama',
+            });
+            showMessage({
+                message: 'Jumlah angka yang anda masukan tidak sama',
+                type: 'danger',
+                position: 'bottom',
+            });
+
         }
 
 
@@ -163,7 +181,7 @@ class Login extends Component<{}> {
     };
 
     onSubmit = (values) => {
-        console.log(values)
+
         this.loginUser(values);
     };
 
@@ -186,15 +204,16 @@ class Login extends Component<{}> {
 
     render() {
         const {handleSubmit, loginUser} = this.props;
-        console.log(loginUser);
+
         const {showAlert} = this.state;
         return (
             <View style={styles.container}>
-                {(loginUser && loginUser.isLoading) && <Loader/>}
+                <LoaderModal
+                    loading={this.state.loading}/>
                 <Logo/>
                 <Field
                     name="email"
-                    placeholder="Email"
+                    placeholder="Email / No Hp"
                     component={this.renderTextInput}/>
                 <Field
                     name="password"
@@ -241,8 +260,8 @@ class Login extends Component<{}> {
                         style={styles.signupButton}> Daftar</Text></TouchableOpacity>
                 </View>
                 <View style={styles.lupaPasswordTextCont}>
-                    {/*<Text style={styles.signupText}>Lupa password ?</Text>*/}
-                    {/*<TouchableOpacity onPress={this.lupapassword}><Text style={styles.signupButton}> Klik disini</Text></TouchableOpacity>*/}
+                    <Text style={styles.signupText}>Lupa password ?</Text>
+                    <TouchableOpacity onPress={this.lupapassword}><Text style={styles.signupButton}> Klik disini</Text></TouchableOpacity>
                 </View>
                 <AwesomeAlert
                     show={showAlert}
