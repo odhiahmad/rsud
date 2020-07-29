@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import QRCode from 'react-native-qrcode-svg';
 import RNFS from 'react-native-fs';
 import CameraRoll from '@react-native-community/cameraroll';
-import {Header, ListItem} from 'react-native-elements';
+import {Header, ListItem, Icon, Rating, AirbnbRating, CheckBox} from 'react-native-elements';
 import ModalKomponen from '../components/Modal';
 import CustomRow from '../components/CustomRow';
 import {baseApi, baseUrlFoto} from '../service/api';
@@ -59,7 +59,7 @@ const customStyles = {
     labelSize: 13,
     currentStepLabelColor: '#fe7013',
 };
-const labels = ['Mendaftar', 'Sedang Berobat', 'Selesai Berobat', 'Mendapatkan Obat', 'Selesai'];
+const labels = ['Mendaftar', 'Selesai Berobat', 'Mendapatkan Obat', 'Selesai'];
 
 class Riwayat extends Component {
     constructor(props) {
@@ -86,6 +86,7 @@ class Riwayat extends Component {
             searchAktif: 1,
             svg: '',
 
+            nomorAntrian: '',
             index: 0,
             dataQrCode: [],
             namaPasien: '',
@@ -104,9 +105,12 @@ class Riwayat extends Component {
             idTrip: this.props.idTrip,
             tanggalMendaftar: '',
             namaRuang: '',
-            jamKunjunganLabel:'',
+            jamKunjunganLabel: '',
             caraBayar: '',
 
+            showTryAgain: false,
+
+            checked:false,
         };
     }
 
@@ -116,9 +120,7 @@ class Riwayat extends Component {
 
     componentDidMount() {
 
-        this.setState({
-            isLoading: true,
-        }, this.getData);
+        this.getData();
 
     }
 
@@ -158,7 +160,11 @@ class Riwayat extends Component {
     };
 
     getData = async () => {
-
+        this.setState({
+            loading: true,
+            isLoading: true,
+            showTryAgain: false,
+        });
         const url = baseApi + '/user/getRiwayatPendaftaran?page=' + this.state.page;
         fetch(url, {
             method: 'POST',
@@ -172,17 +178,23 @@ class Riwayat extends Component {
             }),
         }).then((response) => response.json()).then((responseJson) => {
             this.setState({
+                loading: false,
                 isLoading: false,
+                showTryAgain: false,
                 data: this.state.data.concat(responseJson.data.data),
             });
 
         }).catch((error) => {
-            console.log(error);
+            this.setState({
+                loading: false,
+                isLoading: false,
+                showTryAgain: true,
+            });
         });
     };
 
     showData = async () => {
-        console.log(this.props.getUser.userDetails.id);
+
         const url = baseApi + '/user/getRiwayatPendaftaran?page=' + this.state.page;
         fetch(url, {
             method: 'POST',
@@ -200,9 +212,9 @@ class Riwayat extends Component {
                 data: responseJson.data.data,
             });
 
-            console.log(responseJson.data.data);
+
         }).catch((error) => {
-            console.log(error);
+
         });
     };
 
@@ -236,6 +248,7 @@ class Riwayat extends Component {
 
         this.setState({
             modalVisible: visible,
+            nomorAntrian: this.state.data[id].nomor_daftar,
             index: id,
             caraBayar: this.state.data[id].cara_bayar,
             namaRuang: this.state.data[id].nama_ruang,
@@ -243,7 +256,7 @@ class Riwayat extends Component {
             namaPasien: this.state.data[id].nama_pasien,
             namaDokter: this.state.data[id].namaDokterJaga,
             tanggalKunjungan: this.state.data[id].tanggal_kunjungan,
-            jamKunjungan: this.state.data[id].jam_kunjungan,
+            jamKunjungan: this.state.data[id].jam_kunjunganAntrian,
             jamKunjunganLabel: this.state.data[id].jam_kunjunganLabel,
             tanggalLahir: this.state.data[id].tgl_lahir,
             nomorMr: this.state.data[id].nomr,
@@ -252,9 +265,6 @@ class Riwayat extends Component {
             currentPosition: posisiSekarang,
             dataQrCode: this.state.dataQrCode,
         });
-
-
-        console.log(this.state.dataQrCode);
 
 
     }
@@ -280,15 +290,14 @@ class Riwayat extends Component {
                 isLoading: false,
             });
 
-            console.log(this.state.data);
+
         }).catch((error) => {
-            console.log(error);
+
         });
     };
 
     _onChangeSearchText(text) {
 
-        console.log(text);
         if (text === '') {
             this.setState({
                 searchAktif: 0,
@@ -304,10 +313,10 @@ class Riwayat extends Component {
 
     saveQrToDisk() {
         this.refs.viewShot.capture().then(uri => {
-            console.log('do something with ', uri);
+
 
             CameraRoll.saveToCameraRoll(uri, 'photo');
-
+            ToastAndroid.show('Disimpan di galery !!', ToastAndroid.SHORT);
         });
         // this.svg.toDataURL((data) => {
         //     RNFS.writeFile(RNFS.CachesDirectoryPath + '/some-name.png', data, 'base64')
@@ -325,7 +334,7 @@ class Riwayat extends Component {
     }
 
     renderRow = ({item, index}) => {
-        moment.locale('id');
+
         var time = moment(item.tgl_masuk).format('LLLL');
         return (
             <ListItem onPress={() => {
@@ -339,8 +348,11 @@ class Riwayat extends Component {
                       }}
                       subtitle={<View>
                           <Text style={{color: 'grey'}}>{item.namaDokterJaga}</Text>
-                          <Text style={{color: 'grey'}}>{item.status_berobat}</Text>
-                          <Text>{time}</Text></View>}
+                          <Text>{item.status_berobat}</Text>
+
+                          {item.status_berobat === 'Mendapatkan Obat' ? <Text>Silahkan Beri Penilaian Anda</Text> :
+                              <Text><Text>{time}</Text></Text>}
+                      </View>}
                       bottomDivider
                       chevron
             >
@@ -353,7 +365,9 @@ class Riwayat extends Component {
         let base64Logo = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAA..';
         return (
 
-            <View>
+            <View style={{flex: 1}}>
+                <LoaderModal
+                    loading={this.state.loading}/>
                 <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
                 <Header
                     statusBarProps={{barStyle: 'light-content'}}
@@ -361,23 +375,49 @@ class Riwayat extends Component {
                         backgroundColor: '#1da30b',
                         justifyContent: 'space-around',
                     }}
+                    rightComponent={
+                        <Icon type='font-awesome-5' name='sync' color='#fff'
+                              onPress={this._onRefresh}/>}
                     barStyle="light-content"
                     placement="center"
                     centerComponent={{text: 'Riwayat', style: {fontWeight: 'bold', color: '#fff'}}}
                 />
+                {this.state.showTryAgain === true ?
+                    <View style={styles.container}>
+                        <Text style={{color: 'gray'}}>Koneksi Bermasalah :(</Text>
+                        <TouchableOpacity style={{
+                            width: 200,
+                            backgroundColor: 'red',
+                            borderRadius: 25,
+                            marginVertical: 2,
+                            paddingVertical: 13,
+                        }} onPress={() => this.getData()}>
+                            <Text style={{
+                                fontSize: 16,
+                                fontWeight: '500',
+                                color: '#ffffff',
+                                textAlign: 'center',
+                            }}>Refresh </Text>
+                        </TouchableOpacity></View> :
+                    <View>
+                        {this.state.data.length !== 0 ? <FlatList
+                                refreshControl={
+                                    <RefreshControl
+                                        refreshing={this.state.refreshing}
+                                        onRefresh={this._onRefresh}
+                                    />}
+                                renderItem={this.renderRow}
+                                keyExtractor={(item, index) => index.toString()}
+                                onEndReached={this.handleLoadMore}
+                                onEndReachedThreshold={0.1}
+                                ListFooterComponent={this.renderFooter}
+                                data={this.state.data}/> :
+                            <View style={{alignItems: 'center', justifyContent: 'center'}}><Text
+                                style={{color: 'gray'}}>Tidak Ada Data</Text></View>}
+                    </View>
+                }
 
-                <FlatList
-                    refreshControl={
-                        <RefreshControl
-                            refreshing={this.state.refreshing}
-                            onRefresh={this._onRefresh}
-                        />}
-                    renderItem={this.renderRow}
-                    keyExtractor={(item, index) => index.toString()}
-                    onEndReached={this.handleLoadMore}
-                    onEndReachedThreshold={0.1}
-                    ListFooterComponent={this.renderFooter}
-                    data={this.state.data}/>
+
                 <Modal
                     onSwipeComplete={() => {
                         this.setModalUnvisible(!this.state.modalVisible);
@@ -406,23 +446,12 @@ class Riwayat extends Component {
                             currentPosition={this.state.currentPosition}
                             labels={labels}
                         />
-                        <ViewShot ref="viewShot" style={{padding: 20, alignItems: 'center',backgroundColor: 'white'}}
+                        <ViewShot ref="viewShot" style={{padding: 10, alignItems: 'center', backgroundColor: 'white'}}
                                   options={{format: 'png', quality: 20}}>
 
-                            <View>
-                                {this.state.dataQrCode.length != 0  ?
-                                    <QRCode
-                                        size={200}
-                                        value={this.state.dataQrCode}
-                                        logoSize={30}
-                                        logoBackgroundColor='transparent'
-                                        getRef={(c) => (this.svg = c)}
-                                    />
-                                    :null}
 
-                            </View>
-                            <View style={{flexDirection: 'row',marginTop:10}}>
-                                <View style={{width: 150, backgroundColor: 'white'}}>
+                            <View style={{flexDirection: 'row', marginTop: 10}}>
+                                <View style={{width: 120, backgroundColor: 'white'}}>
                                     <Text style={{fontSize: 12}}>Tanggal</Text>
                                     <Text style={{fontSize: 12}}>No MR</Text>
                                     <Text style={{fontSize: 12}}>Nama</Text>
@@ -431,7 +460,7 @@ class Riwayat extends Component {
                                     <Text style={{fontSize: 12}}>Poly Tujuan</Text>
                                     <Text style={{fontSize: 12}}>Cara Bayar</Text>
                                 </View>
-                                <View style={{width: 150, backgroundColor: 'white'}}>
+                                <View style={{width: 250, backgroundColor: 'white'}}>
                                     <Text style={{fontSize: 12}}>: {this.state.tanggalMendaftar}</Text>
                                     <Text style={{fontSize: 12}}>: {this.state.nomorMr}</Text>
                                     <Text style={{fontSize: 12}}>: {this.state.namaPasien}</Text>
@@ -441,32 +470,118 @@ class Riwayat extends Component {
                                     <Text style={{fontSize: 12}}>: {this.state.caraBayar}</Text>
                                 </View>
                             </View>
-                            <View style={{padding:10,backgroundColor: 'white'}}>
-                                <Text style={{fontSize: 12}}>Mohon Diperhatikan</Text>
-                                <Text style={{fontSize: 8}}>1. Pasien diharapkan hadir sebelum
-                                    pukul {this.state.jamKunjungan} </Text>
-                                <Text style={{fontSize: 8}}>2. Silahkan datang ke counter checkin yang sudah kami
-                                    sediakan</Text>
-                                <Text style={{fontSize: 8}}>3. bawalah bukti reservasi, Kartu Pasien, Kartu BPJS,
-                                    dan surat rujukan/Surat Kontrol ulang yang masih berlaku</Text>
-                            </View>
-                            <View style={{padding:10,backgroundColor: 'white'}}>
-                                <Text style={{fontSize: 12}}>Catatan</Text>
-                                <Text style={{fontSize: 8}}>1. Pasien yang mendaftar online akan dilayani jika,
-                                    Membawa bukti reservasi pendaftaran online, kartu bpjs, dan surat rujukan yang
-                                    masih berlaku (Rujukan faskes 1 berlaku selama 90 Hari)</Text>
-                                <Text style={{fontSize: 8}}>2. Jika anda datang lewat dari jam kunjungan anda, anda
-                                    tidak akan dilayani</Text>
-                            </View>
+                            {this.state.statusBerobat === 'Mendaftar' ?
+                                <View>
+                                    <View>
+                                        {this.state.dataQrCode.length != 0 ?
+                                            <QRCode
+                                                size={180}
+                                                value={this.state.dataQrCode}
+                                                logoSize={30}
+                                                logoBackgroundColor='transparent'
+                                                getRef={(c) => (this.svg = c)}
+                                            />
+                                            : null}
+
+                                    </View>
+                                    <View style={{flexDirection: 'row', marginTop: 10}}>
+                                        <Text style={{fontSize: 24}}>Nomor
+                                            Antrian: {this.state.nomorAntrian}</Text>
+                                    </View>
+                                    <View style={{padding: 10, backgroundColor: 'white'}}>
+                                        <Text style={{fontSize: 12}}>Mohon Diperhatikan</Text>
+                                        <Text style={{fontSize: 8}}>1. Pasien diharapkan hadir sebelum
+                                            pukul {this.state.jamKunjungan} </Text>
+                                        <Text style={{fontSize: 8}}>2. Silahkan datang ke counter checkin yang sudah
+                                            kami
+                                            sediakan</Text>
+                                        <Text style={{fontSize: 8}}>3. bawalah bukti reservasi, Kartu Pasien, Kartu
+                                            BPJS,
+                                            dan surat rujukan/Surat Kontrol ulang yang masih berlaku</Text>
+                                    </View>
+                                    <View style={{padding: 10, backgroundColor: 'white'}}>
+                                        <Text style={{fontSize: 12}}>Catatan</Text>
+                                        <Text style={{fontSize: 8}}>1. Pasien yang mendaftar online akan dilayani jika,
+                                            Membawa bukti reservasi pendaftaran online, kartu bpjs, dan surat rujukan
+                                            yang
+                                            masih berlaku (Rujukan faskes 1 berlaku selama 90 Hari)</Text>
+                                        <Text style={{fontSize: 8}}>2. Jika anda datang lewat dari jam kunjungan anda,
+                                            anda
+                                            tidak akan dilayani</Text>
+                                    </View>
+                                </View>
+                                : this.state.statusBerobat === 'Selesai Berobat' ?
+                                    <View>
+                                        <View style={{flexDirection: 'row', marginTop: 40}}>
+                                            <Text style={{fontSize: 14}}>Silahkan Tunggu Sejenak Untuk Menunggu Obat
+                                                Anda ^_^ </Text>
+                                        </View>
+                                    </View>
+                                    : this.state.statusBerobat === 'Mendapatkan Obat' ?
+                                        <View>
+                                            <View style={{
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                            }}>
+                                                <View style={{flexDirection: 'row', marginTop: 40}}>
+                                                    <Text style={{fontSize: 14}}>Silahkan Beri Penilaian Anda Terhadap
+                                                        Rumah Sakit Kami ^_^</Text>
+                                                </View>
+                                                <View style={{flexDirection: 'row', marginTop: 10}}>
+                                                    <AirbnbRating
+                                                        count={3}
+                                                        reviews={['Buruk', 'Sedang', 'Baik']}
+                                                        defaultRating={1}
+                                                        size={20}
+                                                    />
+                                                </View>
+
+
+                                            </View>
+                                            <View style={{flexDirection: 'row', marginTop: 10}}>
+                                                <View style={{
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                }}>
+                                                    <Text style={{fontSize: 14}}>Apa Yang Baik Menurut Anda</Text>
+                                                </View>
+                                                <CheckBox
+                                                    center
+                                                    title='Pelayanan'
+                                                    iconRight
+                                                    iconType='material'
+                                                    checkedIcon='clear'
+                                                    uncheckedIcon='add'
+                                                    checkedColor='red'
+                                                    checked={true}
+                                                />
+                                                <CheckBox
+                                                    center
+                                                    title='Keramahan'
+                                                    iconRight
+                                                    iconType='material'
+                                                    checkedIcon='clear'
+                                                    uncheckedIcon='add'
+                                                    checkedColor='red'
+                                                    checked={true}
+                                                />
+                                            </View>
+                                        </View> :
+                                        <View>
+
+                                        </View>
+                            }
                         </ViewShot>
                     </View>
-                    <View style={{alignItems: 'center', padding:10,justifyContent: 'center'}}><TouchableOpacity
-                        style={styles.button} onPress={() => {
-                        this.saveQrToDisk();
-                    }}>
-                        <Text style={styles.buttonText}>Simpan Bukti Reservasi</Text>
-                    </TouchableOpacity>
-                    </View>
+                    {this.state.statusBerobat === 'Mendaftar' ?
+                        <View style={{alignItems: 'center', padding: 10, justifyContent: 'center'}}><TouchableOpacity
+                            style={styles.button} onPress={() => {
+                            this.saveQrToDisk();
+                        }}>
+                            <Text style={styles.buttonText}>Simpan Bukti Reservasi</Text>
+                        </TouchableOpacity>
+                        </View> : <View></View>}
+
                 </ScrollView>
                 </Modal>
             </View>
@@ -480,8 +595,10 @@ const styles = StyleSheet.create({
         color: '#FF3366', // make links coloured pink
     },
     container: {
-        marginBottom: 28,
-        backgroundColor: '#F5FCFF',
+        flex: 1,
+        backgroundColor: '#fff',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     loader: {
         marginTop: 18,
