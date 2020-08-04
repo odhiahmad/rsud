@@ -28,6 +28,9 @@ import HTMLView from 'react-native-htmlview';
 import {connect} from 'react-redux';
 import StepIndicator from 'react-native-step-indicator';
 import ViewShot from 'react-native-view-shot';
+import {Textarea,Button,Container,Content} from "native-base";
+import {showMessage} from 'react-native-flash-message';
+import ValidationComponent from 'react-native-form-validator';
 
 const {height} = Dimensions.get('window');
 const resources = {
@@ -60,8 +63,8 @@ const customStyles = {
     currentStepLabelColor: '#fe7013',
 };
 const labels = ['Mendaftar', 'Selesai Berobat', 'Mendapatkan Obat', 'Selesai'];
-
-class Riwayat extends Component {
+var ratingBintang = 3
+class Riwayat extends ValidationComponent {
     constructor(props) {
         super(props);
         this.state = {
@@ -111,6 +114,13 @@ class Riwayat extends Component {
             showTryAgain: false,
 
             checked:false,
+
+            checkedKeramahan:false,
+            checkedPelayanan:false,
+
+            catatan:'',
+            rating:0,
+            idPendaftaran:'',
         };
     }
 
@@ -193,6 +203,50 @@ class Riwayat extends Component {
         });
     };
 
+    _submitPenilaian(){
+            this.setState({
+                loading: true,
+            });
+            fetch(baseApi + '/user/inputPenilaian', {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + this.props.getUser.userDetails.token,
+                },
+                body: JSON.stringify({
+                    idPendaftaran:this.state.idPendaftaran,
+                    idUser: this.props.getUser.userDetails.id,
+                    rating: ratingBintang,
+                    catatan:this.state.catatan,
+                }),
+            }).then((response) => response.json()).then((responseJson) => {
+                if (responseJson.success === true) {
+                    this.setState({
+                        loading: false,
+                    });
+                    this.setModalUnvisible(!this.state.modalVisible);
+                    showMessage({
+                        message: responseJson.message,
+                        type: 'info',
+                        position: 'bottom',
+                    });
+                } else {
+                    this.setState({
+                        loading: false,
+                    });
+                    this.state.data.push(responseJson.data);
+                    this.setModalUnvisible(!this.state.modalVisible);
+                    showMessage({
+                        message: responseJson.message,
+                        type: 'danger',
+                        position: 'bottom',
+                    });
+                }
+            });
+
+    }
+
     showData = async () => {
 
         const url = baseApi + '/user/getRiwayatPendaftaran?page=' + this.state.page;
@@ -250,6 +304,7 @@ class Riwayat extends Component {
             modalVisible: visible,
             nomorAntrian: this.state.data[id].nomor_daftar,
             index: id,
+            idPendaftaran:this.state.data[id].idx,
             caraBayar: this.state.data[id].cara_bayar,
             namaRuang: this.state.data[id].nama_ruang,
             tanggalMendaftar: this.state.data[id].tanggal_daftar,
@@ -360,6 +415,12 @@ class Riwayat extends Component {
         );
     };
 
+    ratingCompleted(rating) {
+        // console.log(rating)
+        ratingBintang = rating
+
+        console.log(ratingBintang)
+    }
 
     render() {
         let base64Logo = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAA..';
@@ -529,42 +590,34 @@ class Riwayat extends Component {
                                                 </View>
                                                 <View style={{flexDirection: 'row', marginTop: 10}}>
                                                     <AirbnbRating
+                                                        onFinishRating={this.ratingCompleted}
                                                         count={3}
                                                         reviews={['Buruk', 'Sedang', 'Baik']}
-                                                        defaultRating={1}
+                                                        defaultRating={3}
                                                         size={20}
                                                     />
                                                 </View>
 
 
                                             </View>
-                                            <View style={{flexDirection: 'row', marginTop: 10}}>
-                                                <View style={{
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
+                                            <View style={{
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                            }}>
+                                                <Textarea ref="catatan"
+                                                          autoCapitalize='words'
+                                                          onChangeText={(catatan) => this.setState({catatan})}
+                                                          placeholderTextColor="#ffffff" style={styles.inputBox} rowSpan={5}
+                                                          bordered
+                                                          placeholder="Tulis Catatan Disini"/>
+                                            </View>
+                                            <View style={{alignItems: 'center', padding: 10, justifyContent: 'center'}}>
+                                                <TouchableOpacity
+                                                    style={styles.button} onPress={() => {
+                                                    this._submitPenilaian();
                                                 }}>
-                                                    <Text style={{fontSize: 14}}>Apa Yang Baik Menurut Anda</Text>
-                                                </View>
-                                                <CheckBox
-                                                    center
-                                                    title='Pelayanan'
-                                                    iconRight
-                                                    iconType='material'
-                                                    checkedIcon='clear'
-                                                    uncheckedIcon='add'
-                                                    checkedColor='red'
-                                                    checked={true}
-                                                />
-                                                <CheckBox
-                                                    center
-                                                    title='Keramahan'
-                                                    iconRight
-                                                    iconType='material'
-                                                    checkedIcon='clear'
-                                                    uncheckedIcon='add'
-                                                    checkedColor='red'
-                                                    checked={true}
-                                                />
+                                                    <Text style={styles.buttonText}>Submit</Text>
+                                                </TouchableOpacity>
                                             </View>
                                         </View> :
                                         <View>
@@ -574,7 +627,8 @@ class Riwayat extends Component {
                         </ViewShot>
                     </View>
                     {this.state.statusBerobat === 'Mendaftar' ?
-                        <View style={{alignItems: 'center', padding: 10, justifyContent: 'center'}}><TouchableOpacity
+                        <View style={{alignItems: 'center', padding: 10, justifyContent: 'center'}}>
+                            <TouchableOpacity
                             style={styles.button} onPress={() => {
                             this.saveQrToDisk();
                         }}>
@@ -630,6 +684,15 @@ const styles = StyleSheet.create({
     itemText: {
         fontSize: 16,
         padding: 5,
+    },
+    inputBox: {
+        width: 300,
+        backgroundColor: 'rgba(29, 163, 11,0.8)',
+        borderRadius: 25,
+        paddingHorizontal: 16,
+        fontSize: 16,
+        color: '#ffffff',
+        marginVertical: 2,
     },
 });
 mapStateToProps = (state) => ({

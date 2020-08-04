@@ -439,7 +439,7 @@ class Step1 extends ValidationComponent <{}> {
                         loading: false,
                     });
                     showMessage({
-                        message: 'Koneksi Bermasalah',
+                        message: error,
                         type: 'danger',
                         position: 'bottom',
                     });
