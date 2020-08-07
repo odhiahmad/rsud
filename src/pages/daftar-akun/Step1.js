@@ -45,6 +45,7 @@ import {
 import {connect} from 'react-redux';
 import Select2 from 'react-native-select-two';
 import DatePicker from 'react-native-datepicker';
+
 const styles = StyleSheet.create({
     itemSeparatorStyle: {
         height: 1,
@@ -212,6 +213,7 @@ class Step1 extends ValidationComponent <{}> {
             this.state.nama = this.props.getState().nama;
             this.state.pilihPekerjaan = this.props.getState().pilihPekerjaan;
             this.state.nik = this.props.getState().nik;
+            this.state.noBpjs = this.props.getState().noBpjs
         }
         ;
     }
@@ -365,43 +367,40 @@ class Step1 extends ValidationComponent <{}> {
                         'username': '00004',
                         'password': '551UU1BJ',
                         'param': 'nokartu',
-                        'data': this.props.getState().noBpjs,
+                        'data': this.state.noBpjs,
                     }),
                 }).then((response) => response.json()).then((responseJson) => {
 
-                    if (responseJson.response != null) {
-                        if (parseInt(responseJson.response.peserta.statusPeserta.kode) === 0) {
-                            if (responseJson.response.peserta.nik === this.state.nik) {
-                                if (responseJson.success === true) {
-                                    const {saveState} = this.props;
-                                    // Save state for use in other steps
-                                    saveState({
-                                        jenisKelamin: this.state.jenisKelamin,
-                                        statusKawin: this.state.statusKawin,
-                                        tanggalLahir: this.state.chosenDate,
-                                        tempatLahir: this.state.tempatLahir,
-                                        nama: this.state.nama,
-                                        pilihPekerjaan: this.state.pilihPekerjaan,
-                                        nik: this.state.nik,
-                                        pilihAgama: this.state.pilihAgama,
-                                        noBpjs: this.state.noBpjs,
-                                    });
-                                    this.setState({
-                                        loading: false,
-                                    });
-                                    this.nextStep();
+                    const a = parseInt(responseJson.metaData.code);
+                    const b = 200;
 
+                    const aa = parseInt(responseJson.response.peserta.statusPeserta.kode);
+                    const bb = 0;
 
-                                } else {
-                                    this.setState({
-                                        loading: false,
-                                    });
-                                    showMessage({
-                                        message: 'Koneksi Bermasalah',
-                                        type: 'danger',
-                                        position: 'bottom',
-                                    });
-                                }
+                    const aaa = parseInt(responseJson.response.peserta.nik);
+                    const bbb = parseInt(this.state.nik);
+
+                    if (a === b) {
+                        if (aa === bb) {
+                            if (aaa === bbb) {
+                                const {saveState} = this.props;
+                                // Save state for use in other steps
+                                saveState({
+                                    jenisKelamin: this.state.jenisKelamin,
+                                    statusKawin: this.state.statusKawin,
+                                    tanggalLahir: this.state.chosenDate,
+                                    tempatLahir: this.state.tempatLahir,
+                                    nama: this.state.nama,
+                                    pilihPekerjaan: this.state.pilihPekerjaan,
+                                    nik: this.state.nik,
+                                    pilihAgama: this.state.pilihAgama,
+                                    noBpjs: this.state.noBpjs,
+                                });
+                                this.setState({
+                                    loading: false,
+                                });
+                                this.nextStep();
+
                             } else {
                                 this.setState({
                                     loading: false,
@@ -412,8 +411,6 @@ class Step1 extends ValidationComponent <{}> {
                                     position: 'bottom',
                                 });
                             }
-
-
                         } else {
                             this.setState({
                                 loading: false,
@@ -439,7 +436,7 @@ class Step1 extends ValidationComponent <{}> {
                         loading: false,
                     });
                     showMessage({
-                        message: error,
+                        message: 'Koneksi Bermasalah',
                         type: 'danger',
                         position: 'bottom',
                     });
@@ -468,7 +465,7 @@ class Step1 extends ValidationComponent <{}> {
                 'Content-Type': 'application/json',
             },
         }).then((response) => response.json()).then((responseJson) => {
-            console.log(responseJson.data);
+
             var a = responseJson.dataAgama;
             var b = responseJson.dataPekerjaan;
             for (let i = 0; i < a.length; i++) {

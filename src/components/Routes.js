@@ -32,7 +32,8 @@ import {connect} from 'react-redux';
 import GantiPassword from '../pages/profil/GantiPassword';
 import CariNomorMr from '../pages/daftar-online/CariNomorMr';
 import LengkapiProfil from '../pages/daftar-online/LengkapiProfil';
-import Obat from '../pages/Obat';
+import Obat from '../pages/Obat/Obat';
+import RiwayatObat from '../pages/Obat/RiwayatObat';
 import LupaPasswordSaya from '../pages/lupa-password/LupaPasswordSaya';
 import { createStackNavigator } from 'react-navigation-stack';
 let {width, height} = Dimensions.get('window');
@@ -262,6 +263,12 @@ class Routes extends Component<{}> {
                                     key="notifikasi"
                                     component={Notifikasi}
                                     title="Notifikasi"
+                                />
+                                <Scene
+                                    hideNavBar={true}
+                                    key="riwayatobat"
+                                    component={RiwayatObat}
+                                    title="Riwayat Obat"
                                 />
                             </Scene>
                             <Scene  hideNavBar={true} duration={400} key="notifikasi" component={Riwayat} title="Riwayat" icon={TabIcon}>

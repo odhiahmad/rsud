@@ -123,7 +123,6 @@ class Home extends Component {
     };
 
     componentWillReceiveProps(value) {
-
         if (value.nomorAntrian != null) {
             this.setModalVisible(true);
             this.setState({
@@ -159,7 +158,6 @@ class Home extends Component {
                 statusBerobat: value.statusBerobat,
             }];
         }
-
 
     }
 

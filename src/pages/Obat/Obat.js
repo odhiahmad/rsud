@@ -3,10 +3,10 @@ import QRCode from 'react-native-qrcode-svg';
 import RNFS from 'react-native-fs';
 import CameraRoll from '@react-native-community/cameraroll';
 import {Header, Icon, ListItem} from 'react-native-elements';
-import ModalKomponen from '../components/Modal';
-import CustomRow from '../components/CustomRow';
-import {baseApi, baseUrlFoto} from '../service/api';
-import LoaderModal from '../components/LoaderModal';
+import ModalKomponen from '../../components/Modal';
+import CustomRow from '../../components/CustomRow';
+import {baseApi, baseUrlFoto} from '../../service/api';
+import LoaderModal from '../../components/LoaderModal';
 
 import {
     ScrollView,
@@ -110,6 +110,8 @@ class Obat extends Component {
             caraBayar: '',
 
             showTryAgain: false,
+
+            onClickButtonRiwayatObat:false,
 
         };
     }
@@ -278,6 +280,36 @@ class Obat extends Component {
 
     }
 
+    onClickButtonRiwayatObat = () => {
+        this.setState({inClickRiwayatObat: true});
+        Actions.riwayatobat();
+        setTimeout(function () {
+            this.setState({inClickRiwayatObat: false});
+        }.bind(this), 2000);
+    };
+
+    // renderRow = ({item, index}) => {
+    //     var time = moment(item.tgl_masuk).format('LLLL');
+    //     return (
+    //         <ListItem onPress={() => {
+    //             this.setModalVisible(true, item.idx);
+    //         }}
+    //
+    //                   title={item.nama_pasien}
+    //                   leftAvatar={{
+    //                       source: {uri: baseUrlFoto + 'profile/' + item.foto},
+    //                       title: item.nama_pasien[0],
+    //                   }}
+    //                   subtitle={<View>
+    //                       <Text style={{color: 'grey'}}>{item.namaDokterJaga}</Text>
+    //                       <Text style={{color: 'grey'}}>{item.status_berobat}</Text>
+    //                       <Text>{time}</Text></View>}
+    //                   bottomDivider
+    //                   chevron
+    //         >
+    //         </ListItem>
+    //     );
+    // };
 
     renderRow = ({item, index}) => {
         var time = moment(item.tgl_masuk).format('LLLL');
@@ -331,9 +363,9 @@ class Obat extends Component {
                         backgroundColor: '#1da30b',
                         justifyContent: 'space-around',
                     }}
-                    // rightComponent={
-                    //     <Icon name='history' color='#fff'
-                    //           onPress={() => this.setModalVisibleRiwayat(true)}/>}
+                    rightComponent={
+                        <Icon name='history' color='#fff'
+                              onPress={!this.state.inClickRiwayatObat ? this.onClickButtonRiwayatObat : null} />}
                     barStyle="light-content"
                     placement="center"
                     centerComponent={{text: 'Obat Pasien', style: {fontWeight: 'bold', color: '#fff'}}}
@@ -358,7 +390,7 @@ class Obat extends Component {
                                 onEndReachedThreshold={0.1}
                                 ListFooterComponent={this.renderFooter}
                                 data={this.state.data}/> :
-                            <View style={{alignItems: 'center', justifyContent: 'center'}}><Text
+                            <View style={{alignItems: 'center', justifyContent: 'center',flex: 1}}><Text
                                 style={{color: 'gray'}}>Tidak Ada Data</Text></View>}
                     </View>
                 }
@@ -379,7 +411,10 @@ class Obat extends Component {
                     visible={this.state.modalVisibleRiwayat}
                     backdropOpacity={1}>
                     <View style={{flex: 1}}>
-
+                        <FlatList
+                            renderItem={this.renderRowRiwayat}
+                            keyExtractor={(item, index) => index.toString()}
+                            data={this.state.dataRiwayat}/>
                     </View>
                 </Modal>
                 <Modal

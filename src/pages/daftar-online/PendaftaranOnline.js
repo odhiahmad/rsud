@@ -18,7 +18,7 @@ import {baseApi, baseApiBpjs, baseUrlFoto} from '../../service/api';
 import {Actions} from 'react-native-router-flux';
 import AwesomeAlert from 'react-native-awesome-alerts';
 import email from 'react-native-email';
-import {Header} from 'react-native-elements';
+import {Icon, Header} from 'react-native-elements';
 import PasswordInputText from 'react-native-hide-show-password-input';
 import {
     Badge,
@@ -31,7 +31,7 @@ import {
     Content,
     Button,
     ListItem,
-    Icon,
+
     Left,
     Body,
     Right,
@@ -81,6 +81,10 @@ class PendaftaranOnline extends ValidationComponent {
             data: [],
             dataCaraBayar: [],
             dataRujukan: [],
+
+            dataRujukanKontrolUlang1: [],
+            dataRujukanKontrolUlang2: [],
+
             dataPoly: [],
             dataDokter: [],
             dataTanggal: [],
@@ -135,6 +139,8 @@ class PendaftaranOnline extends ValidationComponent {
             dataRujukanBpjs: [],
 
             showPilihRujukan: false,
+            errorKontrolUlang1: false,
+            errorKontrolUlang2: false,
         };
     }
 
@@ -471,10 +477,10 @@ class PendaftaranOnline extends ValidationComponent {
     }
 
     showPilihRujukan(jenis) {
-        this.setState({
-            loading: true,
-        });
         if (jenis === 1) {
+            this.setState({
+                loading: true,
+            });
             const url = baseApiBpjs + 'list_rujukan';
             fetch(url, {
                 method: 'POST',
@@ -488,8 +494,9 @@ class PendaftaranOnline extends ValidationComponent {
                     'data': this.state.noBpjs,
                 }),
             }).then((response) => response.json()).then((responseJson) => {
-
-                if (responseJson.metaData.code === '200') {
+                const a = parseInt(responseJson.metaData.code);
+                const b = 200;
+                if (a === b) {
                     this.setState({
                         loading: false,
                         cekRujukan: 1,
@@ -498,7 +505,7 @@ class PendaftaranOnline extends ValidationComponent {
                 } else {
 
                     this.setState({
-                        cekRujukan: 0,
+                        cekRujukan: 3,
                         loading: false,
                     });
                     showMessage({
@@ -509,6 +516,9 @@ class PendaftaranOnline extends ValidationComponent {
                 }
             });
         } else if (jenis === 2) {
+            this.setState({
+                loading: true,
+            });
             const url = baseApiBpjs + 'list_rujukan/rs';
             fetch(url, {
                 method: 'POST',
@@ -519,11 +529,12 @@ class PendaftaranOnline extends ValidationComponent {
                 body: JSON.stringify({
                     'username': '00004',
                     'password': '551UU1BJ',
-                    'param': 'nokartu',
                     'data': this.state.noBpjs,
                 }),
             }).then((response) => response.json()).then((responseJson) => {
-                if (responseJson.metaData.code === '200') {
+                const a = parseInt(responseJson.metaData.code);
+                const b = 200;
+                if (a === b) {
                     this.setState({
                         loading: false,
                         cekRujukan: 1,
@@ -533,7 +544,7 @@ class PendaftaranOnline extends ValidationComponent {
 
                     this.setState({
                         loading: false,
-                        cekRujukan: 0,
+                        cekRujukan: 3,
                     });
                     showMessage({
                         message: responseJson.metaData.message,
@@ -543,6 +554,9 @@ class PendaftaranOnline extends ValidationComponent {
                 }
             });
         } else if (jenis === 3) {
+            this.setState({
+                loading: true,
+            });
             const url = baseApiBpjs + 'list_rujukan';
             fetch(url, {
                 method: 'POST',
@@ -553,22 +567,31 @@ class PendaftaranOnline extends ValidationComponent {
                 body: JSON.stringify({
                     'username': '00004',
                     'password': '551UU1BJ',
-                    'param': 'nokartu',
                     'data': this.state.noBpjs,
                 }),
             }).then((response) => response.json()).then((responseJson) => {
-
-                if (responseJson.metaData.code === '200') {
-                    this.setState({
-                        loading: false,
-                        cekRujukan: 1,
-                        dataRujukanBpjs: responseJson.response.rujukan,
-                    });
+                const a = parseInt(responseJson.metaData.code);
+                const b = 200;
+                if (a === b) {
+                    if (responseJson.response.rujukan !== null) {
+                        this.setState({
+                            loading: false,
+                            dataRujukanKontrolUlang1: responseJson.response.rujukan,
+                            cekRujukan: 1,
+                            errorKontrolUlang1: false,
+                        });
+                    } else {
+                        this.setState({
+                            loading: false,
+                            errorKontrolUlang1: true,
+                            dataRujukanKontrolUlang1: [],
+                        });
+                    }
                 } else {
 
                     this.setState({
                         loading: false,
-                        cekRujukan: 0,
+                        errorKontrolUlang1: true,
                     });
                     showMessage({
                         message: responseJson.metaData.message,
@@ -576,8 +599,17 @@ class PendaftaranOnline extends ValidationComponent {
                         position: 'bottom',
                     });
                 }
+            }).catch(error => {
+                this.setState({
+                    loading: false,
+                    errorKontrolUlang1: true,
+                });
             });
 
+
+            this.setState({
+                loading: true,
+            });
             const url1 = baseApiBpjs + 'list_rujukan/rs';
             fetch(url1, {
                 method: 'POST',
@@ -588,30 +620,42 @@ class PendaftaranOnline extends ValidationComponent {
                 body: JSON.stringify({
                     'username': '00004',
                     'password': '551UU1BJ',
-                    'param': 'nokartu',
                     'data': this.state.noBpjs,
                 }),
             }).then((response) => response.json()).then((responseJson) => {
-                if (responseJson.metaData.code === '200') {
-                    this.setState({
-                        loading: false,
-                        cekRujukan: 1,
-                        dataRujukanBpjs: responseJson.response.rujukan,
-                    });
+                console.log(responseJson.response.rujukan);
+                const a = parseInt(responseJson.metaData.code);
+                const b = 200;
+                if (a === b) {
+                    if (responseJson.response.rujukan !== null) {
+                        this.setState({
+                            loading: false,
+                            cekRujukan: 1,
+                            errorKontrolUlang2: false,
+                            dataRujukanKontrolUlang2: responseJson.response.rujukan,
+                        });
+                    } else {
+                        this.setState({
+                            loading: false,
+                            errorKontrolUlang2: true,
+                            dataRujukanKontrolUlang2: [],
+                        });
+                    }
                 } else {
-
                     this.setState({
                         loading: false,
-                        cekRujukan: 0,
-                    });
-                    showMessage({
-                        message: responseJson.metaData.message,
-                        type: 'danger',
-                        position: 'bottom',
+                        errorKontrolUlang2: false,
                     });
                 }
+            }).catch(error => {
+                this.setState({
+                    loading: false,
+                    errorKontrolUlang2: true,
+                });
             });
+
         }
+
 
     }
 
@@ -726,18 +770,20 @@ class PendaftaranOnline extends ValidationComponent {
                 });
             }
         } else {
-            if (this.state.nomorKtpBpjs === this.state.nomorKtp) {
-                this.validate({
-                    pilihCaraBayar: {required: true},
-                    pilihPoly: {required: true},
-                    pilihNrp: {required: true},
-                    pilihHari: {required: true},
-                    pilihJam: {required: true},
-                    noBpjs: {required: true},
-                    no_jaminan: {required: true},
-                    pilihRujukan: {required: true},
-                });
-                if (this.isFormValid()) {
+
+            this.validate({
+                pilihCaraBayar: {required: true},
+                pilihPoly: {required: true},
+                pilihNrp: {required: true},
+                pilihHari: {required: true},
+                pilihJam: {required: true},
+                noBpjs: {required: true},
+                no_jaminan: {required: true},
+                pilihRujukan: {required: true},
+            });
+
+            if (this.isFormValid()) {
+                if (this.state.nomorKtpBpjs === this.state.nomorKtp) {
                     this.setState({
                         loading: true,
                     });
@@ -821,15 +867,14 @@ class PendaftaranOnline extends ValidationComponent {
 
                         this.state.message = error;
                     });
+                } else {
+                    showMessage({
+                        message: 'Nomor KTP anda dengan yang di BPJS tidak sama',
+                        type: 'info',
+                        position: 'bottom',
+                    });
                 }
-            } else {
-                showMessage({
-                    message: 'Nomor KTP anda dengan yang di BPJS tidak sama',
-                    type: 'info',
-                    position: 'bottom',
-                });
             }
-
         }
 
 
@@ -970,6 +1015,7 @@ class PendaftaranOnline extends ValidationComponent {
                         position: 'bottom',
                     });
                 } else {
+                    this.setModalUnvisibleBpjs(!this.state.modalVisibleBpjs);
                     showMessage({
                         message: 'Rujukan Anda Tidak Berlaku',
                         type: 'danger',
@@ -1057,12 +1103,22 @@ class PendaftaranOnline extends ValidationComponent {
                 'data': bpjs,
             }),
         }).then((response) => response.json()).then((responseJson) => {
-            if (responseJson.response != null) {
-                this.setState({
-                    nomorKtpBpjs: responseJson.response.peserta.nik,
-                });
-                if (responseJson.response.peserta.nik === this.state.nomorKtp) {
-                    if (parseInt(responseJson.response.peserta.statusPeserta.kode) === 0) {
+
+            const a = parseInt(responseJson.metaData.code);
+            const b = 200;
+
+            const aa = parseInt(responseJson.response.peserta.statusPeserta.kode);
+            const bb = 0;
+
+            const aaa = parseInt(responseJson.response.peserta.nik);
+            const bbb = parseInt(this.state.nomorKtp);
+
+            if (a === b) {
+                if (aa === bb) {
+                    if (aaa === bbb) {
+                        this.setState({
+                            nomorKtpBpjs: responseJson.response.peserta.nik,
+                        });
                         this.setState({
                             showPilihRujukan: true,
                         });
@@ -1073,21 +1129,28 @@ class PendaftaranOnline extends ValidationComponent {
                         });
                     } else {
                         showMessage({
-                            message: 'BPJS Anda tidak aktif',
+                            message: 'No KTP Anda tidak sesuai dengan yang dibpjs',
                             type: 'danger',
                             position: 'bottom',
                         });
                     }
                 } else {
                     showMessage({
-                        message: 'No KTP Anda tidak sesuai dengan yang dibpjs',
+                        message: 'BPJS Anda tidak aktif',
                         type: 'danger',
                         position: 'bottom',
                     });
+
                 }
 
             }
-        });
+        }).catch(error=>{
+            showMessage({
+                message: 'Jaringan BPJS Sedang Bermasalah',
+                type: 'danger',
+                position: 'bottom',
+            });
+        })
     }
 
     GetValueFunction = (ValueHolder) => {
@@ -1172,7 +1235,7 @@ class PendaftaranOnline extends ValidationComponent {
                 <Header
                     leftComponent={
                         <Icon type='ionicon' name='arrow-back-outline' color='#fff'
-                              onPress={()=>Actions.pop()}/>}
+                              onPress={() => Actions.pop()}/>}
                     statusBarProps={{barStyle: 'light-content'}}
                     containerStyle={{
                         backgroundColor: '#1da30b',
@@ -1539,26 +1602,27 @@ class PendaftaranOnline extends ValidationComponent {
                                                                     data={this.state.dataRujukanBpjs}/>
                                                             </View> :
                                                             <View>
-                                                                <Tabs initialPage={0} back>
-                                                                    <Tab tabStyle={{backgroundColor: 'white'}}
-                                                                         textStyle={{color: 'black'}}
-                                                                         activeTabStyle={{backgroundColor: '#1da30b'}}
-                                                                         activeTextStyle={{
-                                                                             color: '#fff',
-                                                                             fontWeight: 'normal',
-                                                                         }}
-                                                                         heading="Faskes 1">
-                                                                    </Tab>
-                                                                    <Tab tabStyle={{backgroundColor: 'white'}}
-                                                                         textStyle={{color: 'black'}}
-                                                                         activeTabStyle={{backgroundColor: '#1da30b'}}
-                                                                         activeTextStyle={{
-                                                                             color: '#fff',
-                                                                             fontWeight: 'normal',
-                                                                         }}
-                                                                         heading="Faskes 2">
-                                                                    </Tab>
-                                                                </Tabs>
+                                                                <View style={{borderBottomWidth:2}}>
+                                                                    <Text>Faskes 1</Text>
+                                                                {this.state.errorKontrolUlang1 === false ?
+                                                                    <FlatList
+                                                                        renderItem={this.renderRujukanBpjs}
+                                                                        keyExtractor={(item, index) => index.toString()}
+                                                                        ListFooterComponent={this.renderFooter}
+                                                                        data={this.state.dataRujukanKontrolUlang1}/> :
+                                                                    <View><Text>Tidak Ada Data</Text></View>}
+                                                                </View>
+                                                                <View style={{borderBottomWidth:2}}>
+                                                                    <Text>Faskes 2</Text>
+                                                                {this.state.errorKontrolUlang2 === false ?
+                                                                    <FlatList
+                                                                        renderItem={this.renderRujukanBpjs}
+                                                                        keyExtractor={(item, index) => index.toString()}
+                                                                        ListFooterComponent={this.renderFooter}
+                                                                        data={this.state.dataRujukanKontrolUlang2}/> :
+                                                                    <View><Text>Tidak Ada Data</Text></View>}
+                                                                </View>
+
                                                             </View>
                                                         }
                                                     </Content>

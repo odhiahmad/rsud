@@ -255,21 +255,9 @@ export default class ShuttleBusDetail extends Component {
                     loading={this.state.loading}/>
                 {this.state.showTryAgain === true ?
                     <View style={styles.container}>
-                        <Text style={{color: 'gray'}}>Koneksi Bermasalah :(</Text>
-                        <TouchableOpacity style={{
-                            width: 200,
-                            backgroundColor: 'red',
-                            borderRadius: 25,
-                            marginVertical: 2,
-                            paddingVertical: 13,
-                        }} onPress={() => this.getIndex()}>
-                            <Text style={{
-                                fontSize: 16,
-                                fontWeight: '500',
-                                color: '#ffffff',
-                                textAlign: 'center',
-                            }}>Refresh </Text>
-                        </TouchableOpacity></View>
+                        <ListItem title={<Text>Tidak ada Jadwal Bus Pada Jam Ini</Text>}
+                                  subtitle={<Text>Jadwal Bus Pada Jam 7 Pagi, 9 Pagi, dan 1 Siang WIB</Text>}
+                        ></ListItem></View>
                     :
                     <View>
                         {this.state.statusJaringan === 2 ?

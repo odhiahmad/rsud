@@ -283,7 +283,7 @@ class Pengaduan extends ValidationComponent {
             this.setState({
                 loading:true
             })
-            fetch(baseApi + '/user/poly', {
+            fetch(baseApi + '/user/polyPengaduan', {
                 method: 'GET',
                 headers: {
                     Accept: 'application/json',
@@ -297,15 +297,16 @@ class Pengaduan extends ValidationComponent {
                 for (let i = 0; i < dataRespon1.length ; i++) {
                     if(dataRespon1[i].poly_glid === 'GL001'){
                         this.state.dataPoly.push({
-                            id:angka,
-                            name:dataRespon[i].poly_nama
+                            id:angka1,
+                            name:dataRespon1[i].poly_nama
                         })
 
                         angka1 = angka1 + 1;
                     }
                 }
 
-                console.log(dataRespon1)
+                console.log(this.state.dataPoly)
+
 
                 this.setState({
                     loading:false
@@ -320,7 +321,7 @@ class Pengaduan extends ValidationComponent {
             this.setState({
                 loading:true
             })
-            fetch(baseApi + '/user/poly', {
+            fetch(baseApi + '/user/polyPengaduan', {
                 method: 'GET',
                 headers: {
                     Accept: 'application/json',
@@ -351,7 +352,9 @@ class Pengaduan extends ValidationComponent {
                 })
             })
         }else{
-
+            this.setState({
+                pilihPoly:'IGD'
+            })
         }
     }
     _onSubmitFinish() {

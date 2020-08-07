@@ -28,7 +28,6 @@ import {
     Content,
     Button,
     ListItem,
-    Icon,
     Left,
     Body,
     Right,
@@ -40,7 +39,7 @@ import {connect} from 'react-redux';
 import Select2 from 'react-native-select-two';
 import {logoutUser} from '../../actions/auth.actions';
 import {showMessage} from 'react-native-flash-message';
-import {Header} from 'react-native-elements';
+import {Header,Icon} from 'react-native-elements';
 import DatePicker from 'react-native-datepicker';
 
 const styles = StyleSheet.create({
@@ -485,7 +484,6 @@ class EditProfil extends ValidationComponent {
                 isLoading: true,
             });
             if (this.state.noBpjs != 0) {
-                this.state.loading = true;
                 const url = baseApiBpjs + 'peserta_bpjs';
                 fetch(url, {
                     method: 'POST',
@@ -501,9 +499,18 @@ class EditProfil extends ValidationComponent {
                     }),
                 }).then((response) => response.json()).then((responseJson) => {
 
-                    if (responseJson.response != null) {
-                        if (parseInt(responseJson.response.peserta.statusPeserta.kode) === 0) {
-                            if (responseJson.response.peserta.nik === this.state.nik) {
+                    const a = parseInt(responseJson.metaData.code);
+                    const b = 200;
+
+                    const aa = parseInt(responseJson.response.peserta.statusPeserta.kode);
+                    const bb = 0;
+
+                    const aaa = parseInt(responseJson.response.peserta.nik);
+                    const bbb = parseInt(this.state.nik);
+
+                    if (a === b) {
+                        if (aa === bb) {
+                            if (aaa === bbb) {
                                 fetch(baseApi + '/user/updateProfil', {
                                     method: 'POST',
                                     headers: {
@@ -564,7 +571,7 @@ class EditProfil extends ValidationComponent {
                                     }
                                 }).catch((error) => {
                                     this.setState({
-                                        loading: false,
+                                        isLoading: false,
                                     });
 
                                     showMessage({
@@ -575,7 +582,7 @@ class EditProfil extends ValidationComponent {
                                 });
                             } else {
                                 this.setState({
-                                    loading: false,
+                                    isLoading: false,
                                 });
                                 showMessage({
                                     message: 'Ktp anda di bpjs tidak sesuai dengan yang anda masukan',
@@ -616,7 +623,7 @@ class EditProfil extends ValidationComponent {
                         isLoading: false,
                     });
                     showMessage({
-                        message: error,
+                        message: 'Koneksi Bermasalah',
                         type: 'danger',
                         position: 'bottom',
                     });
@@ -1182,19 +1189,6 @@ class EditProfil extends ValidationComponent {
                 {this.isFieldInError('statusKawin') && this.getErrorsInField('statusKawin').map(errorMessage =>
                     <Text>{errorMessage}</Text>)}
                 {listViewPekerjaan}
-                {/*<TextInput*/}
-                {/*    keyboardType={'numeric'}*/}
-                {/*    defaultValue={this.state.noTelpon != '' ? this.state.noTelpon : ''}*/}
-                {/*    ref="noTelpon"*/}
-                {/*    onChangeText={(noTelpon) => this.setState({noTelpon})}*/}
-                {/*    style={styles.inputBox}*/}
-                {/*    underlineColorAndroid="rgba(0,0,0,0)"*/}
-                {/*    placeholder="Nomor Telfon / No Hp"*/}
-                {/*    placeholderTextColor="rgba(255,255,255,0.8)"*/}
-                {/*    selectionColor="#999999"*/}
-                {/*/>*/}
-                {/*{this.isFieldInError('noTelpon') && this.getErrorsInField('noTelpon').map(errorMessage =>*/}
-                {/*    <Text>{errorMessage}</Text>)}*/}
                 {listViewWargaNegara}
                 {this.state.pilihWn === '' ? <View></View> : this.state.pilihWn === 'WNI' ?
                     <View>
@@ -1278,8 +1272,8 @@ class EditProfil extends ValidationComponent {
                 <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
                 <Header
                     leftComponent={
-                        <Icon type='ionicon' name='arrow-back-outline' color='#fff'
-                              onPress={()=>Actions.pop()}/>}
+                        <Icon type='ionicon' name='arrow-back-outline' color="#fff"
+                              onPress={() => Actions.pop()}/>}
                     statusBarProps={{barStyle: 'light-content'}}
                     containerStyle={{
                         backgroundColor: '#1da30b',

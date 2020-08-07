@@ -180,6 +180,11 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
             chosenDate: new Date(),
             chosenDate1: new Date(),
             chosenDate2: new Date(),
+
+
+            errorKontrolUlang1: false,
+            errorKontrolUlang2: false,
+
         };
         this.setDate = this.setDate.bind(this);
         this.setDate1 = this.setDate1.bind(this);
@@ -576,12 +581,21 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 'data': bpjs,
             }),
         }).then((response) => response.json()).then((responseJson) => {
-            if (responseJson.response != null) {
-                this.setState({
-                    nomorKtpBpjs: responseJson.response.peserta.nik,
-                });
-                if (responseJson.response.peserta.nik === this.state.nomorKtp) {
-                    if (parseInt(responseJson.response.peserta.statusPeserta.kode) === 0) {
+            const a = parseInt(responseJson.metaData.code);
+            const b = 200;
+
+            const aa = parseInt(responseJson.response.peserta.statusPeserta.kode);
+            const bb = 0;
+
+            const aaa = parseInt(responseJson.response.peserta.nik);
+            const bbb = parseInt(this.state.nomorKtp);
+
+            if (a === b) {
+                if (aa === bb) {
+                    if (aaa === bbb) {
+                        this.setState({
+                            nomorKtpBpjs: responseJson.response.peserta.nik,
+                        });
                         this.setState({
                             showPilihRujukan: true,
                         });
@@ -858,11 +872,10 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
     };
 
     showPilihRujukan(jenis) {
-        this.setState({
-            loading: true,
-        });
-
         if (jenis === 1) {
+            this.setState({
+                loading: true,
+            });
             const url = baseApiBpjs + 'list_rujukan';
             fetch(url, {
                 method: 'POST',
@@ -876,8 +889,9 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                     'data': this.state.noBpjs,
                 }),
             }).then((response) => response.json()).then((responseJson) => {
-
-                if (responseJson.metaData.code === '200') {
+                const a = parseInt(responseJson.metaData.code);
+                const b = 200;
+                if (a === b) {
                     this.setState({
                         loading: false,
                         cekRujukan: 1,
@@ -886,7 +900,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 } else {
 
                     this.setState({
-                        cekRujukan: 0,
+                        cekRujukan: 3,
                         loading: false,
                     });
                     showMessage({
@@ -897,6 +911,9 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 }
             });
         } else if (jenis === 2) {
+            this.setState({
+                loading: true,
+            });
             const url = baseApiBpjs + 'list_rujukan/rs';
             fetch(url, {
                 method: 'POST',
@@ -907,11 +924,12 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 body: JSON.stringify({
                     'username': '00004',
                     'password': '551UU1BJ',
-                    'param': 'nokartu',
                     'data': this.state.noBpjs,
                 }),
             }).then((response) => response.json()).then((responseJson) => {
-                if (responseJson.metaData.code === '200') {
+                const a = parseInt(responseJson.metaData.code);
+                const b = 200;
+                if (a === b) {
                     this.setState({
                         loading: false,
                         cekRujukan: 1,
@@ -921,7 +939,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
 
                     this.setState({
                         loading: false,
-                        cekRujukan: 0,
+                        cekRujukan: 3,
                     });
                     showMessage({
                         message: responseJson.metaData.message,
@@ -931,6 +949,9 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 }
             });
         } else if (jenis === 3) {
+            this.setState({
+                loading: true,
+            });
             const url = baseApiBpjs + 'list_rujukan';
             fetch(url, {
                 method: 'POST',
@@ -941,22 +962,31 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 body: JSON.stringify({
                     'username': '00004',
                     'password': '551UU1BJ',
-                    'param': 'nokartu',
                     'data': this.state.noBpjs,
                 }),
             }).then((response) => response.json()).then((responseJson) => {
-
-                if (responseJson.metaData.code === '200') {
-                    this.setState({
-                        loading: false,
-                        cekRujukan: 1,
-                        dataRujukanBpjs: responseJson.response.rujukan,
-                    });
+                const a = parseInt(responseJson.metaData.code);
+                const b = 200;
+                if (a === b) {
+                    if (responseJson.response.rujukan !== null) {
+                        this.setState({
+                            loading: false,
+                            dataRujukanKontrolUlang1: responseJson.response.rujukan,
+                            cekRujukan: 1,
+                            errorKontrolUlang1: false,
+                        });
+                    } else {
+                        this.setState({
+                            loading: false,
+                            errorKontrolUlang1: true,
+                            dataRujukanKontrolUlang1: [],
+                        });
+                    }
                 } else {
 
                     this.setState({
                         loading: false,
-                        cekRujukan: 0,
+                        errorKontrolUlang1: true,
                     });
                     showMessage({
                         message: responseJson.metaData.message,
@@ -964,8 +994,17 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                         position: 'bottom',
                     });
                 }
+            }).catch(error => {
+                this.setState({
+                    loading: false,
+                    errorKontrolUlang1: true,
+                });
             });
 
+
+            this.setState({
+                loading: true,
+            });
             const url1 = baseApiBpjs + 'list_rujukan/rs';
             fetch(url1, {
                 method: 'POST',
@@ -976,29 +1015,40 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 body: JSON.stringify({
                     'username': '00004',
                     'password': '551UU1BJ',
-                    'param': 'nokartu',
                     'data': this.state.noBpjs,
                 }),
             }).then((response) => response.json()).then((responseJson) => {
-                if (responseJson.metaData.code === '200') {
-                    this.setState({
-                        loading: false,
-                        cekRujukan: 1,
-                        dataRujukanBpjs: responseJson.response.rujukan,
-                    });
+                console.log(responseJson.response.rujukan);
+                const a = parseInt(responseJson.metaData.code);
+                const b = 200;
+                if (a === b) {
+                    if (responseJson.response.rujukan !== null) {
+                        this.setState({
+                            loading: false,
+                            cekRujukan: 1,
+                            errorKontrolUlang2: false,
+                            dataRujukanKontrolUlang2: responseJson.response.rujukan,
+                        });
+                    } else {
+                        this.setState({
+                            loading: false,
+                            errorKontrolUlang2: true,
+                            dataRujukanKontrolUlang2: [],
+                        });
+                    }
                 } else {
-
                     this.setState({
                         loading: false,
-                        cekRujukan: 0,
-                    });
-                    showMessage({
-                        message: responseJson.metaData.message,
-                        type: 'danger',
-                        position: 'bottom',
+                        errorKontrolUlang2: false,
                     });
                 }
+            }).catch(error => {
+                this.setState({
+                    loading: false,
+                    errorKontrolUlang2: true,
+                });
             });
+
         }
 
 
@@ -2326,7 +2376,59 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                                               onPress={this._onSubmitFinish.bind(this)}>
                                 <Text style={styles.buttonText}>Go Daftar</Text>
                             </TouchableOpacity>
+                            <Modal
+                                onSwipeComplete={() => {
+                                    this.setModalUnvisibleBpjs(!this.state.modalVisibleBpjs);
+                                }}
+                                scrollHorizontal
+                                propagateSwipe
+                                swipeDirection={['down']}
+                                swipearea={50}
+                                onRequestClose={() => {
+                                    this.setModalUnvisibleBpjs(!this.state.modalVisibleBpjs);
+                                }}
+                                animationType="slide"
+                                visible={this.state.modalVisibleBpjs}
+                            >
+                                <Container style={{margin: 0, marginBottom: 0, backgroundColor: '#fff'}}>
+                                    <View style={{flex: 1, justifyContent: 'center'}}>
+                                        <Content style={{margin: 5}}>
+                                            {this.state.jenisRujukan === 1 || this.state.jenisRujukan === 2 ?
+                                                <View>
+                                                    <FlatList
+                                                        renderItem={this.renderRujukanBpjs}
+                                                        keyExtractor={(item, index) => index.toString()}
+                                                        ListFooterComponent={this.renderFooter}
+                                                        data={this.state.dataRujukanBpjs}/>
+                                                </View> :
+                                                <View>
+                                                    <View style={{borderBottomWidth:2}}>
+                                                        <Text>Faskes 1</Text>
+                                                        {this.state.errorKontrolUlang1 === false ?
+                                                            <FlatList
+                                                                renderItem={this.renderRujukanBpjs}
+                                                                keyExtractor={(item, index) => index.toString()}
+                                                                ListFooterComponent={this.renderFooter}
+                                                                data={this.state.dataRujukanKontrolUlang1}/> :
+                                                            <View><Text>Tidak Ada Data</Text></View>}
+                                                    </View>
+                                                    <View style={{borderBottomWidth:2}}>
+                                                        <Text>Faskes 2</Text>
+                                                        {this.state.errorKontrolUlang2 === false ?
+                                                            <FlatList
+                                                                renderItem={this.renderRujukanBpjs}
+                                                                keyExtractor={(item, index) => index.toString()}
+                                                                ListFooterComponent={this.renderFooter}
+                                                                data={this.state.dataRujukanKontrolUlang2}/> :
+                                                            <View><Text>Tidak Ada Data</Text></View>}
+                                                    </View>
 
+                                                </View>
+                                            }
+                                        </Content>
+                                    </View>
+                                </Container>
+                            </Modal>
                             <Modal
                                 onRequestClose={() => {
                                     this.setModalUnvisibleDokter(!this.state.modalVisibleDokter);
