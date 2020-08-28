@@ -1081,7 +1081,7 @@ class Step2 extends ValidationComponent {
                                 <Grid style={{marginTop: 20}}>
                                     <Col style={{height: 80}}></Col>
                                     <Col style={{width: 150, height: 80}}>
-                                        <Button style={{marginRight: 5}} rounded onPress={this.props.back} success>
+                                        <Button style={{paddingRight: 20}} rounded onPress={this.props.back} success>
                                             <Icon type="FontAwesome" name='arrow-left'/>
                                             <Text style={{color: '#ffffff'}}>Sebelumnya</Text>
                                         </Button></Col>

@@ -28,7 +28,7 @@ import HTMLView from 'react-native-htmlview';
 import {connect} from 'react-redux';
 import StepIndicator from 'react-native-step-indicator';
 import ViewShot from 'react-native-view-shot';
-import {Textarea,Button,Container,Content} from "native-base";
+import {Textarea, Button, Container, Content,Badge} from 'native-base';
 import {showMessage} from 'react-native-flash-message';
 import ValidationComponent from 'react-native-form-validator';
 
@@ -63,7 +63,8 @@ const customStyles = {
     currentStepLabelColor: '#fe7013',
 };
 const labels = ['Mendaftar', 'Selesai Berobat', 'Mendapatkan Obat', 'Selesai'];
-var ratingBintang = 3
+var ratingBintang = 3;
+
 class Riwayat extends ValidationComponent {
     constructor(props) {
         super(props);
@@ -113,14 +114,16 @@ class Riwayat extends ValidationComponent {
 
             showTryAgain: false,
 
-            checked:false,
+            checked: false,
 
-            checkedKeramahan:false,
-            checkedPelayanan:false,
+            checkedKeramahan: false,
+            checkedPelayanan: false,
 
-            catatan:'',
-            rating:0,
-            idPendaftaran:'',
+            catatan: '',
+            rating: 0,
+            idPendaftaran: '',
+
+            dataRating:[],
         };
     }
 
@@ -143,7 +146,7 @@ class Riwayat extends ValidationComponent {
 
     handleLoadMore = () => {
 
-        if (this.state.data.length >= 5) {
+        if (this.state.data.length >= 10) {
             this.setState(
                 {page: this.state.page + 1, isLoading: true},
                 this.getData,
@@ -187,6 +190,7 @@ class Riwayat extends ValidationComponent {
                 id: this.props.getUser.userDetails.id,
             }),
         }).then((response) => response.json()).then((responseJson) => {
+
             this.setState({
                 loading: false,
                 isLoading: false,
@@ -203,47 +207,48 @@ class Riwayat extends ValidationComponent {
         });
     };
 
-    _submitPenilaian(){
-            this.setState({
-                loading: true,
-            });
-            fetch(baseApi + '/user/inputPenilaian', {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + this.props.getUser.userDetails.token,
-                },
-                body: JSON.stringify({
-                    idPendaftaran:this.state.idPendaftaran,
-                    idUser: this.props.getUser.userDetails.id,
-                    rating: ratingBintang,
-                    catatan:this.state.catatan,
-                }),
-            }).then((response) => response.json()).then((responseJson) => {
-                if (responseJson.success === true) {
-                    this.setState({
-                        loading: false,
-                    });
-                    this.setModalUnvisible(!this.state.modalVisible);
-                    showMessage({
-                        message: responseJson.message,
-                        type: 'info',
-                        position: 'bottom',
-                    });
-                } else {
-                    this.setState({
-                        loading: false,
-                    });
-                    this.state.data.push(responseJson.data);
-                    this.setModalUnvisible(!this.state.modalVisible);
-                    showMessage({
-                        message: responseJson.message,
-                        type: 'danger',
-                        position: 'bottom',
-                    });
-                }
-            });
+    _submitPenilaian() {
+        this.setState({
+            loading: true,
+        });
+        fetch(baseApi + '/user/inputPenilaian', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + this.props.getUser.userDetails.token,
+            },
+            body: JSON.stringify({
+                idPendaftaran: this.state.idPendaftaran,
+                idUser: this.props.getUser.userDetails.id,
+                idRating:this.state.dataRating.id,
+                rating: ratingBintang,
+                catatan: this.state.catatan,
+            }),
+        }).then((response) => response.json()).then((responseJson) => {
+            if (responseJson.success === true) {
+                this.setState({
+                    loading: false,
+                });
+                this.setModalUnvisible(!this.state.modalVisible);
+                showMessage({
+                    message: responseJson.message,
+                    type: 'info',
+                    position: 'bottom',
+                });
+            } else {
+                this.setState({
+                    loading: false,
+                });
+                this.state.data.push(responseJson.data);
+                this.setModalUnvisible(!this.state.modalVisible);
+                showMessage({
+                    message: responseJson.message,
+                    type: 'danger',
+                    position: 'bottom',
+                });
+            }
+        });
 
     }
 
@@ -301,10 +306,11 @@ class Riwayat extends ValidationComponent {
         }];
 
         this.setState({
+            dataRating:this.state.data[id].get_user_rating,
             modalVisible: visible,
             nomorAntrian: this.state.data[id].nomor_daftar,
             index: id,
-            idPendaftaran:this.state.data[id].idx,
+            idPendaftaran: this.state.data[id].idx,
             caraBayar: this.state.data[id].cara_bayar,
             namaRuang: this.state.data[id].nama_ruang,
             tanggalMendaftar: this.state.data[id].tanggal_daftar,
@@ -417,9 +423,9 @@ class Riwayat extends ValidationComponent {
 
     ratingCompleted(rating) {
         // console.log(rating)
-        ratingBintang = rating
+        ratingBintang = rating;
 
-        console.log(ratingBintang)
+        console.log(ratingBintang);
     }
 
     render() {
@@ -460,8 +466,10 @@ class Riwayat extends ValidationComponent {
                                 textAlign: 'center',
                             }}>Refresh </Text>
                         </TouchableOpacity></View> :
-                    <View>
-                        {this.state.data.length !== 0 ? <FlatList
+                    <View style={styles.container}>
+                        {this.state.data.length !== 0 ?
+                            <View>
+                            <FlatList
                                 refreshControl={
                                     <RefreshControl
                                         refreshing={this.state.refreshing}
@@ -472,9 +480,16 @@ class Riwayat extends ValidationComponent {
                                 onEndReached={this.handleLoadMore}
                                 onEndReachedThreshold={0.1}
                                 ListFooterComponent={this.renderFooter}
-                                data={this.state.data}/> :
-                            <View style={{alignItems: 'center', justifyContent: 'center'}}><Text
-                                style={{color: 'gray'}}>Tidak Ada Data</Text></View>}
+                                data={this.state.data}/>
+                                <View style={{padding:2,flexDirection: 'row',alignItems:'center',justifyContent: 'center'}}>
+                                    <Text style={{fontSize: 10,color:'gray'}}>Klik tombol refresh sebelah kanan atas untuk mendapatkan status terbaru berobat</Text>
+                                </View>
+                            </View> :
+                            <View style={{padding:2,flex:1,alignItems: 'center', justifyContent: 'center'}}>
+                                <Text
+                                style={{color: 'gray'}}>Tidak Ada Data</Text>
+                                <Text style={{fontSize: 10,color: 'gray'}}>Klik tombol refresh sebelah kanan atas untuk mendapatkan status terbaru berobat</Text>
+                            </View>}
                     </View>
                 }
 
@@ -507,43 +522,41 @@ class Riwayat extends ValidationComponent {
                             currentPosition={this.state.currentPosition}
                             labels={labels}
                         />
-                        <ViewShot ref="viewShot" style={{padding: 10, alignItems: 'center', backgroundColor: 'white'}}
-                                  options={{format: 'png', quality: 20}}>
 
+                        {this.state.statusBerobat === 'Mendaftar' ?
+                            <View>
+                                <ViewShot ref="viewShot"
+                                          style={{padding: 10, alignItems: 'center', backgroundColor: 'white'}}
+                                          options={{format: 'png', quality: 20}}>
 
-                            <View style={{flexDirection: 'row', marginTop: 10}}>
-                                <View style={{width: 120, backgroundColor: 'white'}}>
-                                    <Text style={{fontSize: 12}}>Tanggal</Text>
-                                    <Text style={{fontSize: 12}}>No MR</Text>
-                                    <Text style={{fontSize: 12}}>Nama</Text>
-                                    <Text style={{fontSize: 12}}>Tgl Kunjungan</Text>
-                                    <Text style={{fontSize: 12}}>Jam Kunjungan</Text>
-                                    <Text style={{fontSize: 12}}>Poly Tujuan</Text>
-                                    <Text style={{fontSize: 12}}>Cara Bayar</Text>
-                                </View>
-                                <View style={{width: 250, backgroundColor: 'white'}}>
-                                    <Text style={{fontSize: 12}}>: {this.state.tanggalMendaftar}</Text>
-                                    <Text style={{fontSize: 12}}>: {this.state.nomorMr}</Text>
-                                    <Text style={{fontSize: 12}}>: {this.state.namaPasien}</Text>
-                                    <Text style={{fontSize: 12}}>: {this.state.tanggalKunjungan}</Text>
-                                    <Text style={{fontSize: 12}}>: {this.state.jamKunjunganLabel}</Text>
-                                    <Text style={{fontSize: 12}}>: {this.state.namaRuang}</Text>
-                                    <Text style={{fontSize: 12}}>: {this.state.caraBayar}</Text>
-                                </View>
-                            </View>
-                            {this.state.statusBerobat === 'Mendaftar' ?
-                                <View>
-                                    <View>
-                                        {this.state.dataQrCode.length != 0 ?
-                                            <QRCode
-                                                size={180}
-                                                value={this.state.dataQrCode}
-                                                logoSize={30}
-                                                logoBackgroundColor='transparent'
-                                                getRef={(c) => (this.svg = c)}
-                                            />
-                                            : null}
-
+                                    {this.state.dataQrCode.length != 0 ?
+                                        <QRCode
+                                            size={180}
+                                            value={this.state.dataQrCode}
+                                            logoSize={30}
+                                            logoBackgroundColor='transparent'
+                                            getRef={(c) => (this.svg = c)}
+                                        />
+                                        : null}
+                                    <View style={{flexDirection: 'row', marginTop: 10}}>
+                                        <View style={{width: 100, backgroundColor: 'white'}}>
+                                            <Text style={{fontSize: 12}}>Tanggal</Text>
+                                            <Text style={{fontSize: 12}}>No MR</Text>
+                                            <Text style={{fontSize: 12}}>Nama</Text>
+                                            <Text style={{fontSize: 12}}>Tgl Kunjungan</Text>
+                                            <Text style={{fontSize: 12}}>Jam Kunjungan</Text>
+                                            <Text style={{fontSize: 12}}>Poly Tujuan</Text>
+                                            <Text style={{fontSize: 12}}>Cara Bayar</Text>
+                                        </View>
+                                        <View style={{width: 200, backgroundColor: 'white'}}>
+                                            <Text style={{fontSize: 12}}>: {this.state.tanggalMendaftar}</Text>
+                                            <Text style={{fontSize: 12}}>: {this.state.nomorMr}</Text>
+                                            <Text style={{fontSize: 12}}>: {this.state.namaPasien}</Text>
+                                            <Text style={{fontSize: 12}}>: {this.state.tanggalKunjungan}</Text>
+                                            <Text style={{fontSize: 12}}>: {this.state.jamKunjunganLabel}</Text>
+                                            <Text style={{fontSize: 12}}>: {this.state.namaRuang}</Text>
+                                            <Text style={{fontSize: 12}}>: {this.state.caraBayar}</Text>
+                                        </View>
                                     </View>
                                     <View style={{flexDirection: 'row', marginTop: 10}}>
                                         <Text style={{fontSize: 24}}>Nomor
@@ -570,70 +583,95 @@ class Riwayat extends ValidationComponent {
                                             anda
                                             tidak akan dilayani</Text>
                                     </View>
+                                </ViewShot>
+                            </View>
+
+                            : this.state.statusBerobat === 'Selesai Berobat' ?
+                                <View style={{padding: 10, alignItems: 'center', backgroundColor: 'white'}}>
+                                    <View style={{flexDirection: 'row', marginTop: 40}}>
+                                        <Text style={{fontSize: 14}}>Silahkan Tunggu Sejenak Untuk Menunggu Obat
+                                            Anda ^_^ </Text>
+                                     </View>
                                 </View>
-                                : this.state.statusBerobat === 'Selesai Berobat' ?
+                                : this.state.statusBerobat === 'Mendapatkan Obat' ?
                                     <View>
-                                        <View style={{flexDirection: 'row', marginTop: 40}}>
-                                            <Text style={{fontSize: 14}}>Silahkan Tunggu Sejenak Untuk Menunggu Obat
-                                                Anda ^_^ </Text>
+                                        <View style={{
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                        }}>
+                                            <View style={{flexDirection: 'row', marginTop: 40}}>
+                                                <Text style={{fontSize: 14}}>Silahkan Beri Penilaian Anda Terhadap
+                                                    Rumah Sakit Kami ^_^</Text>
+                                            </View>
+                                            <View style={{flexDirection: 'row', marginTop: 10}}>
+                                                <AirbnbRating
+                                                    onFinishRating={this.ratingCompleted}
+                                                    count={3}
+                                                    reviews={['Buruk', 'Sedang', 'Baik']}
+                                                    defaultRating={3}
+                                                    size={20}
+                                                />
+                                            </View>
+
+
+                                        </View>
+                                        <View style={{
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                        }}>
+                                            <Textarea ref="catatan"
+                                                      autoCapitalize='words'
+                                                      onChangeText={(catatan) => this.setState({catatan})}
+                                                      placeholderTextColor="#ffffff" style={styles.inputBox} rowSpan={5}
+                                                      bordered
+                                                      placeholder="Tulis Catatan Disini"/>
+                                        </View>
+                                        <View style={{alignItems: 'center', padding: 10, justifyContent: 'center'}}>
+                                            <TouchableOpacity
+                                                style={styles.button} onPress={() => {
+                                                this._submitPenilaian();
+                                            }}>
+                                                <Text style={styles.buttonText}>Submit</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    </View> :
+                                    <View style={{padding: 10, alignItems: 'center', backgroundColor: 'white'}}>
+                                        <View style={{flexDirection: 'row', marginTop: 10}}>
+                                            <View style={{width: 120, backgroundColor: 'white'}}>
+                                                <Text style={{fontSize: 12}}>Tanggal</Text>
+                                                <Text style={{fontSize: 12}}>No MR</Text>
+                                                <Text style={{fontSize: 12}}>Nama</Text>
+                                                <Text style={{fontSize: 12}}>Tgl Kunjungan</Text>
+                                                <Text style={{fontSize: 12}}>Jam Kunjungan</Text>
+                                                <Text style={{fontSize: 12}}>Poly Tujuan</Text>
+                                                <Text style={{fontSize: 12}}>Cara Bayar</Text>
+                                                <Text style={{fontSize: 12}}>Rating</Text>
+                                                <Text style={{fontSize: 12}}>Catatan</Text>
+                                            </View>
+                                            <View style={{width: 250, backgroundColor: 'white'}}>
+                                                <Text style={{fontSize: 12}}>: {this.state.tanggalMendaftar}</Text>
+                                                <Text style={{fontSize: 12}}>: {this.state.nomorMr}</Text>
+                                                <Text style={{fontSize: 12}}>: {this.state.namaPasien}</Text>
+                                                <Text style={{fontSize: 12}}>: {this.state.tanggalKunjungan}</Text>
+                                                <Text style={{fontSize: 12}}>: {this.state.jamKunjunganLabel}</Text>
+                                                <Text style={{fontSize: 12}}>: {this.state.namaRuang}</Text>
+                                                <Text style={{fontSize: 12}}>: {this.state.caraBayar}</Text>
+                                                <Text style={{fontSize: 12}}>: {this.state.dataRating.rating}</Text>
+                                                <Text style={{fontSize: 12}}>: {this.state.dataRating.catatan}</Text>
+                                            </View>
                                         </View>
                                     </View>
-                                    : this.state.statusBerobat === 'Mendapatkan Obat' ?
-                                        <View>
-                                            <View style={{
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                            }}>
-                                                <View style={{flexDirection: 'row', marginTop: 40}}>
-                                                    <Text style={{fontSize: 14}}>Silahkan Beri Penilaian Anda Terhadap
-                                                        Rumah Sakit Kami ^_^</Text>
-                                                </View>
-                                                <View style={{flexDirection: 'row', marginTop: 10}}>
-                                                    <AirbnbRating
-                                                        onFinishRating={this.ratingCompleted}
-                                                        count={3}
-                                                        reviews={['Buruk', 'Sedang', 'Baik']}
-                                                        defaultRating={3}
-                                                        size={20}
-                                                    />
-                                                </View>
+                        }
 
-
-                                            </View>
-                                            <View style={{
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                            }}>
-                                                <Textarea ref="catatan"
-                                                          autoCapitalize='words'
-                                                          onChangeText={(catatan) => this.setState({catatan})}
-                                                          placeholderTextColor="#ffffff" style={styles.inputBox} rowSpan={5}
-                                                          bordered
-                                                          placeholder="Tulis Catatan Disini"/>
-                                            </View>
-                                            <View style={{alignItems: 'center', padding: 10, justifyContent: 'center'}}>
-                                                <TouchableOpacity
-                                                    style={styles.button} onPress={() => {
-                                                    this._submitPenilaian();
-                                                }}>
-                                                    <Text style={styles.buttonText}>Submit</Text>
-                                                </TouchableOpacity>
-                                            </View>
-                                        </View> :
-                                        <View>
-
-                                        </View>
-                            }
-                        </ViewShot>
                     </View>
                     {this.state.statusBerobat === 'Mendaftar' ?
                         <View style={{alignItems: 'center', padding: 10, justifyContent: 'center'}}>
                             <TouchableOpacity
-                            style={styles.button} onPress={() => {
-                            this.saveQrToDisk();
-                        }}>
-                            <Text style={styles.buttonText}>Simpan Bukti Reservasi</Text>
-                        </TouchableOpacity>
+                                style={styles.button} onPress={() => {
+                                this.saveQrToDisk();
+                            }}>
+                                <Text style={styles.buttonText}>Simpan Bukti Reservasi</Text>
+                            </TouchableOpacity>
                         </View> : <View></View>}
 
                 </ScrollView>

@@ -208,7 +208,7 @@ class Step1 extends ValidationComponent <{}> {
             this.state.pilihAgama = this.props.getState().pilihAgama;
             this.state.jenisKelamin = this.props.getState().jenisKelamin;
             this.state.statusKawin = this.props.getState().statusKawin;
-            this.state.chosenDate = this.props.getState().tanggalLahir;
+            this.state.tanggalLahir = this.props.getState().tanggalLahir;
             this.state.tempatLahir = this.props.getState().tempatLahir;
             this.state.nama = this.props.getState().nama;
             this.state.pilihPekerjaan = this.props.getState().pilihPekerjaan;
@@ -388,7 +388,7 @@ class Step1 extends ValidationComponent <{}> {
                                 saveState({
                                     jenisKelamin: this.state.jenisKelamin,
                                     statusKawin: this.state.statusKawin,
-                                    tanggalLahir: this.state.chosenDate,
+                                    tanggalLahir: this.state.tanggalLahir,
                                     tempatLahir: this.state.tempatLahir,
                                     nama: this.state.nama,
                                     pilihPekerjaan: this.state.pilihPekerjaan,

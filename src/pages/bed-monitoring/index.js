@@ -13,6 +13,7 @@ import {
 import Modal from 'react-native-modal';
 import LoaderModal from '../../components/LoaderModal';
 import {Actions} from 'react-native-router-flux';
+import Ripple from 'react-native-material-ripple';
 
 export default class index extends Component {
 
@@ -170,8 +171,9 @@ export default class index extends Component {
                 <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
                 <Header
                     leftComponent={
-                        <Icon type='ionicon' name='arrow-back-outline' color='#fff'
-                              onPress={()=>Actions.pop()}/>}
+                        <Ripple onPress={() => Actions.pop()}>
+                            <Icon type='ionicon' name='arrow-back-outline' color='#fff'
+                            /></Ripple>}
                     statusBarProps={{barStyle: 'light-content'}}
                     containerStyle={{
                         backgroundColor: '#1da30b',

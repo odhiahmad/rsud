@@ -29,6 +29,7 @@ import {connect} from 'react-redux';
 import StepIndicator from 'react-native-step-indicator';
 import ViewShot from 'react-native-view-shot';
 import {Actions} from 'react-native-router-flux';
+import Ripple from 'react-native-material-ripple';
 
 const {height} = Dimensions.get('window');
 const resources = {
@@ -111,7 +112,7 @@ class Obat extends Component {
 
             showTryAgain: false,
 
-            onClickButtonRiwayatObat:false,
+            onClickButtonRiwayatObat: false,
 
         };
     }
@@ -121,7 +122,7 @@ class Obat extends Component {
     }
 
     componentDidMount() {
-        this.getData()
+        this.getData();
     }
 
 
@@ -195,7 +196,7 @@ class Obat extends Component {
                 showTryAgain: true,
             });
 
-            console.log(this.state.showTryAgain)
+            console.log(this.state.showTryAgain);
         });
     };
 
@@ -356,28 +357,30 @@ class Obat extends Component {
                 <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
                 <Header
                     leftComponent={
+                        <Ripple onPress={() => Actions.pop()}>
                         <Icon type='ionicon' name='arrow-back-outline' color='#fff'
-                              onPress={()=>Actions.pop()}/>}
+                              /></Ripple>}
                     statusBarProps={{barStyle: 'light-content'}}
                     containerStyle={{
                         backgroundColor: '#1da30b',
                         justifyContent: 'space-around',
                     }}
                     rightComponent={
+                        <Ripple onPress={!this.state.inClickRiwayatObat ? this.onClickButtonRiwayatObat : null}>
                         <Icon name='history' color='#fff'
-                              onPress={!this.state.inClickRiwayatObat ? this.onClickButtonRiwayatObat : null} />}
+                              /></Ripple>}
                     barStyle="light-content"
                     placement="center"
                     centerComponent={{text: 'Obat Pasien', style: {fontWeight: 'bold', color: '#fff'}}}
                 />
 
                 {this.state.showTryAgain === true ?
-                    <View style={styles.container}>
+                    <View style={{flex: 1}}>
                         <TouchableOpacity style={styles.button}
                                           onPress={() => this.getData()}>
                             <Text style={styles.buttonText}>Refresh </Text>
                         </TouchableOpacity></View> :
-                    <View>
+                    <View style={{flex: 1}}>
                         {this.state.data.length !== 0 ? <FlatList
                                 refreshControl={
                                     <RefreshControl
@@ -390,9 +393,17 @@ class Obat extends Component {
                                 onEndReachedThreshold={0.1}
                                 ListFooterComponent={this.renderFooter}
                                 data={this.state.data}/> :
-                            <View style={{alignItems: 'center', justifyContent: 'center',flex: 1}}><Text
-                                style={{color: 'gray'}}>Tidak Ada Data</Text></View>}
-                    </View>
+                            <View style={{  flex: 1,
+                                backgroundColor: '#fff',
+                                alignItems: 'center',
+                                justifyContent: 'center',}}>
+                                <View style={{
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    flex: 1
+                                }}><Text
+                                    style={{color: 'gray'}}>Tidak Ada Data</Text></View></View>}</View>
+
                 }
 
 

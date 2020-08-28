@@ -6,7 +6,6 @@ import {
     Item,
     Input,
     Thumbnail,
-    Text,
     Left,
     Body,
     Right,
@@ -30,6 +29,7 @@ import {
     Modal,
     Share,
     SearchBar,
+    Text,
     StatusBar, TextInput, ScrollView,
 } from 'react-native';
 import moment from 'moment';
@@ -43,6 +43,7 @@ import {showMessage} from 'react-native-flash-message';
 import ValidationComponent from 'react-native-form-validator';
 import {Actions} from 'react-native-router-flux';
 import Select2 from 'react-native-select-two';
+import Ripple from 'react-native-material-ripple';
 
 class Pengaduan extends ValidationComponent {
     constructor(props) {
@@ -478,8 +479,9 @@ class Pengaduan extends ValidationComponent {
                 <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
                 <Header
                     leftComponent={
-                        <Icon type='ionicon' name='arrow-back-outline' color='#fff'
-                              onPress={() => Actions.pop()}/>}
+                        <Ripple onPress={() => Actions.pop()}>
+                            <Icon type='ionicon' name='arrow-back-outline' color='#fff'
+                            /></Ripple>}
                     statusBarProps={{barStyle: 'light-content'}}
                     containerStyle={{
                         backgroundColor: '#1da30b',
@@ -534,7 +536,8 @@ class Pengaduan extends ValidationComponent {
                     }}
                     animationType="slide"
                     visible={this.state.modalVisible}
-                ><View style={{alignItems: 'center',
+                >
+                    <View style={{flex:1,alignItems: 'center',
                     justifyContent: 'center',}}>
                     {this.state.status === 'after' ?
                         <View style={{padding: 5,marginTop:30}}>
@@ -662,7 +665,19 @@ class Pengaduan extends ValidationComponent {
                             </TouchableOpacity>
                         </View> :
                         this.state.status === 'before' ?
-                            <View style={{padding: 5,marginTop:30}}>
+                            <View style={{flex:1,alignItems: 'center',
+                                justifyContent: 'center',}}>
+                                <View style={{
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    flex: 1,
+                                }}>
+                                <View style={{
+                                    marginBottom:20
+                                }}>
+                                    <Image style={{width: 250, height: 60}}
+                                           source={require('../../images/logo/logo-hitam.jpg')}/>
+                                </View>
                                 <TextInput
                                     keyboardType={'numeric'}
                                     defaultValue={this.state.nomorMr}
@@ -688,7 +703,7 @@ class Pengaduan extends ValidationComponent {
                                 <TouchableOpacity style={styles.buttonModal}
                                                   onPress={this._onSubmit.bind(this)}>
                                     <Text style={styles.buttonText}>Submit</Text>
-                                </TouchableOpacity></View> : <View></View>
+                                </TouchableOpacity></View></View> : <View></View>
                     }
                     {this.isFieldInError('nomorMr') && this.getErrorsInField('nomorMr').map(errorMessage =>
                         <Text>{errorMessage}</Text>)}

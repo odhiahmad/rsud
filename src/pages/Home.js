@@ -4,6 +4,7 @@ import {Body, Drawer, Left, List, Right, Root, Thumbnail} from 'native-base';
 import SideBar from './Sidebar';
 import TextTicker from 'react-native-text-ticker';
 import Carousel from 'react-native-snap-carousel';
+import CardButton from '@paraboly/react-native-card-button';
 import {
     Text,
     StyleSheet,
@@ -16,6 +17,7 @@ import {
     BackHandler,
     Dimensions, StatusBar, Modal, FlatList, ActivityIndicator, ToastAndroid,
 } from 'react-native';
+import Ripple from 'react-native-material-ripple';
 import {connect} from 'react-redux';
 import {logoutUser} from '../actions/auth.actions';
 import {BottomLayer} from './component/BottomLayer';
@@ -68,7 +70,19 @@ const options = [
     'Daftar Untuk Orang Lain Pasien Lama',
     'Daftar Untuk Orang Lain Pasien Baru',
 ];
-const labels = ['Mendaftar', 'Sedang Berobat', 'Selesai Berobat', 'Mendapatkan Obat', 'Selesai'];
+
+const options1 = [
+    'Keluar',
+    'Rawat Inap',
+    'Rawat Jalan',
+];
+
+const options2 = [
+    'Keluar',
+    'Rawat Inap',
+    'Rawat Jalan',
+];
+const labels = ['Mendaftar', 'Selesai Berobat', 'Mendapatkan Obat', 'Selesai'];
 
 class Home extends Component {
     constructor(props) {
@@ -87,7 +101,12 @@ class Home extends Component {
             inClickFaq: false,
             inClickPengaduan: false,
             inClickNews: false,
-            inClickObat: false,
+            inClickCekStatusRawatInap: false,
+            inClickCekStatusRawatJalan: false,
+            inClickCekStatusIGD: false,
+
+            inClickPenilaianRawatInap: false,
+            inClickPenilaianRawatJalan: false,
 
             statusLoadingDokter: 0,
             loadingDokter: false,
@@ -114,12 +133,20 @@ class Home extends Component {
             activeIndex: 0,
             dataDashboard: [],
 
-            showErrorDokter:false,
+            showErrorDokter: false,
         };
     }
 
     showActionSheet = () => {
         this.ActionSheet.show();
+    };
+
+    showActionSheet1 = () => {
+        this.ActionSheet1.show();
+    };
+
+    showActionSheet2 = () => {
+        this.ActionSheet2.show();
     };
 
     componentWillReceiveProps(value) {
@@ -165,7 +192,7 @@ class Home extends Component {
         this.getJadwalDokter();
     }
 
-    componentDidUpdate(){
+    componentDidUpdate() {
 
     }
 
@@ -175,7 +202,7 @@ class Home extends Component {
         messaging()
             .getToken()
             .then(token => {
-                console.log(token)
+                console.log(token);
                 fetch(baseApi + '/user/updateToken', {
                     method: 'POST',
                     headers: {
@@ -220,7 +247,7 @@ class Home extends Component {
     getJadwalDokter() {
         this.setState({
             loadingDokter: true,
-            showErrorDokter:false,
+            showErrorDokter: false,
         });
 
         return fetch(baseApi + '/user/liburDokter', {
@@ -232,7 +259,7 @@ class Home extends Component {
         }).then((response) => response.json()).then((responseJson) => {
             this.setState({
                 loadingDokter: false,
-                showErrorDokter:false,
+                showErrorDokter: false,
                 statusLoadingDokter: 1,
                 dataDokterLibur: responseJson.data,
                 dataDokterLiburKeterangan: responseJson.dataKeterangan,
@@ -242,10 +269,10 @@ class Home extends Component {
             this.setState({
                 loadingDokter: false,
                 statusLoadingDokter: 2,
-                showErrorDokter:true,
+                showErrorDokter: true,
             });
         })
-        ;
+            ;
     }
 
 
@@ -296,6 +323,54 @@ class Home extends Component {
             }.bind(this), 2000);
         }
 
+
+    };
+
+    onClickButtonCekStatus(index) {
+
+        if (index === 1) {
+            this.setState({inClickCekStatusRawatInap: true});
+            Actions.cekstatusrawatinap();
+            this.ActionSheet1.hide();
+            setTimeout(function () {
+                this.setState({inClickCekStatusRawatInap: false});
+            }.bind(this), 2000);
+        } else if (index === 2) {
+            this.setState({inClickCekStatusRawatJalan: true});
+            Actions.cekstatusrawatjalan();
+            this.ActionSheet1.hide();
+            setTimeout(function () {
+                this.setState({inClickCekStatusRawatJalan: false});
+            }.bind(this), 2000);
+        } else if (index === 3) {
+            this.setState({inClickCekStatusIGD: true});
+            Actions.cekstatusigd();
+            this.ActionSheet1.hide();
+            setTimeout(function () {
+                this.setState({inClickCekStatusIGD: false});
+            }.bind(this), 2000);
+        }
+
+
+    };
+
+    onClickButtonPenilaian(index) {
+
+        if (index === 1) {
+            this.setState({inClickPenilaianRawatInap: true});
+            Actions.penilaianrawatinap();
+            this.ActionSheet2.hide();
+            setTimeout(function () {
+                this.setState({inClickPenilaianRawatInap: false});
+            }.bind(this), 2000);
+        } else if (index === 2) {
+            this.setState({inClickPenilaianRawatJalan: true});
+            Actions.penilaianrawatjalan();
+            this.ActionSheet2.hide();
+            setTimeout(function () {
+                this.setState({inClickPenilaianRawatJalan: false});
+            }.bind(this), 2000);
+        }
 
     };
 
@@ -389,6 +464,7 @@ class Home extends Component {
         this.drawer._root.open();
     }
 
+
     _renderItem = ({item, index}) => {
 
         return (
@@ -432,22 +508,6 @@ class Home extends Component {
         );
     };
 
-    _renderItemMenu = ({item, index}) => {
-        return (
-            <View style={{
-                borderWidth: 1,
-                borderColor: 'orange',
-                borderRadius: 0,
-                justifyContent: 'center',
-            }}>
-                <ListItem
-                    title={<Text>Total {item.Jumlah}</Text>}
-                    subtitle={<Text style={{color: 'gray'}}>{item.Keterangan}</Text>}
-                />
-            </View>
-
-        );
-    };
 
     render() {
         const images = [
@@ -471,11 +531,11 @@ class Home extends Component {
                     barStyle="light-content"
                     placement="center"
                     rightComponent={
-                        <Icon name='notifications' color='#fff'
-                              onPress={!this.state.inClickNotifikasi ? this.onClickButtonNotifikasi : null}/>}
+                        <Ripple onPress={!this.state.inClickNotifikasi ? this.onClickButtonNotifikasi : null}>
+                            <Icon name='notifications' color='#fff'/></Ripple>}
                     // leftComponent={{text: 'Smart Hospital', style: {fontWeight: 'bold', color: '#fff', width: 200}}}
-                    leftComponent={<Image style={{width: 140, height: 40}}
-                                          source={require('../images/logo-smart/newlogo.png')}/>}
+                    leftComponent={<Image style={{width: 160, height: 35}}
+                                          source={require('../images/logo/stikercopy.png')}/>}
                 />
 
                 <ScrollView style={{flex: 1, backgroundColor: 'white'}}>
@@ -486,6 +546,25 @@ class Home extends Component {
                         cancelButtonIndex={0}
                         destructiveButtonIndex={4}
                         onPress={(index) => this.onClickButtonHome(index)}
+
+                    />
+
+                    <ActionSheet
+                        ref={o => this.ActionSheet1 = o}
+                        title={<Text style={{color: '#000', fontSize: 18}}>Pilih Cek Status </Text>}
+                        options={options1}
+                        cancelButtonIndex={0}
+                        destructiveButtonIndex={4}
+                        onPress={(index) => this.onClickButtonCekStatus(index)}
+
+                    />
+                    <ActionSheet
+                        ref={o => this.ActionSheet2 = o}
+                        title={<Text style={{color: '#000', fontSize: 18}}>Pilih Penilaian </Text>}
+                        options={options2}
+                        cancelButtonIndex={0}
+                        destructiveButtonIndex={4}
+                        onPress={(index) => this.onClickButtonPenilaian(index)}
 
                     />
                     <SliderBox
@@ -525,7 +604,8 @@ class Home extends Component {
                     {this.state.loadingDokter === true ?
                         <View>
                             <ActivityIndicator size="small"/>
-                        </View> : <View>
+                        </View> :
+                        <View>
                             {this.state.statusLoadingDokter === 1 ?
                                 <View style={{
                                     marginLeft: 5,
@@ -557,7 +637,6 @@ class Home extends Component {
                                         </TouchableOpacity></View> :
                                     <View></View>}
                         </View>}
-
                     <View style={{flex: 1, backgroundColor: 'white'}}>
                         <View style={{marginHorizontal: 0, flexDirection: 'row'}}>
                             <View style={{
@@ -573,7 +652,7 @@ class Home extends Component {
                                     width: '100%',
                                     marginBottom: 4,
                                 }}>
-                                    <TouchableOpacity
+                                    <Ripple
                                         onPress={this.showActionSheet}
                                         // onPress={!this.state.inClickHome ? this.onClickButtonHome : null}
                                         style={{
@@ -603,8 +682,8 @@ class Home extends Component {
                                                 textAlign: 'center',
                                                 marginBottom: 6,
                                             }}>Daftar Online</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
+                                    </Ripple>
+                                    <Ripple
                                         onPress={!this.state.inClickJadwal ? this.onClickButtonJadwal : null}
                                         style={{
                                             marginRight: 2,
@@ -633,8 +712,8 @@ class Home extends Component {
                                                 textAlign: 'center',
                                                 marginBottom: 6,
                                             }}>Jadwal Poliklinik</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
+                                    </Ripple>
+                                    <Ripple
                                         onPress={!this.state.inClickBed ? this.onClickButtonBed : null}
                                         style={{
                                             marginRight: 2,
@@ -663,8 +742,8 @@ class Home extends Component {
                                                 textAlign: 'center',
                                                 marginBottom: 6,
                                             }}>Bed Monitoring</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
+                                    </Ripple>
+                                    <Ripple
                                         onPress={!this.state.inClickShuttle ? this.onClickButtonShuttle : null}
                                         style={{
                                             marginRight: 2,
@@ -693,7 +772,7 @@ class Home extends Component {
                                                 textAlign: 'center',
                                                 marginBottom: 6,
                                             }}>Shuttle Bus</Text>
-                                    </TouchableOpacity>
+                                    </Ripple>
                                 </View>
                                 <View style={{
                                     justifyContent: 'space-between',
@@ -702,97 +781,7 @@ class Home extends Component {
                                     height: '50%',
                                     marginBottom: 18,
                                 }}>
-                                    <TouchableOpacity
-                                        onPress={!this.state.inClickFaq ? this.onClickButtonFaq : null}
-                                        style={{
-                                            marginRight: 2,
-                                            width: '25%',
-                                            height: '60%',
-                                            alignItems: 'center',
-                                        }}>
-                                        <View
-                                            style={{
-                                                margin: 10,
-                                                width: 70,
-                                                height: 70,
-                                                borderWidth: 0,
-                                                borderColor: 'orange',
-                                                borderRadius: 50,
-                                                justifyContent: 'center',
-                                            }}>
-                                            <Image style={{height: 70, width: 70}}
-                                                   resizeMode='contain'
-                                                   source={require('../images/logo-smart/informasi.png')}/>
-                                        </View>
-                                        <Text
-                                            style={{
-                                                fontSize: 12,
-                                                fontWeight: 'bold',
-                                                textAlign: 'center',
-                                                marginBottom: 6,
-                                            }}>Informasi</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        onPress={!this.state.inClickPengaduan ? this.onClickButtonPengaduan : null}
-                                        style={{
-                                            marginRight: 2,
-                                            width: '25%',
-                                            height: '60%',
-                                            alignItems: 'center',
-                                        }}>
-                                        <View
-                                            style={{
-                                                margin: 10,
-                                                width: 70,
-                                                height: 70,
-                                                borderWidth: 0,
-                                                borderColor: 'orange',
-                                                borderRadius: 50,
-                                                justifyContent: 'center',
-                                            }}>
-                                            <Image style={{height: 70, width: 70}}
-                                                   resizeMode='contain'
-                                                   source={require('../images/logo-smart/pengaduan.png')}/>
-                                        </View>
-                                        <Text
-                                            style={{
-                                                fontSize: 12,
-                                                fontWeight: 'bold',
-                                                textAlign: 'center',
-                                                marginBottom: 6,
-                                            }}>Pengaduan Masyarakat</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        onPress={!this.state.inClickNews ? this.onClickButtonNews : null}
-                                        style={{
-                                            marginRight: 2,
-                                            width: '25%',
-                                            height: '60%',
-                                            alignItems: 'center',
-                                        }}>
-                                        <View
-                                            style={{
-                                                margin: 10,
-                                                width: 70,
-                                                height: 70,
-                                                borderWidth: 0,
-                                                borderColor: 'orange',
-                                                borderRadius: 50,
-                                                justifyContent: 'center',
-                                            }}>
-                                            <Image style={{height: 70, width: 70}}
-                                                   resizeMode='contain'
-                                                   source={require('../images/logo-smart/news.png')}/>
-                                        </View>
-                                        <Text
-                                            style={{
-                                                fontSize: 12,
-                                                fontWeight: 'bold',
-                                                textAlign: 'center',
-                                                marginBottom: 6,
-                                            }}>RSUD News</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
+                                    <Ripple
                                         onPress={!this.state.inClickObat ? this.onClickButtonObat : null}
                                         style={{
                                             marginRight: 2,
@@ -821,23 +810,223 @@ class Home extends Component {
                                                 textAlign: 'center',
                                                 marginBottom: 6,
                                             }}>Obat Pasien</Text>
-                                    </TouchableOpacity>
+                                    </Ripple>
+                                    <Ripple
+                                        onPress={!this.state.inClickPengaduan ? this.onClickButtonPengaduan : null}
+                                        style={{
+                                            marginRight: 2,
+                                            width: '25%',
+                                            height: '60%',
+                                            alignItems: 'center',
+                                        }}>
+                                        <View
+                                            style={{
+                                                margin: 10,
+                                                width: 70,
+                                                height: 70,
+                                                borderWidth: 0,
+                                                borderColor: 'orange',
+                                                borderRadius: 50,
+                                                justifyContent: 'center',
+                                            }}>
+                                            <Image style={{height: 70, width: 70}}
+                                                   resizeMode='contain'
+                                                   source={require('../images/logo-smart/pengaduan.png')}/>
+                                        </View>
+                                        <Text
+                                            style={{
+                                                fontSize: 12,
+                                                fontWeight: 'bold',
+                                                textAlign: 'center',
+                                                marginBottom: 6,
+                                            }}>Pengaduan Masyarakat</Text>
+                                    </Ripple>
+                                    <Ripple
+                                        onPress={!this.state.inClickNews ? this.onClickButtonNews : null}
+                                        style={{
+                                            marginRight: 2,
+                                            width: '25%',
+                                            height: '60%',
+                                            alignItems: 'center',
+                                        }}>
+                                        <View
+                                            style={{
+                                                margin: 10,
+                                                width: 70,
+                                                height: 70,
+                                                borderWidth: 0,
+                                                borderColor: 'orange',
+                                                borderRadius: 50,
+                                                justifyContent: 'center',
+                                            }}>
+                                            <Image style={{height: 70, width: 70}}
+                                                   resizeMode='contain'
+                                                   source={require('../images/logo-smart/news.png')}/>
+                                        </View>
+                                        <Text
+                                            style={{
+                                                fontSize: 12,
+                                                fontWeight: 'bold',
+                                                textAlign: 'center',
+                                                marginBottom: 6,
+                                            }}>RSUD News</Text>
+                                    </Ripple>
+                                    <Ripple
+                                        onPress={!this.state.inClickFaq ? this.onClickButtonFaq : null}
+                                        style={{
+                                            marginRight: 2,
+                                            width: '25%',
+                                            height: '60%',
+                                            alignItems: 'center',
+                                        }}>
+                                        <View
+                                            style={{
+                                                margin: 10,
+                                                width: 70,
+                                                height: 70,
+                                                borderWidth: 0,
+                                                borderColor: 'orange',
+                                                borderRadius: 50,
+                                                justifyContent: 'center',
+                                            }}>
+                                            <Image style={{height: 70, width: 70}}
+                                                   resizeMode='contain'
+                                                   source={require('../images/logo-smart/informasi.png')}/>
+                                        </View>
+                                        <Text
+                                            style={{
+                                                fontSize: 12,
+                                                fontWeight: 'bold',
+                                                textAlign: 'center',
+                                                marginBottom: 6,
+                                            }}>Informasi</Text>
+                                    </Ripple>
                                 </View>
-
                             </View>
                         </View>
-
-                        {/*<View style={{paddingTop: 16,marginBottom:20,justifyContent: 'center', paddingHorizontal: 16}}>*/}
-                        {/*    <View>*/}
-                        {/*        <Image source={require('../images/obat.png')}*/}
-                        {/*               style={{height: 170, width: '100%', borderRadius: 6}}></Image>*/}
-                        {/*    </View>*/}
-                        {/*    /!*<View style={{justifyContent: 'center',paddingTop: 16, paddingBottom: 20}}>*!/*/}
-                        {/*    /!*    <Text style={{fontSize: 16, fontWeight: 'bold', color: '#1c1c1c'}}>Obat</Text>*!/*/}
-                        {/*    /!*    <Text style={{fontSize: 14, fontWeight: '500', color: '#7a7a7a'}}>Pasien Yang Telah Selesai berobat di RSUD Padang Panjang</Text>*!/*/}
-                        {/*    /!*</View>*!/*/}
-                        {/*</View>*/}
                     </View>
+                    <View style={{flex: 1, backgroundColor: 'white', padding: 5}}>
+                        <Ripple
+                            style={[styles.ripleContainer, styles.a]}
+                            rippleCentered
+                            rippleColor="white"
+                            onPress={this.showActionSheet1}
+                        >
+                            <View style={{flexDirection: 'row'}}>
+                                <View style={{width: '25%'}}>
+                                    <View
+                                        style={{
+                                            width: 60,
+                                            height: 60,
+                                            borderWidth: 0,
+                                            borderColor: 'orange',
+                                            borderRadius: 50,
+                                            justifyContent: 'center',
+                                        }}>
+                                        <Image style={{height: 60, width: 60}}
+                                               resizeMode='contain'
+                                               source={require('../images/logo-smart/online.png')}/>
+                                    </View>
+                                </View>
+                                <View style={{width: '48%'}}>
+                                    <Text style={styles.text}>
+                                        Cek Kondisi Pasien
+                                        {'\n'}
+                                        Rawat Inap
+                                        {'\n'}
+                                        Rawat Jalan
+                                    </Text>
+                                </View>
+                                <View style={{marginTop: 30}}>
+                                    <TouchableOpacity style={styles.buttonRiple} onPress={this.showActionSheet1}>
+                                        <Text style={styles.textButton}> Cek Kondisi </Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </Ripple>
+                    </View>
+                    <View style={{flex: 1, backgroundColor: 'white', padding: 5}}>
+                        <Ripple
+                            style={[styles.ripleContainer, styles.a]}
+                            onPress={this.showActionSheet2}
+                        >
+                            <View style={{flexDirection: 'row'}}>
+                                <View style={{width: '25%'}}>
+                                    <View
+                                        style={{
+                                            width: 60,
+                                            height: 60,
+                                            borderWidth: 0,
+                                            borderColor: 'orange',
+                                            borderRadius: 50,
+                                            justifyContent: 'center',
+                                        }}>
+                                        <Image style={{height: 60, width: 60}}
+                                               resizeMode='contain'
+                                               source={require('../images/logo-smart/informasi.png')}/>
+                                    </View>
+                                </View>
+                                <View style={{width: '40%'}}>
+                                    <Text style={styles.text}>
+                                        Berikan Penilaian
+                                        {'\n'}
+                                        Rawat Inap
+                                        {'\n'}
+                                        Rawat Jalan
+                                    </Text>
+                                </View>
+                                <View style={{marginTop: 30}}>
+                                    <TouchableOpacity onPress={this.showActionSheet2} style={styles.buttonRiple2}>
+                                        <Text style={styles.textButton}> Berikan Penilaian </Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </Ripple>
+                    </View>
+
+                    {/*<View style={{flex: 1, backgroundColor: 'white'}}>*/}
+                    {/*    <View style={{marginHorizontal: 0, flexDirection: 'row'}}>*/}
+                    {/*        <View style={{*/}
+                    {/*            justifyContent: 'space-between',*/}
+                    {/*            flexDirection: 'row',*/}
+                    {/*            width: '100%',*/}
+                    {/*            height: '50%',*/}
+                    {/*            marginBottom: 18,*/}
+                    {/*        }}>*/}
+                    {/*            <TouchableOpacity*/}
+                    {/*                onPress={this.showActionSheet1}*/}
+                    {/*                style={{*/}
+                    {/*                    marginRight: 2,*/}
+                    {/*                    width: '25%',*/}
+                    {/*                    height: '60%',*/}
+                    {/*                    alignItems: 'center',*/}
+                    {/*                }}>*/}
+                    {/*                <View*/}
+                    {/*                    style={{*/}
+                    {/*                        margin: 10,*/}
+                    {/*                        width: 70,*/}
+                    {/*                        height: 70,*/}
+                    {/*                        borderWidth: 0,*/}
+                    {/*                        borderColor: 'orange',*/}
+                    {/*                        borderRadius: 50,*/}
+                    {/*                        justifyContent: 'center',*/}
+                    {/*                    }}>*/}
+                    {/*                    <Image style={{height: 70, width: 70}}*/}
+                    {/*                           resizeMode='contain'*/}
+                    {/*                           source={require('../images/logo-smart/informasi.png')}/>*/}
+                    {/*                </View>*/}
+                    {/*                <Text*/}
+                    {/*                    style={{*/}
+                    {/*                        fontSize: 12,*/}
+                    {/*                        fontWeight: 'bold',*/}
+                    {/*                        textAlign: 'center',*/}
+                    {/*                        marginBottom: 6,*/}
+                    {/*                    }}>Cek Status Pasien</Text>*/}
+                    {/*            </TouchableOpacity>*/}
+                    {/*        </View>*/}
+                    {/*    </View>*/}
+                    {/*</View>*/}
+
                     <View style={{
                         marginLeft: 5,
                         marginTop: 10,
@@ -979,7 +1168,63 @@ class Home extends Component {
     }
 }
 
+
 const styles = StyleSheet.create({
+    ripleContainer: {
+        padding: 16,
+        backgroundColor: '#F5F5F5',
+        flex: 1,
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'stretch',
+        minHeight: 56,
+        margin: 4,
+        borderRadius: 15,
+        elevation: 2,
+        shadowRadius: 2,
+        shadowOpacity: 0.3,
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+    },
+    buttonRiple: {
+        justifyContent: 'center',
+        alignSelf: 'flex-end',
+        width: 80,
+        backgroundColor: '#fff',
+        borderRadius: 5,
+        marginVertical: 2,
+        padding: 5,
+    },
+    buttonRiple2: {
+        justifyContent: 'center',
+        alignSelf: 'flex-end',
+        width: 110,
+        backgroundColor: '#fff',
+        borderRadius: 5,
+        marginVertical: 2,
+        padding: 5,
+    },
+    a: {
+        backgroundColor: '#1da30b',
+    },
+    textButton: {
+        fontSize: 12,
+        fontWeight: '500',
+        color: 'gray',
+    },
+    text: {
+        fontSize: 15,
+        fontWeight: '500',
+        color: 'rgba(255,255,255,.87)',
+    },
+
+    footnote: {
+        fontSize: 15,
+        fontWeight: '400',
+        color: 'rgba(0,0,0,.54)',
+    },
     container: {
         flex: 1,
         backgroundColor: '#fff',
@@ -1011,3 +1256,4 @@ mapDispatchToProps = (dispatch) => ({
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home);
+Ripple.defaultProps.rippleContainerBorderRadius = styles.container.borderRadius;

@@ -15,6 +15,9 @@ import {baseApi} from '../../service/api';
 import moment from 'moment';
 import LoaderModal from '../../components/LoaderModal';
 import {Actions} from 'react-native-router-flux';
+import Ripple from 'react-native-material-ripple';
+
+
 
 export default class ShuttleBusDetail extends Component {
 
@@ -107,7 +110,6 @@ export default class ShuttleBusDetail extends Component {
                 }
             }
         } else {
-
             if (today.getMinutes() > 9) {
                 if (today.getSeconds() > 9) {
                     time = '0' + today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
@@ -138,13 +140,6 @@ export default class ShuttleBusDetail extends Component {
         }
 
 
-        if (this.state.panjangData === 0) {
-            return (
-                <ListItem
-                    title={<Text>Tidak ada Jadwal Bus Pada Jam Ini</Text>}
-                >
-                </ListItem>);
-        } else {
             var a = parseInt(this.state.dataSource[posisiSekarang - 1].jam.substr(3, 2)) + 1;
 
 
@@ -157,6 +152,7 @@ export default class ShuttleBusDetail extends Component {
                 total = b + ':' + a + ':' + c;
             }
 
+           // if((posisiSekarang > index + 1) || (posisiSekarang === index) || (posisiSekarang < index -1)){
 
             return (
                 <ListItem
@@ -229,7 +225,7 @@ export default class ShuttleBusDetail extends Component {
                 >
                 </ListItem>
             );
-        }
+
 
     };
 
@@ -240,8 +236,9 @@ export default class ShuttleBusDetail extends Component {
                 <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
                 <Header
                     leftComponent={
-                        <Icon type='ionicon' name='arrow-back-outline' color='#fff'
-                              onPress={()=>Actions.pop()}/>}
+                        <Ripple onPress={() => Actions.pop()}>
+                            <Icon type='ionicon' name='arrow-back-outline' color='#fff'
+                            /></Ripple>}
                     statusBarProps={{barStyle: 'light-content'}}
                     containerStyle={{
                         backgroundColor: '#1da30b',
@@ -277,7 +274,11 @@ export default class ShuttleBusDetail extends Component {
                                                 keyExtractor={(item, index) => index.toString()}
                                                 data={this.state.dataSource}/>
                                     }</View>
-                                : <View></View>}
+                                : <View>
+                                    <ListItem title={<Text>Tidak ada Jadwal Bus Pada Jam Ini</Text>}
+                                              subtitle={<Text>Jadwal Bus Pada Jam 7 Pagi, 9 Pagi, dan 1 Siang WIB</Text>}
+                                    ></ListItem>
+                                </View>}
                     </View>}
 
 

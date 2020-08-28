@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import ParallaxScroll from '@monterosa/react-native-parallax-scroll';
-import {Header} from 'react-native-elements';
+import {Header,Icon} from 'react-native-elements';
 import {
     Animated,
     Image,
@@ -37,7 +37,6 @@ import {
     Content,
     Button,
     ListItem,
-    Icon,
     Left,
     Body,
     Right,
@@ -55,6 +54,7 @@ import FlashMessage, {showMessage} from 'react-native-flash-message';
 import PhotoUpload from 'react-native-photo-upload';
 import moment from 'moment';
 import DatePicker from 'react-native-datepicker';
+import Ripple from 'react-native-material-ripple';
 
 const {height} = Dimensions.get('window');
 
@@ -1160,6 +1160,12 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
     }
 
     _onSubmitFinish() {
+        if(this.state.pilihNegara === ''){
+            this.setState({
+                pilihNegara: 'Indonesia',
+            });
+        }
+
         if (this.state.caraBayar === 'Umum') {
             this.validate({
                 noHpPenanggungJawab:{required:true},
@@ -1188,6 +1194,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 alamat: {minlength: 4, required: true},
             });
             if (this.isFormValid()) {
+
                 this.setState({
                     loading: true,
                 });
@@ -1204,7 +1211,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                         namaPasien: this.state.nama,
                         tempatLahir: this.state.tempatLahir,
                         statusKawin: this.state.statusKawin,
-                        tanggalLahir: this.state.chosenDate,
+                        tanggalLahir: this.state.tanggalLahir,
                         jenisKelamin: this.state.jenisKelamin,
                         jamKunjungan: this.state.pilihJam,
                         pilihCaraBayar: this.state.pilihCaraBayar,
@@ -1334,7 +1341,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                             nomorKtp: this.state.nik,
                             namaPasien: this.state.nama,
                             tempatLahir: this.state.tempatLahir,
-                            tanggalLahir: this.state.chosenDate,
+                            tanggalLahir: this.state.tanggalLahir,
                             jenisKelamin: this.state.jenisKelamin,
                             jamKunjungan: this.state.pilihJam,
                             pilihCaraBayar: this.state.pilihCaraBayar,
@@ -1969,8 +1976,9 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
                 <Header
                     leftComponent={
-                        <Icon type='ionicon' name='arrow-back-outline' color='#fff'
-                              onPress={()=>Actions.pop()}/>}
+                        <Ripple onPress={() => Actions.pop()}>
+                            <Icon type='ionicon' name='arrow-back-outline' color='#fff'
+                            /></Ripple>}
                     statusBarProps={{barStyle: 'light-content'}}
                     containerStyle={{
                         backgroundColor: '#1da30b',

@@ -41,6 +41,7 @@ import {logoutUser} from '../../actions/auth.actions';
 import {showMessage} from 'react-native-flash-message';
 import {Header,Icon} from 'react-native-elements';
 import DatePicker from 'react-native-datepicker';
+import Ripple from 'react-native-material-ripple';
 
 const styles = StyleSheet.create({
     container: {
@@ -479,6 +480,12 @@ class EditProfil extends ValidationComponent {
             alamat: {minlength: 4, required: true},
         });
         if (this.isFormValid()) {
+
+            if(this.state.pilihNegara === ''){
+                this.setState({
+                    pilihNegara: 'Indonesia',
+                });
+            }
 
             this.setState({
                 isLoading: true,
@@ -1272,8 +1279,9 @@ class EditProfil extends ValidationComponent {
                 <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
                 <Header
                     leftComponent={
-                        <Icon type='ionicon' name='arrow-back-outline' color="#fff"
-                              onPress={() => Actions.pop()}/>}
+                        <Ripple onPress={() => Actions.pop()}>
+                            <Icon type='ionicon' name='arrow-back-outline' color='#fff'
+                            /></Ripple>}
                     statusBarProps={{barStyle: 'light-content'}}
                     containerStyle={{
                         backgroundColor: '#1da30b',

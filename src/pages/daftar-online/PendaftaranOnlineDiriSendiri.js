@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import ParallaxScroll from '@monterosa/react-native-parallax-scroll';
-import {Icon,Header} from 'react-native-elements';
+import {Icon, Header} from 'react-native-elements';
 import {
     Animated,
     Image,
@@ -54,11 +54,13 @@ import Tab2 from './DaftarTersimpan';
 import FlashMessage, {showMessage} from 'react-native-flash-message';
 import PhotoUpload from 'react-native-photo-upload';
 import moment from 'moment';
+import Ripple from 'react-native-material-ripple';
 
 
 const {height} = Dimensions.get('window');
 const styles = StyleSheet.create({
     container: {
+        flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -236,7 +238,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
             kelas: '',
             idKelas: '',
             no_jaminan: '',
-            pilihFoto:'',
+            pilihFoto: '',
 
             chosenDate: new Date(),
             chosenDate1: new Date(),
@@ -508,6 +510,10 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
             if (a === b) {
                 if (aa === bb) {
                     if (aaa === bbb) {
+                        this.setState({
+                            nomorKtpBpjs: responseJson.response.peserta.nik,
+                            showPilihRujukan: true,
+                        });
                         showMessage({
                             message: 'BPJS anda aktif',
                             type: 'warning',
@@ -701,8 +707,6 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
             });
 
 
-
-
         }).catch((error) => {
 
         });
@@ -734,8 +738,6 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
             });
 
 
-
-
         }).catch((error) => {
 
         });
@@ -757,7 +759,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
             body: JSON.stringify({
                 id: id,
                 hari: this.state.pilihHari,
-                tanggalKunjungan:this.state.pilihTanggalKunjungan
+                tanggalKunjungan: this.state.pilihTanggalKunjungan,
             }),
         }).then((response) => response.json()).then((responseJson) => {
 
@@ -773,7 +775,6 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
             this.setState({
                 loading: false,
             });
-
 
 
         }).catch((error) => {
@@ -807,8 +808,6 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
             this.setState({
                 loading: false,
             });
-
-
 
 
         }).catch((error) => {
@@ -1191,7 +1190,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                     responseJson.data.pekerjaan !== null && responseJson.data.nama_provinsi !== null &&
                     responseJson.data.nama_kab_kota !== null && responseJson.data.nama_kecamatan !== null &&
                     responseJson.data.nama_keluranahan !== null && responseJson.data.suku !== null &&
-                    responseJson.data.bahasa !== null && responseJson.data.alamat !== ''
+                    responseJson.data.bahasa !== null && responseJson.data.alamat !== '' && responseJson.data.no_ktp !== null
                 ) {
                     this.setState({
                         statusLengkap: 0,
@@ -1283,9 +1282,9 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                         jenisKelamin: this.state.jenisKelamin,
                         jamKunjungan: this.state.pilihJam,
                         pilihCaraBayar: this.state.pilihCaraBayar,
-                        pilihJamLabel:this.state.pilihJamLabel,
+                        pilihJamLabel: this.state.pilihJamLabel,
                         tanggalKunjungan: this.state.pilihTanggalKunjungan,
-                        tanggalDaftar:new Date(),
+                        tanggalDaftar: new Date(),
                         namaRuang: this.state.pilihPoly,
                         idRuang: this.state.pilihIdPoly,
                         caraBayar: this.state.caraBayar,
@@ -1380,7 +1379,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                             namaRuang: this.state.pilihPoly,
                             idRuang: this.state.pilihIdPoly,
                             caraBayar: this.state.caraBayar,
-                            pilihJamLabel:this.state.pilihJamLabel,
+                            pilihJamLabel: this.state.pilihJamLabel,
                             idCaraBayar: this.state.idCaraBayar,
                             pilihRujukan: this.state.pilihRujukan,
                             pilihDokter: this.state.pilihDokter,
@@ -1389,7 +1388,7 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                             nomorRujukan: this.state.no_jaminan,
                             kelas: this.state.kelas,
                             idKelas: this.state.idKelas,
-                            tanggalDaftar:new Date(),
+                            tanggalDaftar: new Date(),
                         }),
                     }).then((response) => response.json()).then((responseJson) => {
                         if (responseJson.success === true) {
@@ -1550,14 +1549,14 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
 
     };
 
-    pilihJam(jam,name) {
+    pilihJam(jam, name) {
 
         this.setState({
             pilihJam: jam,
-            pilihJamLabel:name,
+            pilihJamLabel: name,
             pilihDokter: this.state.dataDokter[0].name,
             pilihNrp: this.state.dataDokter[0].nrp,
-            pilihFoto:this.state.dataDokter[0].foto
+            pilihFoto: this.state.dataDokter[0].foto,
         });
         this.setModalUnvisibleDokter(!this.state.modalVisibleDokter);
     }
@@ -1566,16 +1565,16 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
         return (
             <View>
                 <List>
-                    <ListItem onPress={() => this.pilihJam(item.jam,item.name)} thumbnail>
+                    <ListItem onPress={() => this.pilihJam(item.jam, item.name)} thumbnail>
                         <Left>
                             <Text>Jam</Text>
                         </Left>
                         <Body>
-                            <Text style={{color:'gray'}}>{item.name}</Text>
+                            <Text style={{color: 'gray'}}>{item.name}</Text>
                         </Body>
                         <Right>
                             <TouchableOpacity
-                                onPress={() => this.pilihJam(item.jam,item.name)}><Text>Pilih</Text></TouchableOpacity>
+                                onPress={() => this.pilihJam(item.jam, item.name)}><Text>Pilih</Text></TouchableOpacity>
                         </Right>
                     </ListItem>
                 </List>
@@ -1627,8 +1626,9 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                 <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
                 <Header
                     leftComponent={
-                        <Icon type='ionicon' name='arrow-back-outline' color='#fff'
-                              onPress={()=>Actions.pop()}/>}
+                        <Ripple onPress={() => Actions.pop()}>
+                            <Icon type='ionicon' name='arrow-back-outline' color='#fff'
+                            /></Ripple>}
                     statusBarProps={{barStyle: 'light-content'}}
                     containerStyle={{
                         backgroundColor: '#1da30b',
@@ -1642,217 +1642,239 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                     loading={this.state.loading}/>
 
                 {this.state.statusIsi === 0 ?
-                    <View>
+                    <View style={{flex: 1}}>
                         {this.state.status === 'after' ?
-                            <View style={{padding: 5}}>
-                                <View style={{marginBottom: 10, padding: 5}}>
-                                    <Text style={styles.signupButton}>Nomor Mr </Text>
-                                    <Text
-                                        style={styles.signupText}>{this.state.nomorMr}</Text>
-                                </View>
-                                <View style={{marginBottom: 10, padding: 5}}>
-                                    <Text style={styles.signupButton}>Nama</Text>
-                                    <Text style={styles.signupText}>{this.state.nama}</Text>
-                                </View>
-                                <TouchableOpacity style={styles.button}
-                                                  onPress={this._onSubmitNama.bind(this)}>
-                                    <Text style={styles.buttonText}>Lanjutkan</Text>
-                                </TouchableOpacity>
-                            </View> : this.state.status === 'before' ?
-                                <View>
-                                    <TextInput
-                                        keyboardType={'numeric'}
-                                        defaultValue={this.state.nomorMr}
-                                        ref="nomorMr"
-                                        onChangeText={(nomorMr) => this.setState({nomorMr})}
-                                        style={styles.inputBoxModal}
-                                        underlineColorAndroid="rgba(0,0,0,0)"
-                                        placeholder="Masukan Nomor MR"
-                                        placeholderTextColor="rgba(255,255,255,0.8)"
-                                        selectionColor="#999999"
-                                    />
-                                    <TextInput
-                                        keyboardType={'numeric'}
-                                        defaultValue={this.state.tahunLahir}
-                                        ref="tahunLahir"
-                                        onChangeText={(tahunLahir) => this.setState({tahunLahir})}
-                                        style={styles.inputBoxModal}
-                                        underlineColorAndroid="rgba(0,0,0,0)"
-                                        placeholder="Masukan Tahun Lahir"
-                                        placeholderTextColor="rgba(255,255,255,0.8)"
-                                        selectionColor="#999999"
-                                    />
-                                    <TouchableOpacity style={styles.buttonModal}
-                                                      onPress={this._onSubmit.bind(this)}>
-                                        <Text style={styles.buttonText}>Submit</Text>
-                                    </TouchableOpacity></View> : <View></View>
+                            <View style={{
+                                flex: 1, alignItems: 'center',
+                                justifyContent: 'center',
+                            }}>
+                                <View style={{
+                                    flex: 1,
+                                    justifyContent: 'center',
+                                }}>
+                                    <View style={{marginBottom: 10, padding: 5}}>
+                                        <Text style={styles.signupButton}>Nomor Mr </Text>
+                                        <Text
+                                            style={styles.signupText}>{this.state.nomorMr}</Text>
+                                    </View>
+                                    <View style={{marginBottom: 10, padding: 5}}>
+                                        <Text style={styles.signupButton}>Nama</Text>
+                                        <Text style={styles.signupText}>{this.state.nama}</Text>
+                                    </View>
+                                    <TouchableOpacity style={styles.button}
+                                                      onPress={this._onSubmitNama.bind(this)}>
+                                        <Text style={styles.buttonText}>Lanjutkan</Text>
+                                    </TouchableOpacity>
+                                </View></View> : this.state.status === 'before' ?
+                                <View style={{
+                                    flex: 1, alignItems: 'center',
+                                    justifyContent: 'center',
+                                }}>
+                                    <View style={{
+                                        flex: 1,
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }}>
+                                        <View style={{
+                                            marginBottom: 20,
+                                        }}>
+                                            <Image style={{width: 250, height: 60}}
+                                                   source={require('../../images/logo/logo-hitam.jpg')}/>
+                                        </View>
+                                        <TextInput
+                                            keyboardType={'numeric'}
+                                            defaultValue={this.state.nomorMr}
+                                            ref="nomorMr"
+                                            onChangeText={(nomorMr) => this.setState({nomorMr})}
+                                            style={styles.inputBoxModal}
+                                            underlineColorAndroid="rgba(0,0,0,0)"
+                                            placeholder="Masukan Nomor MR"
+                                            placeholderTextColor="rgba(255,255,255,0.8)"
+                                            selectionColor="#999999"
+                                        />
+                                        <TextInput
+                                            keyboardType={'numeric'}
+                                            defaultValue={this.state.tahunLahir}
+                                            ref="tahunLahir"
+                                            onChangeText={(tahunLahir) => this.setState({tahunLahir})}
+                                            style={styles.inputBoxModal}
+                                            underlineColorAndroid="rgba(0,0,0,0)"
+                                            placeholder="Masukan Tahun Lahir"
+                                            placeholderTextColor="rgba(255,255,255,0.8)"
+                                            selectionColor="#999999"
+                                        />
+                                        <TouchableOpacity style={styles.buttonModal}
+                                                          onPress={this._onSubmit.bind(this)}>
+                                            <Text style={styles.buttonText}>Submit</Text>
+                                        </TouchableOpacity></View></View> : <View></View>
                         }
                         {this.isFieldInError('nomorMr') && this.getErrorsInField('nomorMr').map(errorMessage =>
                             <Text>{errorMessage}</Text>)}
                     </View> :
                     <ScrollView>
-                            <View style={{height: 200, paddingVertical: 20}}>
-                                <Grid>
-                                    <Col style={{width: 120, height: 100}}><PhotoUpload
-                                        quality={30}
-                                        onPhotoSelect={avatar => {
+                        <View style={{height: 200, paddingVertical: 20}}>
+                            <Grid>
+                                <Col style={{width: 120, height: 100}}><PhotoUpload
+                                    quality={30}
+                                    onPhotoSelect={avatar => {
+                                        if (avatar) {
+
                                             if (avatar) {
 
-                                                if (avatar) {
+                                                fetch(baseApi + '/user/updatePhoto', {
+                                                    method: 'POST',
+                                                    headers: {
+                                                        Accept: 'application/json',
+                                                        'Content-Type': 'application/json',
+                                                        'Authorization': 'Bearer ' + this.props.getUser.userDetails.token,
+                                                    },
+                                                    body: JSON.stringify({
+                                                        id: this.props.getUser.userDetails.id,
+                                                        photo: avatar,
+                                                    }),
+                                                }).then((response) => response.json()).then((responseJson) => {
 
-                                                    fetch(baseApi + '/user/updatePhoto', {
-                                                        method: 'POST',
-                                                        headers: {
-                                                            Accept: 'application/json',
-                                                            'Content-Type': 'application/json',
-                                                            'Authorization': 'Bearer ' + this.props.getUser.userDetails.token,
-                                                        },
-                                                        body: JSON.stringify({
-                                                            id: this.props.getUser.userDetails.id,
-                                                            photo: avatar,
-                                                        }),
-                                                    }).then((response) => response.json()).then((responseJson) => {
+                                                })
+                                                    .catch((error) => {
 
-                                                    })
-                                                        .catch((error) => {
-
-                                                        });
-                                                }
+                                                    });
                                             }
+                                        }
+                                    }}
+                                >
+                                    <Image
+                                        key={new Date()}
+                                        style={{
+                                            width: 120,
+                                            height: 120,
+                                            borderRadius: 75,
                                         }}
-                                    >
-                                        <Image
-                                            key={new Date()}
-                                            style={{
-                                                width: 120,
-                                                height: 120,
-                                                borderRadius: 75,
-                                            }}
-                                            resizeMode='cover'
-                                            source={{uri: this.state.foto + '?' + new Date()}}
-                                        />
-                                    </PhotoUpload></Col>
-                                    <Col style={{width: 225, height: 250}}>
-                                        <List>
-                                            <ListItem>
-                                                <Left>
-                                                    <Text>Nama</Text>
-                                                </Left>
-                                                <Body>
-                                                    <Text>{this.state.namaPasien}</Text>
-                                                </Body>
-                                            </ListItem>
-                                            <ListItem>
-                                                <Left>
-                                                    <Text>Nomor MR</Text>
-                                                </Left>
-                                                <Body>
-                                                    <Text>{this.state.nomor_mr}</Text>
-                                                </Body>
-                                            </ListItem>
-                                            <ListItem>
-                                                <Left>
-                                                    <Text>Tanggal Lahir</Text>
-                                                </Left>
-                                                <Body>
-                                                    <Text>{this.state.tanggalLahir}</Text>
-                                                </Body>
-                                            </ListItem>
-                                            <ListItem>
-                                                <Left>
-                                                    <Text>Jenis Kelamin</Text>
-                                                </Left>
-                                                <Body>
-                                                    <Text>{this.state.jenisKelaminTampil}</Text>
-                                                </Body>
-                                            </ListItem>
-                                        </List>
-                                    </Col>
-                                </Grid>
+                                        resizeMode='cover'
+                                        source={{uri: this.state.foto + '?' + new Date()}}
+                                    />
+                                </PhotoUpload></Col>
+                                <Col style={{width: 225, height: 250}}>
+                                    <List>
+                                        <ListItem>
+                                            <Left>
+                                                <Text>Nama</Text>
+                                            </Left>
+                                            <Body>
+                                                <Text>{this.state.namaPasien}</Text>
+                                            </Body>
+                                        </ListItem>
+                                        <ListItem>
+                                            <Left>
+                                                <Text>Nomor MR</Text>
+                                            </Left>
+                                            <Body>
+                                                <Text>{this.state.nomor_mr}</Text>
+                                            </Body>
+                                        </ListItem>
+                                        <ListItem>
+                                            <Left>
+                                                <Text>Tanggal Lahir</Text>
+                                            </Left>
+                                            <Body>
+                                                <Text>{this.state.tanggalLahir}</Text>
+                                            </Body>
+                                        </ListItem>
+                                        <ListItem>
+                                            <Left>
+                                                <Text>Jenis Kelamin</Text>
+                                            </Left>
+                                            <Body>
+                                                <Text>{this.state.jenisKelaminTampil}</Text>
+                                            </Body>
+                                        </ListItem>
+                                    </List>
+                                </Col>
+                            </Grid>
 
-                            </View>
-                            <View style={{marginBottom: 50, marginTop: 65, justifyContent: 'center'}}>
-                                {this.state.statusLengkap === 1 ?
-                                    <View style={{justifyContent: 'center', alignItems: 'center'}}>
-                                        <TouchableOpacity style={styles.button}
-                                                          onPress={!this.state.inClickLengkapiProfil ? this.onClickButtonLengkapiProfil : null}>
-                                            <Text style={styles.buttonText}>Lengkapi Profil Anda Terlebih Dahulu</Text></TouchableOpacity>
-                                    </View> :
-                                    <View style={{justifyContent: 'center', alignItems: 'center'}}>
-                                        <Select2 placeholderTextColor="#ffffff"
-                                                 listEmptyTitle="Tidak ada data"
-                                                 cancelButtonText="Keluar"
-                                                 selectButtonText="Pilih"
-                                                 isSelectSingle
-                                                 selectedTitleStyle={{color: 'white'}}
-                                                 style={styles.inputBox}
-                                                 colorTheme="#1da30b"
-                                                 searchPlaceHolderText="Cari Tanggal Kunjungan"
-                                                 popupTitle="Pilih Tanggal Kunjungan"
-                                                 title="Pilih Tanggal Kunjungan"
-                                                 data={this.state.dataTanggal}
-                                                 onSelect={data => {
-                                                     this.setState({
-                                                         tanggalMasuk: this.state.dataTanggal[data].name,
-                                                         pilihTanggalKunjungan: this.state.dataTanggal[data].tanggal,
-                                                         pilihHari: this.state.dataTanggal[data].hari,
-                                                     });
+                        </View>
+                        <View style={{marginTop: 65, justifyContent: 'center'}}>
+                            {this.state.statusLengkap === 1 ?
+                                <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                                    <TouchableOpacity style={styles.button}
+                                                      onPress={!this.state.inClickLengkapiProfil ? this.onClickButtonLengkapiProfil : null}>
+                                        <Text style={styles.buttonText}>Lengkapi Profil Anda Terlebih
+                                            Dahulu</Text></TouchableOpacity>
+                                </View> :
+                                <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                                    <Select2 placeholderTextColor="#ffffff"
+                                             listEmptyTitle="Tidak ada data"
+                                             cancelButtonText="Keluar"
+                                             selectButtonText="Pilih"
+                                             isSelectSingle
+                                             selectedTitleStyle={{color: 'white'}}
+                                             style={styles.inputBox}
+                                             colorTheme="#1da30b"
+                                             searchPlaceHolderText="Cari Tanggal Kunjungan"
+                                             popupTitle="Pilih Tanggal Kunjungan"
+                                             title="Pilih Tanggal Kunjungan"
+                                             data={this.state.dataTanggal}
+                                             onSelect={data => {
+                                                 this.setState({
+                                                     tanggalMasuk: this.state.dataTanggal[data].name,
+                                                     pilihTanggalKunjungan: this.state.dataTanggal[data].tanggal,
+                                                     pilihHari: this.state.dataTanggal[data].hari,
+                                                 });
 
-                                                 }}
-                                                 onRemoveItem={data => {
-                                                     this.setState({
-                                                         pilihCaraBayar: '',
-                                                         tanggalMasuk: '',
-                                                         pilihHari: '',
-                                                     });
-                                                 }}
-                                        />
-                                        {this.isFieldInError('pilihHari') && this.getErrorsInField('pilihHari').map(errorMessage =>
-                                            <Text>{errorMessage}</Text>)}
-                                        <Select2 placeholderTextColor="#ffffff"
-                                                 listEmptyTitle="Tidak ada data"
-                                                 cancelButtonText="Keluar"
-                                                 selectButtonText="Pilih"
-                                                 isSelectSingle
-                                                 selectedTitleStyle={{color: 'white'}}
-                                                 style={styles.inputBox}
-                                                 colorTheme="#1da30b"
-                                                 searchPlaceHolderText="Cari Pilih Bayar Anda"
-                                                 popupTitle="Pilih Cara Bayar"
-                                                 title="Pilih Cara Bayar"
-                                                 data={this.state.dataCaraBayar}
-                                                 onSelect={data => {
-                                                     this.setState({
-                                                         pilihCaraBayar: this.state.dataCaraBayar[data].name,
-                                                         caraBayar: this.state.dataCaraBayar[data].ket,
-                                                         idCaraBayar: this.state.dataCaraBayar[data].idCaraBayar,
-                                                     });
+                                             }}
+                                             onRemoveItem={data => {
+                                                 this.setState({
+                                                     pilihCaraBayar: '',
+                                                     tanggalMasuk: '',
+                                                     pilihHari: '',
+                                                 });
+                                             }}
+                                    />
+                                    {this.isFieldInError('pilihHari') && this.getErrorsInField('pilihHari').map(errorMessage =>
+                                        <Text>{errorMessage}</Text>)}
+                                    <Select2 placeholderTextColor="#ffffff"
+                                             listEmptyTitle="Tidak ada data"
+                                             cancelButtonText="Keluar"
+                                             selectButtonText="Pilih"
+                                             isSelectSingle
+                                             selectedTitleStyle={{color: 'white'}}
+                                             style={styles.inputBox}
+                                             colorTheme="#1da30b"
+                                             searchPlaceHolderText="Cari Pilih Bayar Anda"
+                                             popupTitle="Pilih Cara Bayar"
+                                             title="Pilih Cara Bayar"
+                                             data={this.state.dataCaraBayar}
+                                             onSelect={data => {
+                                                 this.setState({
+                                                     pilihCaraBayar: this.state.dataCaraBayar[data].name,
+                                                     caraBayar: this.state.dataCaraBayar[data].ket,
+                                                     idCaraBayar: this.state.dataCaraBayar[data].idCaraBayar,
+                                                 });
 
-                                                     if (this.state.dataCaraBayar[data].ket === 'BPJS') {
-                                                         this.showDataRujukan();
-                                                     }
-                                                 }}
-                                                 onRemoveItem={data => {
-                                                     this.setState({pilihCaraBayar: ''});
-                                                 }}
-                                        />
-                                        {this.isFieldInError('pilihCaraBayar') && this.getErrorsInField('pilihCaraBayar').map(errorMessage =>
-                                            <Text>{errorMessage}</Text>)}
-                                        {this.state.caraBayar === 'UMUM' ?
-                                            <View></View> :
-                                            this.state.caraBayar === 'BPJS' ?
-                                                <View>
-                                                    <TextInput
-                                                        placeholder="Masukan No BPJS"
-                                                        onChangeText={(noBpjs) => this.setState({noBpjs})}
-                                                        defaultValue={this.state.noBpjs}
-                                                        ref="noBpjs"
-                                                        style={styles.inputBox}
-                                                        underlineColorAndroid="rgba(0,0,0,0)"
-                                                        placeholderTextColor="rgba(255,255,255,0.8)"
-                                                        selectionColor="#999999"
-                                                    />
-                                                    {this.state.showPilihRujukan === true ?
+                                                 if (this.state.dataCaraBayar[data].ket === 'BPJS') {
+                                                     this.showDataRujukan();
+                                                 }
+                                             }}
+                                             onRemoveItem={data => {
+                                                 this.setState({pilihCaraBayar: ''});
+                                             }}
+                                    />
+                                    {this.isFieldInError('pilihCaraBayar') && this.getErrorsInField('pilihCaraBayar').map(errorMessage =>
+                                        <Text>{errorMessage}</Text>)}
+                                    {this.state.caraBayar === 'UMUM' ?
+                                        <View></View> :
+                                        this.state.caraBayar === 'BPJS' ?
+                                            <View>
+                                                <TextInput
+                                                    placeholder="Masukan No BPJS"
+                                                    onChangeText={ValueHolder => this.GetValueFunction(ValueHolder)}
+                                                    defaultValue={this.state.noBpjs}
+                                                    ref="noBpjs"
+                                                    style={styles.inputBox}
+                                                    underlineColorAndroid="rgba(0,0,0,0)"
+                                                    placeholderTextColor="rgba(255,255,255,0.8)"
+                                                    selectionColor="#999999"
+                                                />
+                                                {this.state.showPilihRujukan === true ?
                                                     <Select2 placeholderTextColor="#ffffff"
                                                              listEmptyTitle="Tidak ada data"
                                                              cancelButtonText="Keluar"
@@ -1875,197 +1897,197 @@ class PendaftaranOnlineDiriSendiri extends ValidationComponent {
                                                              onRemoveItem={data => {
                                                                  this.setState({pilihRujukan: ''});
                                                              }}
-                                                    />:<View></View>}
-                                                    {this.state.cekRujukan === 0 ?
-                                                        <View>
-                                                            <List>
-                                                                <ListItem>
-                                                                    <Left>
-                                                                        <Text>No Rujukan</Text>
-                                                                    </Left>
-                                                                    <Body>
-                                                                        <Text note>Tidak Ada Rujukan</Text>
-                                                                    </Body>
-                                                                </ListItem>
-                                                            </List>
-                                                        </View> : this.state.cekRujukan === 1 ?
-                                                            <View>
-                                                                <TouchableOpacity style={styles.buttonModalInputText}
-                                                                                  onPress={() => this.showModalBpjs(true)}>
-                                                                    <Text style={styles.buttonText}>Pilih Rujukan</Text>
-                                                                </TouchableOpacity>
-                                                            </View>
-                                                            : this.state.cekRujukan === 2 ?
-                                                                <View>
-                                                                    <TouchableOpacity
-                                                                        style={styles.buttonModalInputText}
-                                                                        onPress={() => this.showModalBpjs(true)}>
-                                                                        <Text style={styles.buttonText}>Pilih
-                                                                            Rujukan</Text>
-                                                                    </TouchableOpacity>
-                                                                    <List>
-                                                                        <ListItem>
-                                                                            <Left>
-                                                                                <Text>No Rujukan</Text>
-                                                                            </Left>
-                                                                            <Body>
-                                                                                <Text
-                                                                                    note>{this.state.no_jaminan}</Text>
-                                                                            </Body>
-                                                                        </ListItem>
-                                                                    </List>
-                                                                </View>
-                                                                : this.state.cekRujukan === 3 ? <View></View> :
-                                                                    <View></View>}
-                                                </View>
-                                                :
-                                                <View></View>}
-                                        {this.isFieldInError('pilihRujukan') && this.getErrorsInField('pilihRujukan').map(errorMessage =>
-                                            <Text>{errorMessage}</Text>)}
-                                        <Select2 placeholderTextColor="#ffffff"
-                                                 listEmptyTitle="Tidak ada data"
-                                                 cancelButtonText="Keluar"
-                                                 selectButtonText="Pilih"
-                                                 isSelectSingle
-                                                 selectedTitleStyle={{color: 'white'}}
-                                                 style={styles.inputBox}
-                                                 colorTheme="#1da30b"
-                                                 searchPlaceHolderText="Cari Poly"
-                                                 popupTitle="Pilih Poly"
-                                                 title="Pilih Poly"
-                                                 data={this.state.dataPoly}
-                                                 onSelect={data => {
-                                                     this.setState({
-                                                         pilihPoly: this.state.dataPoly[data].name,
-                                                         pilihIdPoly: this.state.dataPoly[data].idPoly,
-                                                         dataDokter: [],
-                                                         pilihDokter: '',
-                                                         pilihJam: '',
-                                                     });
-                                                     this.showDataDokter(this.state.dataPoly[data].idPoly);
-                                                 }}
-                                                 onRemoveItem={data => {
-                                                     this.setState({pilihPoly: ''});
-                                                 }}
-                                        />
-                                        {this.isFieldInError('pilihPoly') && this.getErrorsInField('pilihPoly').map(errorMessage =>
-                                            <Text>{errorMessage}</Text>)}
-                                        {this.state.pilihPoly !== '' && this.state.pilihTanggalKunjungan !== '' ?
-                                            <View>
-                                                {this.state.pilihJam === '' ?
+                                                    /> : <View></View>}
+                                                {this.state.cekRujukan === 0 ?
                                                     <View>
-                                                        <TouchableOpacity style={styles.buttonModalInputText}
-                                                                          onPress={() => this.showModalDokter(true)}>
-                                                            <Text style={styles.buttonText}>Pilih Dokter</Text>
-                                                        </TouchableOpacity>
+                                                        <List>
+                                                            <ListItem>
+                                                                <Left>
+                                                                    <Text>No Rujukan</Text>
+                                                                </Left>
+                                                                <Body>
+                                                                    <Text note>Tidak Ada Rujukan</Text>
+                                                                </Body>
+                                                            </ListItem>
+                                                        </List>
+                                                    </View> : this.state.cekRujukan === 1 ?
+                                                        <View>
+                                                            <TouchableOpacity style={styles.buttonModalInputText}
+                                                                              onPress={() => this.showModalBpjs(true)}>
+                                                                <Text style={styles.buttonText}>Pilih Rujukan</Text>
+                                                            </TouchableOpacity>
+                                                        </View>
+                                                        : this.state.cekRujukan === 2 ?
+                                                            <View>
+                                                                <TouchableOpacity
+                                                                    style={styles.buttonModalInputText}
+                                                                    onPress={() => this.showModalBpjs(true)}>
+                                                                    <Text style={styles.buttonText}>Pilih
+                                                                        Rujukan</Text>
+                                                                </TouchableOpacity>
+                                                                <List>
+                                                                    <ListItem>
+                                                                        <Left>
+                                                                            <Text>No Rujukan</Text>
+                                                                        </Left>
+                                                                        <Body>
+                                                                            <Text
+                                                                                note>{this.state.no_jaminan}</Text>
+                                                                        </Body>
+                                                                    </ListItem>
+                                                                </List>
+                                                            </View>
+                                                            : this.state.cekRujukan === 3 ? <View></View> :
+                                                                <View></View>}
+                                            </View>
+                                            :
+                                            <View></View>}
+                                    {this.isFieldInError('pilihRujukan') && this.getErrorsInField('pilihRujukan').map(errorMessage =>
+                                        <Text>{errorMessage}</Text>)}
+                                    <Select2 placeholderTextColor="#ffffff"
+                                             listEmptyTitle="Tidak ada data"
+                                             cancelButtonText="Keluar"
+                                             selectButtonText="Pilih"
+                                             isSelectSingle
+                                             selectedTitleStyle={{color: 'white'}}
+                                             style={styles.inputBox}
+                                             colorTheme="#1da30b"
+                                             searchPlaceHolderText="Cari Poly"
+                                             popupTitle="Pilih Poly"
+                                             title="Pilih Poly"
+                                             data={this.state.dataPoly}
+                                             onSelect={data => {
+                                                 this.setState({
+                                                     pilihPoly: this.state.dataPoly[data].name,
+                                                     pilihIdPoly: this.state.dataPoly[data].idPoly,
+                                                     dataDokter: [],
+                                                     pilihDokter: '',
+                                                     pilihJam: '',
+                                                 });
+                                                 this.showDataDokter(this.state.dataPoly[data].idPoly);
+                                             }}
+                                             onRemoveItem={data => {
+                                                 this.setState({pilihPoly: ''});
+                                             }}
+                                    />
+                                    {this.isFieldInError('pilihPoly') && this.getErrorsInField('pilihPoly').map(errorMessage =>
+                                        <Text>{errorMessage}</Text>)}
+                                    {this.state.pilihPoly !== '' && this.state.pilihTanggalKunjungan !== '' ?
+                                        <View>
+                                            {this.state.pilihJam === '' ?
+                                                <View>
+                                                    <TouchableOpacity style={styles.buttonModalInputText}
+                                                                      onPress={() => this.showModalDokter(true)}>
+                                                        <Text style={styles.buttonText}>Pilih Dokter</Text>
+                                                    </TouchableOpacity>
+                                                </View> :
+                                                <View>
+                                                    <TouchableOpacity style={styles.buttonModalInputText}
+                                                                      onPress={() => this.showModalDokter(true)}>
+                                                        <Text style={styles.buttonText}>Pilih Dokter</Text>
+                                                    </TouchableOpacity>
+                                                    <View>
+                                                        <List>
+                                                            <ListItem thumbnail>
+                                                                <Left>
+                                                                    <Thumbnail source={
+                                                                        this.state.pilihFoto != null ?
+                                                                            {uri: baseUrlFoto + 'dokter/' + this.state.pilihFoto} :
+                                                                            require('../../images/dokter.png')
+                                                                    }/>
+                                                                </Left>
+                                                                <Body>
+                                                                    <Text note>{this.state.pilihNrp}</Text>
+                                                                    <View style={{
+                                                                        flex: 1,
+                                                                        flexDirection: 'row',
+                                                                        marginTop: 10,
+                                                                    }}>
+                                                                        <Text note>{this.state.pilihDokter}</Text>
+                                                                    </View>
+                                                                </Body>
+                                                            </ListItem>
+                                                        </List>
+                                                    </View>
+                                                </View>}
+                                        </View> : <View></View>}
+                                    <TouchableOpacity style={styles.button}
+                                                      onPress={this._onSubmitFinish.bind(this)}>
+                                        <Text style={styles.buttonText}>Go Daftar</Text>
+                                    </TouchableOpacity>
+                                    <Modal
+                                        onSwipeComplete={() => {
+                                            this.setModalUnvisibleBpjs(!this.state.modalVisibleBpjs);
+                                        }}
+                                        scrollHorizontal
+                                        propagateSwipe
+                                        swipeDirection={['down']}
+                                        swipearea={50}
+                                        onRequestClose={() => {
+                                            this.setModalUnvisibleBpjs(!this.state.modalVisibleBpjs);
+                                        }}
+                                        animationType="slide"
+                                        visible={this.state.modalVisibleBpjs}
+                                    ><Container style={{margin: 0, marginBottom: 0, backgroundColor: '#fff'}}>
+                                        <View style={{flex: 1, justifyContent: 'center'}}>
+                                            <Content style={{margin: 5}}>
+                                                {this.state.jenisRujukan === 1 || this.state.jenisRujukan === 2 ?
+                                                    <View>
+                                                        <FlatList
+                                                            renderItem={this.renderRujukanBpjs}
+                                                            keyExtractor={(item, index) => index.toString()}
+                                                            ListFooterComponent={this.renderFooter}
+                                                            data={this.state.dataRujukanBpjs}/>
                                                     </View> :
                                                     <View>
-                                                        <TouchableOpacity style={styles.buttonModalInputText}
-                                                                          onPress={() => this.showModalDokter(true)}>
-                                                            <Text style={styles.buttonText}>Pilih Dokter</Text>
-                                                        </TouchableOpacity>
-                                                        <View>
-                                                            <List>
-                                                                <ListItem thumbnail>
-                                                                    <Left>
-                                                                        <Thumbnail source={
-                                                                            this.state.pilihFoto != null ?
-                                                                                {uri: baseUrlFoto + 'dokter/' + this.state.pilihFoto} :
-                                                                                require('../../images/dokter.png')
-                                                                        }/>
-                                                                    </Left>
-                                                                    <Body>
-                                                                        <Text note>{this.state.pilihNrp}</Text>
-                                                                        <View style={{
-                                                                            flex: 1,
-                                                                            flexDirection: 'row',
-                                                                            marginTop: 10,
-                                                                        }}>
-                                                                            <Text note>{this.state.pilihDokter}</Text>
-                                                                        </View>
-                                                                    </Body>
-                                                                </ListItem>
-                                                            </List>
+                                                        <View style={{borderBottomWidth: 2}}>
+                                                            <Text>Faskes 1</Text>
+                                                            {this.state.errorKontrolUlang1 === false ?
+                                                                <FlatList
+                                                                    renderItem={this.renderRujukanBpjs}
+                                                                    keyExtractor={(item, index) => index.toString()}
+                                                                    ListFooterComponent={this.renderFooter}
+                                                                    data={this.state.dataRujukanKontrolUlang1}/> :
+                                                                <View><Text>Tidak Ada Data</Text></View>}
                                                         </View>
-                                                    </View>}
-                                            </View> : <View></View>}
-                                        <TouchableOpacity style={styles.button}
-                                                          onPress={this._onSubmitFinish.bind(this)}>
-                                            <Text style={styles.buttonText}>Go Daftar</Text>
-                                        </TouchableOpacity>
-                                        <Modal
-                                            onSwipeComplete={() => {
-                                                this.setModalUnvisibleBpjs(!this.state.modalVisibleBpjs);
-                                            }}
-                                            scrollHorizontal
-                                            propagateSwipe
-                                            swipeDirection={['down']}
-                                            swipearea={50}
-                                            onRequestClose={() => {
-                                                this.setModalUnvisibleBpjs(!this.state.modalVisibleBpjs);
-                                            }}
-                                            animationType="slide"
-                                            visible={this.state.modalVisibleBpjs}
-                                        ><Container style={{margin: 0, marginBottom: 0, backgroundColor: '#fff'}}>
-                                            <View style={{flex: 1, justifyContent: 'center'}}>
-                                                <Content style={{margin: 5}}>
-                                                    {this.state.jenisRujukan === 1 || this.state.jenisRujukan === 2 ?
-                                                        <View>
-                                                            <FlatList
-                                                                renderItem={this.renderRujukanBpjs}
-                                                                keyExtractor={(item, index) => index.toString()}
-                                                                ListFooterComponent={this.renderFooter}
-                                                                data={this.state.dataRujukanBpjs}/>
-                                                        </View> :
-                                                        <View>
-                                                            <View style={{borderBottomWidth:2}}>
-                                                                <Text>Faskes 1</Text>
-                                                                {this.state.errorKontrolUlang1 === false ?
-                                                                    <FlatList
-                                                                        renderItem={this.renderRujukanBpjs}
-                                                                        keyExtractor={(item, index) => index.toString()}
-                                                                        ListFooterComponent={this.renderFooter}
-                                                                        data={this.state.dataRujukanKontrolUlang1}/> :
-                                                                    <View><Text>Tidak Ada Data</Text></View>}
-                                                            </View>
-                                                            <View style={{borderBottomWidth:2}}>
-                                                                <Text>Faskes 2</Text>
-                                                                {this.state.errorKontrolUlang2 === false ?
-                                                                    <FlatList
-                                                                        renderItem={this.renderRujukanBpjs}
-                                                                        keyExtractor={(item, index) => index.toString()}
-                                                                        ListFooterComponent={this.renderFooter}
-                                                                        data={this.state.dataRujukanKontrolUlang2}/> :
-                                                                    <View><Text>Tidak Ada Data</Text></View>}
-                                                            </View>
+                                                        <View style={{borderBottomWidth: 2}}>
+                                                            <Text>Faskes 2</Text>
+                                                            {this.state.errorKontrolUlang2 === false ?
+                                                                <FlatList
+                                                                    renderItem={this.renderRujukanBpjs}
+                                                                    keyExtractor={(item, index) => index.toString()}
+                                                                    ListFooterComponent={this.renderFooter}
+                                                                    data={this.state.dataRujukanKontrolUlang2}/> :
+                                                                <View><Text>Tidak Ada Data</Text></View>}
                                                         </View>
-                                                    }
+                                                    </View>
+                                                }
+                                            </Content>
+                                        </View>
+                                    </Container>
+                                    </Modal>
+                                    <Modal
+                                        onRequestClose={() => {
+                                            this.setModalUnvisibleDokter(!this.state.modalVisibleDokter);
+                                        }}
+                                        transparent={false}
+                                        animationType="slide"
+                                        visible={this.state.modalVisibleDokter}
+                                    >
+                                        <Container style={{marginBottom: 0, backgroundColor: '#fffff'}}>
+                                            <View style={{flex: 1}}>
+                                                <Content>
+                                                    <FlatList
+                                                        renderItem={this.renderRowDokter}
+                                                        keyExtractor={(item, index) => index.toString()}
+                                                        ListFooterComponent={this.renderFooter}
+                                                        data={this.state.dataDokter}/>
                                                 </Content>
                                             </View>
                                         </Container>
-                                        </Modal>
-                                        <Modal
-                                            onRequestClose={() => {
-                                                this.setModalUnvisibleDokter(!this.state.modalVisibleDokter);
-                                            }}
-                                            transparent={false}
-                                            animationType="slide"
-                                            visible={this.state.modalVisibleDokter}
-                                        >
-                                            <Container style={{marginBottom: 0, backgroundColor: '#fffff'}}>
-                                                <View style={{flex: 1}}>
-                                                    <Content>
-                                                        <FlatList
-                                                            renderItem={this.renderRowDokter}
-                                                            keyExtractor={(item, index) => index.toString()}
-                                                            ListFooterComponent={this.renderFooter}
-                                                            data={this.state.dataDokter}/>
-                                                    </Content>
-                                                </View>
-                                            </Container>
-                                        </Modal>
-                                    </View>}
-                            </View>
+                                    </Modal>
+                                </View>}
+                        </View>
 
                     </ScrollView>
                 }

@@ -12,7 +12,7 @@ import {
     TouchableOpacity,
     Alert, TextInput, ScrollView, ActivityIndicator, Modal, FlatList, Dimensions,
 } from 'react-native';
-import {ListItem, Header, Badge} from 'react-native-elements';
+import {ListItem, Header, Badge, Icon} from 'react-native-elements';
 import ParallaxScrollView from 'react-native-parallax-scrollview';
 import LoaderModal from '../components/LoaderModal';
 import ValidationComponent from 'react-native-form-validator';
@@ -31,6 +31,7 @@ import HTMLView from 'react-native-htmlview';
 import FlashMessage, {showMessage} from 'react-native-flash-message';
 import PhotoUpload from 'react-native-photo-upload';
 import moment from 'moment';
+import Ripple from 'react-native-material-ripple';
 
 
 const {height} = Dimensions.get('window');
@@ -94,9 +95,13 @@ class Notifikasi extends Component {
 
     render() {
         return (
-            <View>
+            <View style={{  flex: 1}}>
                 <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
                 <Header
+                    leftComponent={
+                        <Ripple onPress={() => Actions.pop()}>
+                            <Icon type='ionicon' name='arrow-back-outline' color='#fff'
+                            /></Ripple>}
                     statusBarProps={{barStyle: 'light-content'}}
                     containerStyle={{
                         backgroundColor: '#1da30b',
@@ -108,14 +113,22 @@ class Notifikasi extends Component {
                 />
                 <LoaderModal
                     loading={this.state.loading}/>
+
                 {this.state.data.length !== 0 ?
                     <FlatList
                         renderItem={this.renderRow}
                         keyExtractor={(item, index) => index.toString()}
                         data={this.state.data}/> :
-                    <ListItem
-                        title={<Text>Tidak Ada Notifikasi</Text>}
-                    />}
+                    <View style={{  flex: 1,
+                        backgroundColor: '#fff',
+                        alignItems: 'center',
+                        justifyContent: 'center',}}>
+                    <View style={{
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flex: 1
+                    }}><Text
+                        style={{color: 'gray'}}>Tidak Ada Data</Text></View></View>}
 
 
             </View>

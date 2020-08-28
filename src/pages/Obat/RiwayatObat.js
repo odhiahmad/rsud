@@ -370,14 +370,13 @@ class RiwayatObat extends Component {
                     placement="center"
                     centerComponent={{text: 'Riwayat Obat', style: {fontWeight: 'bold', color: '#fff'}}}
                 />
-
                 {this.state.showTryAgain === true ?
-                    <View style={styles.container}>
+                    <View style={{flex: 1}}>
                         <TouchableOpacity style={styles.button}
                                           onPress={() => this.getData()}>
                             <Text style={styles.buttonText}>Refresh </Text>
                         </TouchableOpacity></View> :
-                    <View style={styles.container}>
+                    <View style={{flex: 1}}>
                         {this.state.data.length !== 0 ? <FlatList
                                 refreshControl={
                                     <RefreshControl
@@ -390,11 +389,18 @@ class RiwayatObat extends Component {
                                 onEndReachedThreshold={0.1}
                                 ListFooterComponent={this.renderFooter}
                                 data={this.state.data}/> :
-                            <View style={{alignItems: 'center', justifyContent: 'center',flex: 1}}><Text
-                                style={{color: 'gray'}}>Tidak Ada Data</Text></View>}
-                    </View>
-                }
+                            <View style={{  flex: 1,
+                                backgroundColor: '#fff',
+                                alignItems: 'center',
+                                justifyContent: 'center',}}>
+                                <View style={{
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    flex: 1
+                                }}><Text
+                                    style={{color: 'gray'}}>Tidak Ada Data</Text></View></View>}</View>
 
+                }
 
                 <Modal
                     onSwipeComplete={() => {

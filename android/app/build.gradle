@@ -142,8 +142,8 @@ android {
         applicationId "com.rsudpadangpanjang"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 11
-        versionName "11"
+        versionCode 15
+        versionName "15"
         multiDexEnabled true
     }
 

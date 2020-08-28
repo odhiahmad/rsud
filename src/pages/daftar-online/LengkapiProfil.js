@@ -42,6 +42,7 @@ import {logoutUser} from '../../actions/auth.actions';
 import {showMessage} from 'react-native-flash-message';
 import {Header} from 'react-native-elements';
 import DatePicker from 'react-native-datepicker';
+import Ripple from 'react-native-material-ripple';
 
 const styles = StyleSheet.create({
     container: {
@@ -464,7 +465,7 @@ class LengkapiProfil extends ValidationComponent {
             pilihAgama: {required: true},
             jenisKelamin: {required: true},
             statusKawin: {required: true},
-            chosenDate: {required: true},
+            tanggalLahir: {required: true},
             noTelpon: {minlength: 10, maxlength: 13, number: true, required: true},
             tempatLahir: {minlength: 3, required: true},
             nama: {minlength: 4, maxlength: 50, required: true},
@@ -501,9 +502,18 @@ class LengkapiProfil extends ValidationComponent {
                     }),
                 }).then((response) => response.json()).then((responseJson) => {
 
-                    if (responseJson.response != null) {
-                        if (parseInt(responseJson.response.peserta.statusPeserta.kode) === 0) {
-                            if (responseJson.response.peserta.nik === this.state.nik) {
+                    const a = parseInt(responseJson.metaData.code);
+                    const b = 200;
+
+                    const aa = parseInt(responseJson.response.peserta.statusPeserta.kode);
+                    const bb = 0;
+
+                    const aaa = parseInt(responseJson.response.peserta.nik);
+                    const bbb = parseInt(this.state.nik);
+
+                    if (a === b) {
+                        if (aa === bb) {
+                            if (aaa === bbb) {
                                 fetch(baseApi + '/user/updateProfil', {
                                     method: 'POST',
                                     headers: {
@@ -1280,8 +1290,9 @@ class LengkapiProfil extends ValidationComponent {
                 <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
                 <Header
                     leftComponent={
-                        <Icon type='ionicon' name='arrow-back-outline' color='#fff'
-                              onPress={()=>Actions.pop()}/>}
+                        <Ripple onPress={() => Actions.pop()}>
+                            <Icon type='ionicon' name='arrow-back-outline' color='#fff'
+                            /></Ripple>}
                     statusBarProps={{barStyle: 'light-content'}}
                     containerStyle={{
                         backgroundColor: '#1da30b',

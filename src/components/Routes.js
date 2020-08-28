@@ -35,7 +35,14 @@ import LengkapiProfil from '../pages/daftar-online/LengkapiProfil';
 import Obat from '../pages/Obat/Obat';
 import RiwayatObat from '../pages/Obat/RiwayatObat';
 import LupaPasswordSaya from '../pages/lupa-password/LupaPasswordSaya';
+import CekStatusRawatJalan from '../pages/cek-status/CekStatusRawatJalan'
+import CekStatusRawatInap from '../pages/cek-status/CekStatusRawatInap'
+import CekStatusIGD from '../pages/cek-status/CekStatusIGD'
+import PenilaianRawatInap from '../pages/penilaian/PenilaianRawatInap';
+import PenilaianRawatJalan from '../pages/penilaian/PenilaianRawatJalan';
 import { createStackNavigator } from 'react-navigation-stack';
+
+
 let {width, height} = Dimensions.get('window');
 var backButtonPressedOnceToExit = false;
 class TabIcon extends Component {
@@ -269,6 +276,36 @@ class Routes extends Component<{}> {
                                     key="riwayatobat"
                                     component={RiwayatObat}
                                     title="Riwayat Obat"
+                                />
+                                <Scene
+                                    title="Riwayat Obat"
+                                    hideNavBar={true}
+                                    key="cekstatusrawatjalan"
+                                    component={CekStatusRawatJalan}
+                                />
+                                <Scene
+                                    title="Riwayat Obat"
+                                    hideNavBar={true}
+                                    key="cekstatusrawatinap"
+                                    component={CekStatusRawatInap}
+                                />
+                                <Scene
+                                    title="Riwayat Obat"
+                                    hideNavBar={true}
+                                    key="cekstatusigd"
+                                    component={CekStatusIGD}
+                                />
+                                <Scene
+                                    title="Riwayat Obat"
+                                    hideNavBar={true}
+                                    key="penilaianrawatjalan"
+                                    component={PenilaianRawatJalan}
+                                />
+                                <Scene
+                                    title="Riwayat Obat"
+                                    hideNavBar={true}
+                                    key="penilaianrawatinap"
+                                    component={PenilaianRawatInap}
                                 />
                             </Scene>
                             <Scene  hideNavBar={true} duration={400} key="notifikasi" component={Riwayat} title="Riwayat" icon={TabIcon}>

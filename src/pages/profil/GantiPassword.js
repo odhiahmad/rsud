@@ -43,6 +43,7 @@ import Select2 from 'react-native-select-two';
 import {logoutUser} from '../../actions/auth.actions';
 import {Header} from 'react-native-elements';
 import {showMessage} from 'react-native-flash-message';
+import Ripple from 'react-native-material-ripple';
 const styles = StyleSheet.create({
     container: {
 
@@ -222,8 +223,9 @@ class EditProfil extends ValidationComponent {
                 <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
                 <Header
                     leftComponent={
-                        <Icon type='ionicon' name='arrow-back-outline' color='#fff'
-                              onPress={()=>Actions.pop()}/>}
+                        <Ripple onPress={() => Actions.pop()}>
+                            <Icon type='ionicon' name='arrow-back-outline' color='#fff'
+                            /></Ripple>}
                     statusBarProps={{barStyle: 'light-content'}}
                     containerStyle={{
                         backgroundColor: '#1da30b',

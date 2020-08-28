@@ -181,6 +181,7 @@ class Signup extends ValidationComponent {
                         nama: this.state.nama,
                         email: this.state.email,
                         password: this.state.password,
+                        status:1,
                     }),
 
                 }).then((response) => response.json()).then((responseJson) => {
