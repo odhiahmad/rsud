@@ -31,6 +31,8 @@ import ViewShot from 'react-native-view-shot';
 import {Textarea, Button, Container, Content,Badge} from 'native-base';
 import {showMessage} from 'react-native-flash-message';
 import ValidationComponent from 'react-native-form-validator';
+import {Actions} from 'react-native-router-flux';
+import Ripple from 'react-native-material-ripple';
 
 const {height} = Dimensions.get('window');
 const resources = {
@@ -124,6 +126,12 @@ class Riwayat extends ValidationComponent {
             idPendaftaran: '',
 
             dataRating:[],
+
+            rute:'',
+            jam:'',
+            tempat:'',
+            statusShuttle:'',
+
         };
     }
 
@@ -278,6 +286,18 @@ class Riwayat extends ValidationComponent {
     };
 
     setModalVisible(visible, id) {
+        console.log(this.state.data[id].shuttle_bus)
+        if(this.state.data[id].shuttle_bus === 1){
+            console.log(true)
+            this.setState({
+                rute:this.state.data[id].get_user_shuttle.rute,
+                jam:this.state.data[id].get_user_shuttle.jam,
+                tempat:this.state.data[id].get_user_shuttle.tempat_tunggu,
+                statusShuttle:1
+            })
+
+        }
+
         var posisiSekarang = 0;
         for (let i = 0; i < labels.length; i++) {
             if (this.state.data[id].status_berobat === labels[i]) {
@@ -326,6 +346,8 @@ class Riwayat extends ValidationComponent {
             currentPosition: posisiSekarang,
             dataQrCode: this.state.dataQrCode,
         });
+
+
 
 
     }
@@ -411,8 +433,10 @@ class Riwayat extends ValidationComponent {
                           <Text style={{color: 'grey'}}>{item.namaDokterJaga}</Text>
                           <Text>{item.status_berobat}</Text>
 
+
                           {item.status_berobat === 'Mendapatkan Obat' ? <Text>Silahkan Beri Penilaian Anda</Text> :
                               <Text><Text>{time}</Text></Text>}
+                          {item.shuttle_bus !== 0 ?<Text style={{color:'gray'}}>{item.get_user_shuttle.tempat_tunggu} {item.get_user_shuttle.jam}</Text>:<View></View>}
                       </View>}
                       bottomDivider
                       chevron
@@ -443,8 +467,8 @@ class Riwayat extends ValidationComponent {
                         justifyContent: 'space-around',
                     }}
                     rightComponent={
-                        <Icon type='font-awesome-5' name='sync' color='#fff'
-                              onPress={this._onRefresh}/>}
+                        <Ripple onPress={() => this._onRefresh}>
+                        <Icon type='font-awesome-5' name='sync' color='#fff'/></Ripple>}
                     barStyle="light-content"
                     placement="center"
                     centerComponent={{text: 'Riwayat', style: {fontWeight: 'bold', color: '#fff'}}}
@@ -584,6 +608,21 @@ class Riwayat extends ValidationComponent {
                                             tidak akan dilayani</Text>
                                     </View>
                                 </ViewShot>
+                                {this.state.statusShuttle === 1 ?
+                                    <View
+                                        style={{
+                                            alignItems: 'center',
+                                            padding: 10,
+                                            justifyContent: 'center',
+                                        }}>
+                                        <Icon active color="gray" type="font-awesome" name="map-marker"/>
+                                        <Text>{this.state.rute}</Text>
+                                        <Text>{this.state.jam}</Text>
+                                        <Text>{this.state.tempat}</Text>
+                                    </View>
+                                    :
+                                    <View></View>
+                                }
                             </View>
 
                             : this.state.statusBerobat === 'Selesai Berobat' ?

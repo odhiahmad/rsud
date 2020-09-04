@@ -41,7 +41,7 @@ import CekStatusIGD from '../pages/cek-status/CekStatusIGD'
 import PenilaianRawatInap from '../pages/penilaian/PenilaianRawatInap';
 import PenilaianRawatJalan from '../pages/penilaian/PenilaianRawatJalan';
 import { createStackNavigator } from 'react-navigation-stack';
-
+import DetailPenumpang from '../pages/shuttle-bus/DetailPenumpang';
 
 let {width, height} = Dimensions.get('window');
 var backButtonPressedOnceToExit = false;
@@ -228,11 +228,18 @@ class Routes extends Component<{}> {
                                     component={JadwalPoliklinikIndex}
                                     title="Jadwal Poliklinik"
                                 />
+
                                 <Scene
                                     hideNavBar={true}
                                     key="bedmonitoring"
                                     component={BedMonitoringIndex}
                                     title="Ketersedian Tempat Tidur"
+                                />
+                                <Scene
+                                    hideNavBar={true}
+                                    key="detailpenumpang"
+                                    component={DetailPenumpang}
+                                    title="Detail Penumpang"
                                 />
                                 <Scene
                                     key="informasi"

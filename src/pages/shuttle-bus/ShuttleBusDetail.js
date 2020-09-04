@@ -18,7 +18,6 @@ import {Actions} from 'react-native-router-flux';
 import Ripple from 'react-native-material-ripple';
 
 
-
 export default class ShuttleBusDetail extends Component {
 
     constructor(props) {
@@ -36,6 +35,8 @@ export default class ShuttleBusDetail extends Component {
 
             showTryAgain: false,
             statusJaringan: 0,
+
+            lastItem: '',
         };
     }
 
@@ -65,13 +66,31 @@ export default class ShuttleBusDetail extends Component {
             }),
         }).then((response) => response.json()).then((responseJson) => {
 
-            this.setState({
-                showTryAgain: false,
-                statusJaringan: 1,
-                loading: false,
-                dataSource: responseJson.data,
-                panjangData: responseJson.data.length,
-            });
+            if (responseJson.data.length === 0) {
+
+                this.setState({
+                    lastItem: 0,
+                    showTryAgain: false,
+                    statusJaringan: 1,
+                    loading: false,
+                    dataSource: responseJson.data,
+                    panjangData: responseJson.data.length,
+                });
+                console.log(responseJson.data.length);
+            } else {
+                var array1 = responseJson.data;
+                var last_element = array1[array1.length - 3].id;
+                this.setState({
+                    lastItem: last_element,
+                    showTryAgain: false,
+                    statusJaringan: 1,
+                    loading: false,
+                    dataSource: responseJson.data,
+                    panjangData: responseJson.data.length,
+                });
+            }
+
+
         }).catch((error) => {
             this.setState({
                 showTryAgain: true,
@@ -86,8 +105,6 @@ export default class ShuttleBusDetail extends Component {
     }
 
     renderRow = ({item, index}) => {
-
-
         var labels = [];
 
         for (let i = 0; i < this.state.dataSource.length; i++) {
@@ -125,6 +142,42 @@ export default class ShuttleBusDetail extends Component {
             }
         }
 
+        var dt = new Date();
+        dt.setMinutes(dt.getMinutes() + 15);
+        var time1 = null;
+
+        if (dt.getHours() > 9) {
+            if (dt.getMinutes() > 9) {
+                time1 = dt.getHours() + ':' + dt.getMinutes() + ':00';
+            } else {
+                time1 = dt.getHours() + ':' + '0' + dt.getMinutes() + ':00';
+            }
+        } else {
+            if (dt.getMinutes() > 9) {
+                time1 = '0' + dt.getHours() + ':' + dt.getMinutes() + ':00';
+            } else {
+                time1 = '0' + dt.getHours() + ':' + '0' + dt.getMinutes() + ':00';
+
+            }
+        }
+
+        var dt1 = new Date();
+        dt1.setMinutes(dt1.getMinutes() - 10);
+        var time2 = null;
+
+        if (dt1.getHours() > 9) {
+            if (dt1.getMinutes() > 9) {
+                time2 = dt1.getHours() + ':' + dt1.getMinutes() + ':00';
+            } else {
+                time2 = dt1.getHours() + ':' + '0' + dt1.getMinutes() + ':00';
+            }
+        } else {
+            if (dt1.getMinutes() > 9) {
+                time2 = '0' + dt1.getHours() + ':' + dt1.getMinutes() + ':00';
+            } else {
+                time2 = '0' + dt1.getHours() + ':' + '0' + dt1.getMinutes() + ':00';
+            }
+        }
 
         var posisiSekarang = 0;
         for (let i = 0; i < labels.length; i++) {
@@ -139,32 +192,40 @@ export default class ShuttleBusDetail extends Component {
 
         }
 
+        var a = parseInt(this.state.dataSource[posisiSekarang - 1].jam.substr(3, 2)) + 1;
+        var b = this.state.dataSource[posisiSekarang - 1].jam.substr(0, 2);
+        var c = this.state.dataSource[posisiSekarang - 1].jam.substr(6, 2);
 
-            var a = parseInt(this.state.dataSource[posisiSekarang - 1].jam.substr(3, 2)) + 1;
+        var total = '';
+        if (a <= 9) {
+            total = b + ':0' + a + ':' + c;
+        } else {
+            total = b + ':' + a + ':' + c;
+        }
 
+        // if((posisiSekarang > index + 1) || (posisiSekarang === index) || (posisiSekarang < index -1)){
 
-            var b = this.state.dataSource[posisiSekarang - 1].jam.substr(0, 2);
-            var c = this.state.dataSource[posisiSekarang - 1].jam.substr(6, 2);
-            var total = '';
-            if (a <= 9) {
-                total = b + ':0' + a + ':' + c;
-            } else {
-                total = b + ':' + a + ':' + c;
-            }
+        // if(this.state.lastItem === this.state.dataSource[posisiSekarang].id){
+        //     Actions.shuttlebus()
+        // }
+        // console.log({
+        //     "lastItem" : this.state.lastItem,
+        //     "source" : this.state.dataSource[posisiSekarang].id
+        // })
 
-           // if((posisiSekarang > index + 1) || (posisiSekarang === index) || (posisiSekarang < index -1)){
-
+        console.log(time1)
+        if (item.jam >= time2 && item.jam <= time1) {
             return (
                 <ListItem
                     title={<Text>{item.jam}</Text>}
-                    subtitle={index === posisiSekarang ?
-                        <Text note>Sedang di Perjalanan
-                            menuju {this.Capitalize(item.rute)}</Text> :
-                        index > posisiSekarang ?
-                            <Text>Akan Sampai di {this.Capitalize(item.rute)}</Text> :
-                            (index === posisiSekarang - 1 && time <= total) ?
-                                <Text note>Sedang Berhenti {this.Capitalize(item.rute)}</Text> :
-                                <Text note>Sudah Melewati {this.Capitalize(item.rute)}</Text>}
+                    subtitle={
+                        index === posisiSekarang ?
+                            <Text note>Sedang di Perjalanan menuju {this.Capitalize(item.rute)}</Text> :
+                            index > posisiSekarang ?
+                                <Text>Akan Sampai di {this.Capitalize(item.rute)}</Text> :
+                                ((index === posisiSekarang - 1) && (time <= total)) ?
+                                    <Text note>Sedang Berhenti {this.Capitalize(item.rute)}</Text> :
+                                    <Text note>Sudah Melewati {this.Capitalize(item.rute)}</Text>}
                     leftAvatar={<View
                         style={index === posisiSekarang ? {
                             margin: 10,
@@ -174,7 +235,7 @@ export default class ShuttleBusDetail extends Component {
                             borderColor: 'green',
                             borderRadius: 50,
                             justifyContent: 'center',
-                        } : (index === posisiSekarang - 1 && time <= total) ? {
+                        } : ((index === posisiSekarang - 1) && (time <= total)) ? {
                             margin: 10,
                             width: 40,
                             height: 40,
@@ -191,14 +252,14 @@ export default class ShuttleBusDetail extends Component {
                             borderRadius: 50,
                             justifyContent: 'center',
                         }}>
-                        {index === posisiSekarang && time >= total ? <Icon
+                        {index === posisiSekarang ? <Icon
                             color='green'
                             fontSize='30'
                             type="font-awesome"
                             name="step-forward" style={{
                             alignSelf: 'center',
                             position: 'absolute',
-                        }}/> : (index === posisiSekarang - 1 && time <= total) ? <Icon
+                        }}/> : ((index === posisiSekarang - 1) && (time <= total)) ? <Icon
                             fontSize="20"
                             color='red'
                             type="font-awesome"
@@ -225,7 +286,7 @@ export default class ShuttleBusDetail extends Component {
                 >
                 </ListItem>
             );
-
+        }
 
     };
 
@@ -267,18 +328,23 @@ export default class ShuttleBusDetail extends Component {
                                                       WIB</Text>}
                                         ></ListItem> : this.state.panjangData === 0 && this.state.idShuttle === 2 ?
                                             <ListItem title={<Text>Tidak ada Jadwal Bus Pada Jam Ini</Text>}
-                                                      subtitle={<Text>Jadwal Bus Pada Jam 8 Pagi, 10 Pagi, dan 2 Siang
+                                                      subtitle={<Text>Jadwal Bus Pada Jam 7 Pagi, 9 Pagi, dan 1 Siang
                                                           WIB</Text>}
-                                            ></ListItem> : <FlatList
-                                                renderItem={this.renderRow}
-                                                keyExtractor={(item, index) => index.toString()}
-                                                data={this.state.dataSource}/>
+                                            ></ListItem> :
+                                            <View>
+                                                <FlatList
+                                                    renderItem={this.renderRow}
+                                                    keyExtractor={(item, index) => index.toString()}
+                                                    data={this.state.dataSource}/>
+                                            </View>
                                     }</View>
                                 : <View>
                                     <ListItem title={<Text>Tidak ada Jadwal Bus Pada Jam Ini</Text>}
-                                              subtitle={<Text>Jadwal Bus Pada Jam 7 Pagi, 9 Pagi, dan 1 Siang WIB</Text>}
+                                              subtitle={<Text>Jadwal Bus Pada Jam 7 Pagi, 9 Pagi, dan 1 Siang
+                                                  WIB</Text>}
                                     ></ListItem>
-                                </View>}
+                                </View>
+                        }
                     </View>}
 
 

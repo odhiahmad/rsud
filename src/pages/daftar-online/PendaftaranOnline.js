@@ -67,7 +67,7 @@ class PendaftaranOnline extends ValidationComponent {
             loading: false,
             inClickLengkapiProfil: false,
             cekNoRujukan: 0,
-
+            showTryAgain: false,
             dataPasien: [],
             modalVisible: false,
             modalVisibleDokter: false,
@@ -156,6 +156,10 @@ class PendaftaranOnline extends ValidationComponent {
             pilihShuttleBusDetailNama: '',
             pilihShuttleBusDetailId: '',
             pilihShuttleBusDetailJam: '',
+
+            kabKota: '',
+
+            statusShuttle: 2,
         };
     }
 
@@ -170,12 +174,62 @@ class PendaftaranOnline extends ValidationComponent {
 
     }
 
+    cekKetersedianShuttleBus(id_shuttle, id_rute, jam, tanggal) {
+        this.setState({
+            loading: true,
+        });
+        const url = baseApi + '/user/cekKetersedianShuttle';
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                id_shuttle: id_shuttle,
+                id_rute: id_rute,
+                tanggal: tanggal,
+            }),
+        }).then((response) => response.json()).then((responseJson) => {
+            if (responseJson.status === 1) {
+                this.setState({
+                    loading: false,
+                    statusShuttle: responseJson.status,
+                });
+
+                showMessage({
+                    message: responseJson.message,
+                    type: 'success',
+                    position: 'bottom',
+                });
+            } else {
+                this.setState({
+                    loading: false,
+                    statusShuttle: responseJson.status,
+                });
+
+                showMessage({
+                    message: responseJson.message,
+                    type: 'danger',
+                    position: 'bottom',
+                });
+            }
+
+
+        }).catch((error) => {
+            console.log(error);
+            this.setState({
+                loading: false,
+            });
+        });
+    }
+
     showPilihShuttleBusDetail(id_shuttle, id_trip) {
         this.setState({
             loading: true,
             dataShuttleBusDetail: [],
         });
-        const url = baseApi + '/user/shuttleDetail';
+        const url = baseApi + '/user/shuttleDetailForm';
         fetch(url, {
             method: 'POST',
             headers: {
@@ -193,7 +247,7 @@ class PendaftaranOnline extends ValidationComponent {
                 this.state.dataShuttleBusDetail.push({
                     id: i,
                     name: a[i].rute,
-                    jam:a[i].jam,
+                    jam: a[i].jam,
                     id_shuttle_detail: a[i].id,
                 });
             }
@@ -250,7 +304,6 @@ class PendaftaranOnline extends ValidationComponent {
 
     showData() {
 
-        this.cekDaftar();
 
         var dayName = [];
         var hitung = [];
@@ -345,6 +398,7 @@ class PendaftaranOnline extends ValidationComponent {
                     foto: responseJson.image,
                     nomorMr: responseJson.data.nomr,
                     nama: responseJson.data.nama,
+                    kabKota: responseJson.data.nama_kab_kota,
                 });
 
                 if (responseJson.data.no_bpjs != 0 || responseJson.data.no_bpjs !== null) {
@@ -798,119 +852,52 @@ class PendaftaranOnline extends ValidationComponent {
     };
 
     _onSubmitFinish() {
+
+        var pilihShuttleBusDetailJam = null;
+        var pilihShuttleBusNama = null;
+        var pilihShuttleBusId = null;
+        var pilihShuttleBusRuteNama = null;
+        var pilihShuttleBusRuteId = null;
+        var pilihShuttleBusDetailNama = null;
+        var pilihShuttleBusDetailId = null;
+        if (this.state.switchButton === true) {
+            pilihShuttleBusDetailJam = this.state.pilihShuttleBusDetailJam;
+            pilihShuttleBusNama = this.state.pilihShuttleBusNama;
+            pilihShuttleBusId = this.state.pilihShuttleBusId;
+            pilihShuttleBusRuteNama = this.state.pilihShuttleBusRuteNama;
+            pilihShuttleBusRuteId = this.state.pilihShuttleBusRuteId;
+            pilihShuttleBusDetailNama = this.state.pilihShuttleBusDetailNama;
+            pilihShuttleBusDetailId = this.state.pilihShuttleBusDetailId;
+        }
         if (this.state.caraBayar === 'Umum') {
-            this.validate({
-                pilihCaraBayar: {required: true},
-                pilihPoly: {required: true},
-                pilihNrp: {required: true},
-                pilihHari: {required: true},
-                pilihJam: {required: true},
-            });
-            if (this.isFormValid()) {
-                this.setState({
-                    loading: true,
+            if (this.state.switchButton === true) {
+                this.validate({
+                    pilihShuttleBusDetailJam: {required: true},
+                    pilihShuttleBusNama: {required: true},
+                    pilihShuttleBusId: {required: true},
+                    pilihShuttleBusRuteNama: {required: true},
+                    pilihShuttleBusRuteId: {required: true},
+                    pilihShuttleBusDetailNama: {required: true},
+                    pilihShuttleBusDetailId: {required: true},
+                    pilihCaraBayar: {required: true},
+                    pilihPoly: {required: true},
+                    pilihNrp: {required: true},
+                    pilihHari: {required: true},
+                    pilihJam: {required: true},
                 });
-                fetch(baseApi + '/user/daftar', {
-                    method: 'POST',
-                    headers: {
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + this.props.getUser.userDetails.token,
-                    },
-                    body: JSON.stringify({
-                        idUser: this.props.getUser.userDetails.id,
-                        nomorMr: this.state.nomor_mr,
-                        nomorKtp: this.state.nomorKtp,
-                        namaPasien: this.state.namaPasien,
-                        tempatLahir: this.state.tempatLahir,
-                        tanggalLahir: this.state.tanggalLahir,
-                        jenisKelamin: this.state.jenisKelamin,
-                        jamKunjungan: this.state.pilihJam,
-                        pilihCaraBayar: this.state.pilihCaraBayar,
-                        pilihJamLabel: this.state.pilihJamLabel,
-                        tanggalKunjungan: this.state.pilihTanggalKunjungan,
-                        namaRuang: this.state.pilihPoly,
-                        idRuang: this.state.pilihIdPoly,
-                        caraBayar: this.state.caraBayar,
-                        idCaraBayar: this.state.idCaraBayar,
-                        pilihRujukan: this.state.pilihRujukan,
-                        pilihDokter: this.state.pilihDokter,
-                        pilihNrp: this.state.pilihNrp,
-                        npBpjs: null,
-                        tanggalDaftar: new Date(),
 
-                        pilihShuttleBusDetailJam:this.state.pilihShuttleBusDetailJam,
-                        pilihShuttleBusNama: this.state.pilihShuttleBusNama,
-                        pilihShuttleBusId: this.state.pilihShuttleBusId,
-                        pilihShuttleBusRuteNama: this.state.pilihShuttleBusRuteNama,
-                        pilihShuttleBusRuteId: this.state.pilihShuttleBusRuteId,
-                        pilihShuttleBusDetailNama: this.state.pilihShuttleBusDetailNama,
-                        pilihShuttleBusDetailId: this.state.pilihShuttleBusDetailId,
-                    }),
-                }).then((response) => response.json()).then((responseJson) => {
-                    if (responseJson.success === true) {
-                        showMessage({
-                            message: responseJson.message,
-                            type: 'info',
-                            position: 'bottom',
-                        });
-                        this.setState({
-                            loading: false,
-                        });
-
-                        Actions.pop({
-                            refresh: {
-                                nomorAntrian: responseJson.data.nomor_daftar,
-                                tanggalKunjungan: responseJson.data.tanggal_kunjungan,
-                                jamKunjungan: responseJson.data.jam_kunjungan,
-                                jamKunjunganLabel: responseJson.data.jam_kunjunganLabel,
-                                jamKunjunganAntrian: responseJson.data.jam_kunjunganAntrian,
-                                namaPasien: responseJson.data.nama_pasien,
-                                namaRuang: responseJson.data.nama_ruang,
-                                caraBayar: responseJson.data.cara_bayar,
-                                tanggalMendaftar: responseJson.data.tanggal_daftar,
-                                namaDokter: responseJson.data.namaDokterJaga,
-                                tanggalLahir: responseJson.data.tgl_lahir,
-                                nomorMr: responseJson.data.nomr,
-                                jenisKelamin: responseJson.data.jns_kelamin,
-                                statusBerobat: responseJson.data.status_berobat,
-                            },
-                        });
-
-                    } else {
-                        showMessage({
-                            message: responseJson.message,
-                            type: 'danger',
-                            position: 'bottom',
-                        });
-                        this.setState({
-                            loading: false,
-                        });
-
-                    }
-                }).catch((error) => {
-                    this.setState({
-                        loading: false,
-                    });
-
-                    this.state.message = error;
+            } else if (this.state.switchButton === false) {
+                this.validate({
+                    pilihCaraBayar: {required: true},
+                    pilihPoly: {required: true},
+                    pilihNrp: {required: true},
+                    pilihHari: {required: true},
+                    pilihJam: {required: true},
                 });
             }
-        } else {
-
-            this.validate({
-                pilihCaraBayar: {required: true},
-                pilihPoly: {required: true},
-                pilihNrp: {required: true},
-                pilihHari: {required: true},
-                pilihJam: {required: true},
-                noBpjs: {required: true},
-                no_jaminan: {required: true},
-                pilihRujukan: {required: true},
-            });
 
             if (this.isFormValid()) {
-                if (this.state.nomorKtpBpjs === this.state.nomorKtp) {
+                if (this.state.statusShuttle === 1) {
                     this.setState({
                         loading: true,
                     });
@@ -931,20 +918,25 @@ class PendaftaranOnline extends ValidationComponent {
                             jenisKelamin: this.state.jenisKelamin,
                             jamKunjungan: this.state.pilihJam,
                             pilihCaraBayar: this.state.pilihCaraBayar,
+                            pilihJamLabel: this.state.pilihJamLabel,
                             tanggalKunjungan: this.state.pilihTanggalKunjungan,
                             namaRuang: this.state.pilihPoly,
                             idRuang: this.state.pilihIdPoly,
                             caraBayar: this.state.caraBayar,
-                            pilihJamLabel: this.state.pilihJamLabel,
                             idCaraBayar: this.state.idCaraBayar,
                             pilihRujukan: this.state.pilihRujukan,
                             pilihDokter: this.state.pilihDokter,
                             pilihNrp: this.state.pilihNrp,
-                            noBpjs: this.state.noBpjs,
-                            nomorRujukan: this.state.no_jaminan,
-                            kelas: this.state.kelas,
-                            idKelas: this.state.idKelas,
+                            npBpjs: null,
                             tanggalDaftar: new Date(),
+
+                            pilihShuttleBusDetailJam: pilihShuttleBusDetailJam,
+                            pilihShuttleBusNama: pilihShuttleBusNama,
+                            pilihShuttleBusId: pilihShuttleBusId,
+                            pilihShuttleBusRuteNama: pilihShuttleBusRuteNama,
+                            pilihShuttleBusRuteId: pilihShuttleBusRuteId,
+                            pilihShuttleBusDetailNama: pilihShuttleBusDetailNama,
+                            pilihShuttleBusDetailId: pilihShuttleBusDetailId,
                         }),
                     }).then((response) => response.json()).then((responseJson) => {
                         if (responseJson.success === true) {
@@ -959,6 +951,11 @@ class PendaftaranOnline extends ValidationComponent {
 
                             Actions.pop({
                                 refresh: {
+                                    pilihShuttleBusNama: pilihShuttleBusNama,
+                                    statusShuttle:this.state.statusShuttle,
+                                    pilihShuttleBusDetailNama: pilihShuttleBusDetailNama,
+                                    pilihShuttleBusRuteNama: pilihShuttleBusRuteNama,
+                                    pilihShuttleBusDetailJam: pilihShuttleBusDetailJam,
                                     nomorAntrian: responseJson.data.nomor_daftar,
                                     tanggalKunjungan: responseJson.data.tanggal_kunjungan,
                                     jamKunjungan: responseJson.data.jam_kunjungan,
@@ -991,16 +988,178 @@ class PendaftaranOnline extends ValidationComponent {
                         this.setState({
                             loading: false,
                         });
-
-                        this.state.message = error;
+                        showMessage({
+                            message: responseJson.message,
+                            type: 'danger',
+                            position: 'bottom',
+                        });
                     });
                 } else {
                     showMessage({
-                        message: 'Nomor KTP anda dengan yang di BPJS tidak sama',
-                        type: 'info',
+                        message: 'Kuota Shuttle Bus Penuh, Mohon untuk tidak menggunakan shuttle bus',
+                        type: 'danger',
                         position: 'bottom',
                     });
                 }
+
+            } else {
+                showMessage({
+                    message: 'Isi Semua Form Terlebih Dahulu',
+                    type: 'danger',
+                    position: 'bottom',
+                });
+
+            }
+        } else {
+
+            if (this.state.switchButton === true) {
+                this.validate({
+                    pilihShuttleBusDetailJam: {required: true},
+                    pilihShuttleBusNama: {required: true},
+                    pilihShuttleBusId: {required: true},
+                    pilihShuttleBusRuteNama: {required: true},
+                    pilihShuttleBusRuteId: {required: true},
+                    pilihShuttleBusDetailNama: {required: true},
+                    pilihShuttleBusDetailId: {required: true},
+                    pilihCaraBayar: {required: true},
+                    pilihPoly: {required: true},
+                    pilihNrp: {required: true},
+                    pilihHari: {required: true},
+                    pilihJam: {required: true},
+                    noBpjs: {required: true},
+                    no_jaminan: {required: true},
+                    pilihRujukan: {required: true},
+                });
+
+            } else if (this.state.switchButton === false) {
+                this.validate({
+                    pilihCaraBayar: {required: true},
+                    pilihPoly: {required: true},
+                    pilihNrp: {required: true},
+                    pilihHari: {required: true},
+                    pilihJam: {required: true},
+                    noBpjs: {required: true},
+                    no_jaminan: {required: true},
+                    pilihRujukan: {required: true},
+                });
+            }
+
+            if (this.isFormValid()) {
+                if (this.state.statusShuttle === 1) {
+                    if (this.state.nomorKtpBpjs === this.state.nomorKtp) {
+                        this.setState({
+                            loading: true,
+                        });
+                        fetch(baseApi + '/user/daftar', {
+                            method: 'POST',
+                            headers: {
+                                Accept: 'application/json',
+                                'Content-Type': 'application/json',
+                                'Authorization': 'Bearer ' + this.props.getUser.userDetails.token,
+                            },
+                            body: JSON.stringify({
+                                idUser: this.props.getUser.userDetails.id,
+                                nomorMr: this.state.nomor_mr,
+                                nomorKtp: this.state.nomorKtp,
+                                namaPasien: this.state.namaPasien,
+                                tempatLahir: this.state.tempatLahir,
+                                tanggalLahir: this.state.tanggalLahir,
+                                jenisKelamin: this.state.jenisKelamin,
+                                jamKunjungan: this.state.pilihJam,
+                                pilihCaraBayar: this.state.pilihCaraBayar,
+                                tanggalKunjungan: this.state.pilihTanggalKunjungan,
+                                namaRuang: this.state.pilihPoly,
+                                idRuang: this.state.pilihIdPoly,
+                                caraBayar: this.state.caraBayar,
+                                pilihJamLabel: this.state.pilihJamLabel,
+                                idCaraBayar: this.state.idCaraBayar,
+                                pilihRujukan: this.state.pilihRujukan,
+                                pilihDokter: this.state.pilihDokter,
+                                pilihNrp: this.state.pilihNrp,
+                                noBpjs: this.state.noBpjs,
+                                nomorRujukan: this.state.no_jaminan,
+                                kelas: this.state.kelas,
+                                idKelas: this.state.idKelas,
+                                tanggalDaftar: new Date(),
+
+                                pilihShuttleBusDetailJam: pilihShuttleBusDetailJam,
+                                pilihShuttleBusNama: pilihShuttleBusNama,
+                                pilihShuttleBusId: pilihShuttleBusId,
+                                pilihShuttleBusRuteNama: pilihShuttleBusRuteNama,
+                                pilihShuttleBusRuteId: pilihShuttleBusRuteId,
+                                pilihShuttleBusDetailNama: pilihShuttleBusDetailNama,
+                                pilihShuttleBusDetailId: pilihShuttleBusDetailId,
+
+                            }),
+                        }).then((response) => response.json()).then((responseJson) => {
+                            if (responseJson.success === true) {
+                                showMessage({
+                                    message: responseJson.message,
+                                    type: 'info',
+                                    position: 'bottom',
+                                });
+                                this.setState({
+                                    loading: false,
+                                });
+
+                                Actions.pop({
+                                    refresh: {
+                                        nomorAntrian: responseJson.data.nomor_daftar,
+                                        tanggalKunjungan: responseJson.data.tanggal_kunjungan,
+                                        jamKunjungan: responseJson.data.jam_kunjungan,
+                                        jamKunjunganLabel: responseJson.data.jam_kunjunganLabel,
+                                        jamKunjunganAntrian: responseJson.data.jam_kunjunganAntrian,
+                                        namaPasien: responseJson.data.nama_pasien,
+                                        namaRuang: responseJson.data.nama_ruang,
+                                        caraBayar: responseJson.data.cara_bayar,
+                                        tanggalMendaftar: responseJson.data.tanggal_daftar,
+                                        namaDokter: responseJson.data.namaDokterJaga,
+                                        tanggalLahir: responseJson.data.tgl_lahir,
+                                        nomorMr: responseJson.data.nomr,
+                                        jenisKelamin: responseJson.data.jns_kelamin,
+                                        statusBerobat: responseJson.data.status_berobat,
+                                    },
+                                });
+
+                            } else {
+                                showMessage({
+                                    message: responseJson.message,
+                                    type: 'danger',
+                                    position: 'bottom',
+                                });
+                                this.setState({
+                                    loading: false,
+                                });
+
+                            }
+                        }).catch((error) => {
+                            this.setState({
+                                loading: false,
+                            });
+
+                            this.state.message = error;
+                        });
+                    } else {
+                        showMessage({
+                            message: 'Nomor KTP anda dengan yang di BPJS tidak sama',
+                            type: 'info',
+                            position: 'bottom',
+                        });
+                    }
+                } else {
+                    showMessage({
+                        message: 'Kuota Shuttle Bus Penuh, Mohon untuk tidak menggunakan shuttle bus',
+                        type: 'danger',
+                        position: 'bottom',
+                    });
+                }
+
+            } else {
+                showMessage({
+                    message: 'Isi Semua Form Terlebih Dahulu',
+                    type: 'danger',
+                    position: 'bottom',
+                });
             }
         }
 
@@ -1693,27 +1852,32 @@ class PendaftaranOnline extends ValidationComponent {
                                                         </View>}
 
                                                 </View> : <View></View>}
-                                            <View style={{marginTop:20}}>
-                                                <View>
-                                                <Text>Ingin Menggunakan Shuttle Bus ?</Text>
+                                            {this.state.kabKota === 'Kota Padang Panjang' ?
+                                                <View style={{marginTop: 20}}>
+                                                    <View>
+                                                        <Text>Ingin Menggunakan Shuttle Bus ?</Text>
+                                                    </View>
+                                                    <View>
+                                                        <ListItem>
+                                                            <Left>
+                                                                {this.state.switchButton ? <Text>Ya</Text> :
+                                                                    <Text>Tidak</Text>}
+                                                            </Left>
+                                                            <Right>
+                                                                <Switch
+                                                                    trackColor={{false: '#767577', true: '#81b0ff'}}
+                                                                    thumbColor={this.state.switchButton ? '#f5dd4b' : '#f4f3f4'}
+                                                                    ios_backgroundColor="#3e3e3e"
+                                                                    onValueChange={this.toggleSwitch}
+                                                                    value={this.state.switchButton}
+                                                                />
+                                                            </Right>
+                                                        </ListItem>
+                                                    </View>
                                                 </View>
-                                                <View>
-                                                <ListItem>
-                                                    <Left>
-                                                        {this.state.switchButton ? <Text>Ya</Text> : <Text>Tidak</Text>}
-                                                    </Left>
-                                                    <Right>
-                                                        <Switch
-                                                            trackColor={{false: '#767577', true: '#81b0ff'}}
-                                                            thumbColor={this.state.switchButton ? '#f5dd4b' : '#f4f3f4'}
-                                                            ios_backgroundColor="#3e3e3e"
-                                                            onValueChange={this.toggleSwitch}
-                                                            value={this.state.switchButton}
-                                                        />
-                                                    </Right>
-                                                </ListItem>
-                                                </View>
-                                            </View>
+                                                : <View></View>
+                                            }
+
                                             {
                                                 this.state.switchButton ?
                                                     <View>
@@ -1777,7 +1941,7 @@ class PendaftaranOnline extends ValidationComponent {
                                                                                      pilihShuttleBusRuteId: '',
                                                                                      pilihShuttleBusDetailNama: '',
                                                                                      pilihShuttleBusDetailId: '',
-                                                                                     pilihShuttleBusDetailJam:'',
+                                                                                     pilihShuttleBusDetailJam: '',
                                                                                  });
                                                                              }}
                                                                     />
@@ -1800,15 +1964,16 @@ class PendaftaranOnline extends ValidationComponent {
                                                                                              this.setState({
                                                                                                  pilihShuttleBusDetailNama: this.state.dataShuttleBusDetail[data].name,
                                                                                                  pilihShuttleBusDetailId: this.state.dataShuttleBusDetail[data].id_shuttle_detail,
-                                                                                                 pilihShuttleBusDetailJam:this.state.dataShuttleBusDetail[data].jam,
+                                                                                                 pilihShuttleBusDetailJam: this.state.dataShuttleBusDetail[data].jam,
                                                                                              });
 
+                                                                                             this.cekKetersedianShuttleBus(this.state.pilihShuttleBusId, this.state.pilihShuttleBusRuteId, this.state.pilihShuttleBusRuteNama, this.state.pilihTanggalKunjungan);
                                                                                          }}
                                                                                          onRemoveItem={data => {
                                                                                              this.setState({
                                                                                                  pilihShuttleBusDetailNama: '',
                                                                                                  pilihShuttleBusDetailId: '',
-                                                                                                 pilihShuttleBusDetailJam:'',
+                                                                                                 pilihShuttleBusDetailJam: '',
                                                                                              });
                                                                                          }}
                                                                                 />

@@ -1,23 +1,64 @@
-import {StatusBar, StyleSheet, TextInput, TouchableOpacity, View} from 'react-native';
-import {Header, Icon} from 'react-native-elements';
+import {
+    FlatList,
+    StatusBar,
+    StyleSheet,
+    TextInput,
+    TouchableOpacity,
+    View,
+    Text,
+    Modal,
+    ScrollView, Image,
+} from 'react-native';
+import {AirbnbRating, Header, Icon, ListItem} from 'react-native-elements';
 import {Actions} from 'react-native-router-flux';
 import LoaderModal from '../../components/LoaderModal';
 import React, {Component} from 'react';
 import ValidationComponent from 'react-native-form-validator';
-import {Text, Textarea} from 'native-base';
+import {Body, Col, Row, Grid, Left, List, Textarea} from 'native-base';
 import Select2 from 'react-native-select-two';
 import {baseApi} from '../../service/api';
 import {showMessage} from 'react-native-flash-message';
 import {connect} from 'react-redux';
+import moment from 'moment';
+import StepIndicator from 'react-native-step-indicator';
+import ViewShot from 'react-native-view-shot';
+import QRCode from 'react-native-qrcode-svg';
+import PhotoUpload from 'react-native-photo-upload';
 import Ripple from 'react-native-material-ripple';
+
+
+const customStyles = {
+    stepIndicatorSize: 25,
+    currentStepIndicatorSize: 30,
+    separatorStrokeWidth: 2,
+    currentStepStrokeWidth: 3,
+    stepStrokeCurrentColor: '#fe7013',
+    stepStrokeWidth: 3,
+    stepStrokeFinishedColor: '#fe7013',
+    stepStrokeUnFinishedColor: '#aaaaaa',
+    separatorFinishedColor: '#fe7013',
+    separatorUnFinishedColor: '#aaaaaa',
+    stepIndicatorFinishedColor: '#fe7013',
+    stepIndicatorUnFinishedColor: '#ffffff',
+    stepIndicatorCurrentColor: '#ffffff',
+    stepIndicatorLabelFontSize: 13,
+    currentStepIndicatorLabelFontSize: 13,
+    stepIndicatorLabelCurrentColor: '#fe7013',
+    stepIndicatorLabelFinishedColor: '#ffffff',
+    stepIndicatorLabelUnFinishedColor: '#aaaaaa',
+    labelColor: '#999999',
+    labelSize: 13,
+    currentStepLabelColor: '#fe7013',
+};
+const labels = ['Mendaftar', 'Selesai Berobat', 'Mendapatkan Obat', 'Selesai'];
 
 class PenilaianRawatJalan extends ValidationComponent {
 
     constructor(props) {
         super(props);
         this.state = {
-            nomorMr:'',
-            tahunLahir:'',
+            nomorMr: '',
+            tahunLahir: '',
             nomorKtp: '',
             namaPasien: '',
             tempatLahir: '',
@@ -26,18 +67,59 @@ class PenilaianRawatJalan extends ValidationComponent {
             jenisLayanan: '',
             tanggalMasuk: '',
             tanggalDaftar: '',
-            no_telp:'',
-            email:'',
-            status:'before',
+            no_telp: '',
+            email: '',
+            status: 'before',
+            isLoading: false,
+            dataKondisiPasien: [],
+            isModalVisible: false,
+            modalVisible: false,
+            loading: false,
+            nomorAntrian: '',
+            index: 0,
+            dataQrCode: [],
+            namaDokter: '',
+            tanggalKunjungan: '',
+            jamKunjungan: '',
+            status_berobat: '',
+            busy: true,
+            imageSaved: false,
+            currentPosition: 0,
+            inClick: false,
+            idShuttle: this.props.id,
+            idTrip: this.props.idTrip,
+            tanggalMendaftar: '',
+            namaRuang: '',
+            jamKunjunganLabel: '',
+            caraBayar: '',
+
+            showTryAgain: false,
+
+            checked: false,
+
+            checkedKeramahan: false,
+            checkedPelayanan: false,
+
+            catatan: '',
+            rating: 0,
+            idPendaftaran: '',
+
+            dataRating: [],
 
         };
+    }
+
+    setModalUnvisible(visible) {
+        this.setState({
+            modalVisible: visible,
+        });
     }
 
     _onSubmit() {
         this.setState({
             loading: true,
         });
-        fetch(baseApi + '/user/cariNomorMr', {
+        fetch(baseApi + '/user/cariNomorMrCekRawatJalan', {
             method: 'POST',
             headers: {
                 Accept: 'application/json',
@@ -62,8 +144,11 @@ class PenilaianRawatJalan extends ValidationComponent {
                 } else if (parseInt(responseJson.data.jns_kelamin) === 1) {
                     jenisKelaminTampil = 'Laki - laki';
                 }
+
+                console.log(responseJson.dataBerobat);
                 this.setState({
-                    alamat:responseJson.data.alamat,
+                    dataKondisiPasien: responseJson.dataBerobat,
+                    alamat: responseJson.data.alamat,
                     noBpjs: responseJson.data.no_bpjs,
                     jenisKelaminTampil: jenisKelaminTampil,
                     status: 'after',
@@ -77,7 +162,7 @@ class PenilaianRawatJalan extends ValidationComponent {
                     nomorMr: responseJson.data.nomr,
                     nama: responseJson.data.nama,
                     loading: false,
-                    no_telp:responseJson.data.no_telpon,
+                    no_telp: responseJson.data.no_telpon,
                 });
                 this.setState({
                     loading: false,
@@ -97,14 +182,74 @@ class PenilaianRawatJalan extends ValidationComponent {
                 loading: false,
             });
 
-            this.state.message = error;
         });
 
     }
 
+    setModalVisible(visible, id) {
+        var posisiSekarang = 0;
+        for (let i = 0; i < labels.length; i++) {
+            if (this.state.dataKondisiPasien[id].status_berobat === labels[i]) {
+                posisiSekarang = i;
+
+            }
+
+        }
+
+        this.setState({
+            modalVisible: visible,
+            nomorAntrian: this.state.dataKondisiPasien[id].nomor_daftar,
+            index: id,
+            idPendaftaran: this.state.dataKondisiPasien[id].idx,
+            caraBayar: this.state.dataKondisiPasien[id].cara_bayar,
+            namaRuang: this.state.dataKondisiPasien[id].nama_ruang,
+            tanggalMendaftar: this.state.dataKondisiPasien[id].tanggal_daftar,
+            namaPasien: this.state.dataKondisiPasien[id].nama_pasien,
+            namaDokter: this.state.dataKondisiPasien[id].namaDokterJaga,
+            tanggalKunjungan: this.state.dataKondisiPasien[id].tanggal_kunjungan,
+            jamKunjungan: this.state.dataKondisiPasien[id].jam_kunjunganAntrian,
+            jamKunjunganLabel: this.state.dataKondisiPasien[id].jam_kunjunganLabel,
+            tanggalLahir: this.state.dataKondisiPasien[id].tgl_lahir,
+            nomorMr: this.state.dataKondisiPasien[id].nomr,
+            jenisKelamin: this.state.dataKondisiPasien[id].jns_kelamin,
+            statusBerobat: this.state.dataKondisiPasien[id].status_berobat,
+            currentPosition: posisiSekarang,
+            dataQrCode: this.state.dataQrCode,
+        });
+
+
+    }
+
+    renderRow = ({item, index}) => {
+        return (
+            <ListItem onPress={() => {
+                this.setModalVisible(true, index);
+            }}
+
+                      title={<Text>{item.nama_ruang}</Text>}
+                      subtitle={
+                          <View>
+                              <Text style={{color: 'gray'}}>Dokter {item.namaDokterJaga}</Text>
+                              <Text>Jam Kunjungan {item.jam_kunjungan}</Text>
+                              <Text>Tanggal Kunjungan {item.tanggal_kunjungan}</Text>
+                              <Text style={{color: 'gray'}}>Status {item.status_berobat}</Text>
+                          </View>
+
+                      }
+                      leftAvatar={{
+                          title: item.nama_ruang[0],
+                      }}
+                      chevron
+            />
+        );
+    };
+
+
     render() {
         return (
-            <View style={{flex:1}}>
+            <View style={{flex: 1}}>
+                <LoaderModal
+                    loading={this.state.loading}/>
                 <StatusBar translucent backgroundColor="rgba(0,0,0,0.4)"/>
                 <Header
                     leftComponent={
@@ -118,53 +263,162 @@ class PenilaianRawatJalan extends ValidationComponent {
                     }}
                     barStyle="light-content"
                     placement="center"
-                    centerComponent={{text: 'Penilaian Rawat Jalan', style: {color: '#fff'}}}
+                    centerComponent={{text: 'Cek Status Rawat Jalan', style: {color: '#fff'}}}
                 />
-                <View style={{alignItems: 'center',
-                    justifyContent: 'center',}}>
+                <View style={{flex: 1}}>
                     {this.state.status === 'after' ?
-                        <View style={{padding: 5,marginTop:30}}>
-                            <View style={{marginBottom: 10, padding: 5}}>
-                                <Text style={styles.signupButton}>Nomor Mr</Text>
-                                <Text style={styles.signupText}>{this.state.nomorMr}</Text>
+                        <ScrollView>
+                            <View style={{height: 130}}>
+                                <Grid>
+                                    <Col style={{width: 140, height: 130}}>
+                                        <Image
+                                            key={new Date()}
+                                            style={{
+                                                width: 130,
+                                                height: 130,
+                                                borderRadius: 75,
+                                            }}
+                                            resizeMode='cover'
+                                            source={{uri: this.state.foto + '?' + new Date()}}
+                                        />
+                                    </Col>
+                                    <Col style={{width: 200, height: 130}}>
+                                        <ListItem
+                                            title={<Text>Nama</Text>}
+                                            subtitle={
+                                                <Text style={{color: 'gray'}}>{this.state.namaPasien}</Text>
+                                            }
+                                        />
+                                        <ListItem
+                                            title={<Text>Nomor Mr</Text>}
+                                            subtitle={
+                                                <Text style={{color: 'gray'}}>{this.state.nomorMr}</Text>
+                                            }
+                                        />
+                                        {/*<ListItem*/}
+                                        {/*    subtitle={*/}
+                                        {/*        <Text style={{color: 'gray'}}>Tanggal Lahir {this.state.tanggalLahir}</Text>*/}
+                                        {/*    }*/}
+                                        {/*/>*/}
+                                    </Col>
+                                </Grid>
                             </View>
-                            <View style={{marginBottom: 10, padding: 5}}>
-                                <Text style={styles.signupButton}>Nama</Text>
-                                <Text style={styles.signupText}>{this.state.nama}</Text>
+                            <View style={{marginTop: 10}}>
+                                <FlatList
+                                    renderItem={this.renderRow}
+                                    keyExtractor={(item, index) => index.toString()}
+                                    data={this.state.dataKondisiPasien}/>
                             </View>
-                        </View> :
+                        </ScrollView> :
                         this.state.status === 'before' ?
-                            <View style={{padding: 5,marginTop:30}}>
-                                <TextInput
-                                    keyboardType={'numeric'}
-                                    defaultValue={this.state.nomorMr}
-                                    ref="nomorMr"
-                                    onChangeText={(nomorMr) => this.setState({nomorMr})}
-                                    style={styles.inputBoxModal}
-                                    underlineColorAndroid="rgba(0,0,0,0)"
-                                    placeholder="Masukan Nomor MR"
-                                    placeholderTextColor="rgba(255,255,255,0.8)"
-                                    selectionColor="#999999"
-                                />
-                                <TextInput
-                                    keyboardType={'numeric'}
-                                    defaultValue={this.state.tahunLahir}
-                                    ref="tahunLahir"
-                                    onChangeText={(tahunLahir) => this.setState({tahunLahir})}
-                                    style={styles.inputBoxModal}
-                                    underlineColorAndroid="rgba(0,0,0,0)"
-                                    placeholder="Masukan Tahun Lahir"
-                                    placeholderTextColor="rgba(255,255,255,0.8)"
-                                    selectionColor="#999999"
-                                />
-                                <TouchableOpacity style={styles.buttonModal}
-                                                  onPress={this._onSubmit.bind(this)}>
-                                    <Text style={styles.buttonText}>Submit</Text>
-                                </TouchableOpacity></View> : <View></View>
+                            <View style={{
+                                flex: 1,
+                            }}>
+                                <View style={{
+                                    flex: 1,
+                                    padding: 5, alignItems: 'center',
+                                    justifyContent: 'center',
+                                }}>
+                                    <View style={{
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        flex: 1,
+                                    }}>
+                                        <View style={{
+                                            marginBottom:20
+                                        }}>
+                                            <Image style={{width: 250, height: 60}}
+                                                   source={require('../../images/logo/logo-hitam.jpg')}/>
+                                        </View>
+                                        <TextInput
+                                            keyboardType={'numeric'}
+                                            defaultValue={this.state.nomorMr}
+                                            ref="nomorMr"
+                                            onChangeText={(nomorMr) => this.setState({nomorMr})}
+                                            style={styles.inputBoxModal}
+                                            underlineColorAndroid="rgba(0,0,0,0)"
+                                            placeholder="Masukan Nomor MR"
+                                            placeholderTextColor="rgba(255,255,255,0.8)"
+                                            selectionColor="#999999"
+                                        />
+                                        <TextInput
+                                            keyboardType={'numeric'}
+                                            defaultValue={this.state.tahunLahir}
+                                            ref="tahunLahir"
+                                            onChangeText={(tahunLahir) => this.setState({tahunLahir})}
+                                            style={styles.inputBoxModal}
+                                            underlineColorAndroid="rgba(0,0,0,0)"
+                                            placeholder="Masukan Tahun Lahir"
+                                            placeholderTextColor="rgba(255,255,255,0.8)"
+                                            selectionColor="#999999"
+                                        />
+                                        <TouchableOpacity style={styles.buttonModal}
+                                                          onPress={this._onSubmit.bind(this)}>
+                                            <Text style={styles.buttonText}>Submit</Text>
+                                        </TouchableOpacity></View></View></View> : <View></View>
                     }
                     {this.isFieldInError('nomorMr') && this.getErrorsInField('nomorMr').map(errorMessage =>
                         <Text>{errorMessage}</Text>)}
                 </View>
+                <Modal
+                    onSwipeComplete={() => {
+                        this.setModalUnvisible(!this.state.modalVisible);
+                    }}
+                    scrollHorizontal
+                    propagateSwipe
+                    swipeDirection={['down']}
+                    swipearea={50}
+                    onRequestClose={() => {
+                        this.setModalUnvisible(!this.state.modalVisible);
+                    }}
+                    animationType="slide"
+                    visible={this.state.modalVisible}
+                ><ScrollView style={{backgroundColor: 'white'}}>
+                    <ListItem
+                        title={this.state.namaPasien}
+                        subtitle={moment(this.state.tanggalKunjungan).format('LLLL')
+                        }
+                    >
+                    </ListItem>
+                    <View style={{backgroundColor: 'white'}}>
+                        <StepIndicator
+                            direction="horizontal"
+                            stepCount={labels.length}
+                            customStyles={customStyles}
+                            currentPosition={this.state.currentPosition}
+                            labels={labels}
+                        />
+                        <View style={{
+                            justifyContent: 'center',
+                            flex: 1,
+                            padding: 10,
+                            alignItems: 'center',
+                            backgroundColor: 'white',
+                        }}>
+                            <View style={{flexDirection: 'row', marginTop: 10}}>
+                                <View style={{width: 90, backgroundColor: 'white'}}>
+                                    <Text style={{fontSize: 12}}>Tanggal</Text>
+                                    <Text style={{fontSize: 12}}>No MR</Text>
+                                    <Text style={{fontSize: 12}}>Nama</Text>
+                                    <Text style={{fontSize: 12}}>Tgl Kunjungan</Text>
+                                    <Text style={{fontSize: 12}}>Jam Kunjungan</Text>
+                                    <Text style={{fontSize: 12}}>Poly Tujuan</Text>
+                                    <Text style={{fontSize: 12}}>Cara Bayar</Text>
+                                </View>
+                                <View style={{width: 250, backgroundColor: 'white'}}>
+                                    <Text style={{fontSize: 12}}>: {this.state.tanggalMendaftar}</Text>
+                                    <Text style={{fontSize: 12}}>: {this.state.nomorMr}</Text>
+                                    <Text style={{fontSize: 12}}>: {this.state.namaPasien}</Text>
+                                    <Text style={{fontSize: 12}}>: {this.state.tanggalKunjungan}</Text>
+                                    <Text style={{fontSize: 12}}>: {this.state.jamKunjunganLabel}</Text>
+                                    <Text style={{fontSize: 12}}>: {this.state.namaRuang}</Text>
+                                    <Text style={{fontSize: 12}}>: {this.state.caraBayar}</Text>
+                                </View>
+                            </View>
+                        </View>
+                    </View>
+                </ScrollView>
+                </Modal>
             </View>
         );
     }

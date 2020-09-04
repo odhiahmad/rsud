@@ -134,6 +134,12 @@ class Home extends Component {
             dataDashboard: [],
 
             showErrorDokter: false,
+
+            rute:'',
+            rute_jam:'',
+            jam:'',
+            tempat:'',
+            statusShuttle:'',
         };
     }
 
@@ -153,6 +159,11 @@ class Home extends Component {
         if (value.nomorAntrian != null) {
             this.setModalVisible(true);
             this.setState({
+                rute_jam:value.pilihShuttleBusRuteNama,
+                rute:value.pilihShuttleBusNama,
+                jam:value.pilihShuttleBusDetailJam,
+                tempat:value.pilihShuttleBusDetailNama,
+                statusShuttle:value.statusShuttle,
                 nomorAntrian: value.nomorAntrian,
                 tanggalKunjungan: value.tanggalKunjungan,
                 jamKunjungan: value.jamKunjungan,
@@ -1096,7 +1107,7 @@ class Home extends Component {
 
                                     </View>
                                     <View style={{flexDirection: 'row', marginTop: 10}}>
-                                        <View style={{width: 150, backgroundColor: 'white'}}>
+                                        <View style={{width: 100, backgroundColor: 'white'}}>
                                             <Text style={{fontSize: 12}}>Tanggal</Text>
                                             <Text style={{fontSize: 12}}>No MR</Text>
                                             <Text style={{fontSize: 12}}>Nama</Text>
@@ -1105,7 +1116,7 @@ class Home extends Component {
                                             <Text style={{fontSize: 12}}>Poly Tujuan</Text>
                                             <Text style={{fontSize: 12}}>Cara Bayar</Text>
                                         </View>
-                                        <View style={{width: 150, backgroundColor: 'white'}}>
+                                        <View style={{width: 200, backgroundColor: 'white'}}>
                                             <Text style={{fontSize: 12}}>: {this.state.tanggalMendaftar}</Text>
                                             <Text style={{fontSize: 12}}>: {this.state.nomorMr}</Text>
                                             <Text style={{fontSize: 12}}>: {this.state.namaPasien}</Text>
@@ -1145,6 +1156,22 @@ class Home extends Component {
                                             tidak akan dilayani</Text>
                                     </View>
                                 </ViewShot>
+                                {this.state.statusShuttle === 1 ?
+                                    <View
+                                        style={{
+                                            alignItems: 'center',
+                                            padding: 10,
+                                            justifyContent: 'center',
+                                        }}>
+                                        <Icon active type="font-awesome" name="map-marker"/>
+                                        <Text>{this.state.rute}</Text>
+                                        <Text>{this.state.jam}</Text>
+                                        <Text>{this.state.tempat}</Text>
+                                    </View>
+                                :
+                                    <View></View>
+                                }
+
                             </View>
                             <View
                                 style={{
