@@ -517,7 +517,6 @@ class Riwayat extends ValidationComponent {
                     </View>
                 }
 
-
                 <Modal
                     onSwipeComplete={() => {
                         this.setModalUnvisible(!this.state.modalVisible);

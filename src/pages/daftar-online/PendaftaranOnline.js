@@ -303,8 +303,7 @@ class PendaftaranOnline extends ValidationComponent {
     }
 
     showData() {
-
-
+        this.cekDaftar()
         var dayName = [];
         var hitung = [];
         var dataTanggalName = [];
@@ -453,7 +452,7 @@ class PendaftaranOnline extends ValidationComponent {
                     }
                 }
 
-                console.log(this.state.dataShuttleBus);
+
 
                 if (loopStopA === true && loopStopB === true && loopStopC === true) {
                     this.setState({
@@ -544,7 +543,6 @@ class PendaftaranOnline extends ValidationComponent {
             this.setState({inClickLengkapiProfil: false});
         }.bind(this), 2000);
     };
-
 
     showDataDokter(id) {
 
@@ -842,6 +840,7 @@ class PendaftaranOnline extends ValidationComponent {
         }
 
     };
+
     renderFooter = () => {
         return (
             this.state.isLoading ?
@@ -1104,6 +1103,11 @@ class PendaftaranOnline extends ValidationComponent {
 
                                 Actions.pop({
                                     refresh: {
+                                        pilihShuttleBusNama: pilihShuttleBusNama,
+                                        statusShuttle:this.state.statusShuttle,
+                                        pilihShuttleBusDetailNama: pilihShuttleBusDetailNama,
+                                        pilihShuttleBusRuteNama: pilihShuttleBusRuteNama,
+                                        pilihShuttleBusDetailJam: pilihShuttleBusDetailJam,
                                         nomorAntrian: responseJson.data.nomor_daftar,
                                         tanggalKunjungan: responseJson.data.tanggal_kunjungan,
                                         jamKunjungan: responseJson.data.jam_kunjungan,
@@ -1166,15 +1170,12 @@ class PendaftaranOnline extends ValidationComponent {
 
     }
 
-    toggleSwitch() {
-        this.setState({simpanFavorite: !this.state.simpanFavorite});
-    }
-
     showAlert = () => {
         this.setState({
             showAlert: true,
         });
     };
+
     hideAlert = () => {
         if (this.state.statusLogin === true) {
             Actions.login();
@@ -1239,7 +1240,6 @@ class PendaftaranOnline extends ValidationComponent {
             modalVisibleDokter: visible,
         });
     }
-
 
     pilihJam(jam, name) {
         this.setState({
@@ -1319,7 +1319,6 @@ class PendaftaranOnline extends ValidationComponent {
         });
     }
 
-
     renderRowDokterJam = ({item}) => {
         return (
             <View>
@@ -1384,10 +1383,10 @@ class PendaftaranOnline extends ValidationComponent {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                'username': '00004',
-                'password': '551UU1BJ',
-                'param': 'nokartu',
-                'data': bpjs,
+                "username": "00004",
+                "password": "551UU1BJ",
+                "param": "nokartu",
+                "data": bpjs
             }),
         }).then((response) => response.json()).then((responseJson) => {
 
@@ -1432,11 +1431,7 @@ class PendaftaranOnline extends ValidationComponent {
 
             }
         }).catch(error => {
-            showMessage({
-                message: 'Jaringan BPJS Sedang Bermasalah',
-                type: 'danger',
-                position: 'bottom',
-            });
+
         });
     }
 

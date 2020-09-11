@@ -9,13 +9,14 @@ import {
     StyleSheet,
     View,
     Text,
-    TouchableOpacity,
+    TouchableOpacity, Modal,
 } from 'react-native';
 import {baseApi} from '../../service/api';
 import moment from 'moment';
 import LoaderModal from '../../components/LoaderModal';
 import {Actions} from 'react-native-router-flux';
 import Ripple from 'react-native-material-ripple';
+import ViewShot from "react-native-view-shot";
 
 
 export default class ShuttleBusDetail extends Component {
@@ -28,6 +29,7 @@ export default class ShuttleBusDetail extends Component {
             namaKelas: null,
             isLoading: true,
             dataSource: null,
+            dataPenumpang: null,
             inClick: false,
             idShuttle: this.props.id,
             curTime: '',
@@ -37,6 +39,15 @@ export default class ShuttleBusDetail extends Component {
             statusJaringan: 0,
 
             lastItem: '',
+            modalVisible: false,
+            modalVisiblePeta:false,
+
+            rute:null,
+            ruteJam:null,
+
+            jam:null,
+            jam1:null,
+            jam2:null,
         };
     }
 
@@ -70,24 +81,38 @@ export default class ShuttleBusDetail extends Component {
 
                 this.setState({
                     lastItem: 0,
-                    showTryAgain: false,
                     statusJaringan: 1,
                     loading: false,
                     dataSource: responseJson.data,
                     panjangData: responseJson.data.length,
+
                 });
-                console.log(responseJson.data.length);
+
             } else {
+
                 var array1 = responseJson.data;
                 var last_element = array1[array1.length - 3].id;
                 this.setState({
+                    jam:responseJson.jam,
+                    rute:responseJson.dataInfo.rute,
+                    ruteJam:responseJson.dataInfo.rute_jam,
                     lastItem: last_element,
-                    showTryAgain: false,
-                    statusJaringan: 1,
-                    loading: false,
                     dataSource: responseJson.data,
                     panjangData: responseJson.data.length,
+                    dataPenumpang: responseJson.dataPenumpang,
                 });
+                console.log(responseJson.dataInfo)
+                if(this.state.jam === null){
+                    this.setState({
+                        loading: false,
+
+                    });
+                }else{
+                    this.setState({
+                        statusJaringan: 1,
+                        loading: false,
+                    });
+                }
             }
 
 
@@ -104,79 +129,58 @@ export default class ShuttleBusDetail extends Component {
         return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
+    setModalUnvisible(visible) {
+        this.setState({
+            modalVisible: visible,
+        });
+    }
+
+    setModalVisible(visible) {
+        this.setState({
+            modalVisible: visible,
+        });
+    }
+
+    setModalUnvisiblePeta(visible) {
+        this.setState({
+            modalVisiblePeta: visible,
+        });
+    }
+
+    setModalVisiblePeta(visible) {
+        this.setState({
+            modalVisiblePeta: visible,
+        });
+    }
+
+    renderRowDetail = ({item, index}) => {
+        return (
+            <ListItem
+                title={ <View style={{flexDirection: 'row'}}>
+                    <View style={{width: 120, backgroundColor: 'white'}}>
+                        <Text>Lokasi</Text>
+                        <Text>Total Penumpang</Text>
+                    </View>
+                    <View style={{width: 200, backgroundColor: 'white'}}>
+                        <Text style={{color:'gray'}}>{this.Capitalize(item.tempat_tunggu)}</Text>
+                        <Text style={{color:'gray'}}>{item.total}</Text>
+                    </View>
+                    </View>}
+                chevron
+                bottomDivider
+            />
+        );
+    };
+
     renderRow = ({item, index}) => {
+
+        var time = this.state.jam
+
+
         var labels = [];
 
         for (let i = 0; i < this.state.dataSource.length; i++) {
             labels.push(this.state.dataSource[i].rute);
-        }
-        var today = new Date();
-        var time = null;
-        if (today.getHours() > 9) {
-            if (today.getMinutes() > 9) {
-                if (today.getSeconds() > 9) {
-                    time = today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
-                } else {
-                    time = today.getHours() + ':' + today.getMinutes() + ':0' + today.getSeconds();
-                }
-            } else {
-                if (today.getSeconds() > 9) {
-                    time = today.getHours() + ':' + '0' + today.getMinutes() + ':' + today.getSeconds();
-                } else {
-                    time = today.getHours() + ':' + '0' + today.getMinutes() + ':0' + today.getSeconds();
-                }
-            }
-        } else {
-            if (today.getMinutes() > 9) {
-                if (today.getSeconds() > 9) {
-                    time = '0' + today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
-                } else {
-                    time = '0' + today.getHours() + ':' + today.getMinutes() + ':0' + today.getSeconds();
-                }
-            } else {
-                if (today.getSeconds() > 9) {
-                    time = '0' + today.getHours() + ':' + '0' + today.getMinutes() + ':' + today.getSeconds();
-                } else {
-                    time = '0' + today.getHours() + ':' + '0' + today.getMinutes() + ':0' + today.getSeconds();
-                }
-            }
-        }
-
-        var dt = new Date();
-        dt.setMinutes(dt.getMinutes() + 15);
-        var time1 = null;
-
-        if (dt.getHours() > 9) {
-            if (dt.getMinutes() > 9) {
-                time1 = dt.getHours() + ':' + dt.getMinutes() + ':00';
-            } else {
-                time1 = dt.getHours() + ':' + '0' + dt.getMinutes() + ':00';
-            }
-        } else {
-            if (dt.getMinutes() > 9) {
-                time1 = '0' + dt.getHours() + ':' + dt.getMinutes() + ':00';
-            } else {
-                time1 = '0' + dt.getHours() + ':' + '0' + dt.getMinutes() + ':00';
-
-            }
-        }
-
-        var dt1 = new Date();
-        dt1.setMinutes(dt1.getMinutes() - 10);
-        var time2 = null;
-
-        if (dt1.getHours() > 9) {
-            if (dt1.getMinutes() > 9) {
-                time2 = dt1.getHours() + ':' + dt1.getMinutes() + ':00';
-            } else {
-                time2 = dt1.getHours() + ':' + '0' + dt1.getMinutes() + ':00';
-            }
-        } else {
-            if (dt1.getMinutes() > 9) {
-                time2 = '0' + dt1.getHours() + ':' + dt1.getMinutes() + ':00';
-            } else {
-                time2 = '0' + dt1.getHours() + ':' + '0' + dt1.getMinutes() + ':00';
-            }
         }
 
         var posisiSekarang = 0;
@@ -203,18 +207,6 @@ export default class ShuttleBusDetail extends Component {
             total = b + ':' + a + ':' + c;
         }
 
-        // if((posisiSekarang > index + 1) || (posisiSekarang === index) || (posisiSekarang < index -1)){
-
-        // if(this.state.lastItem === this.state.dataSource[posisiSekarang].id){
-        //     Actions.shuttlebus()
-        // }
-        // console.log({
-        //     "lastItem" : this.state.lastItem,
-        //     "source" : this.state.dataSource[posisiSekarang].id
-        // })
-
-        console.log(time1)
-        if (item.jam >= time2 && item.jam <= time1) {
             return (
                 <ListItem
                     title={<Text>{item.jam}</Text>}
@@ -286,7 +278,7 @@ export default class ShuttleBusDetail extends Component {
                 >
                 </ListItem>
             );
-        }
+
 
     };
 
@@ -300,6 +292,9 @@ export default class ShuttleBusDetail extends Component {
                         <Ripple onPress={() => Actions.pop()}>
                             <Icon type='ionicon' name='arrow-back-outline' color='#fff'
                             /></Ripple>}
+                    rightComponent={
+                        <Ripple onPress={() => this.getIndex()}>
+                            <Icon type='font-awesome-5' name='sync' color='#fff'/></Ripple>}
                     statusBarProps={{barStyle: 'light-content'}}
                     containerStyle={{
                         backgroundColor: '#1da30b',
@@ -307,7 +302,7 @@ export default class ShuttleBusDetail extends Component {
                     }}
                     barStyle="light-content"
                     placement="center"
-                    centerComponent={{text: 'Shuttle Bus Detail', style: {color: '#fff'}}}
+                    centerComponent={{text: this.state.rute === null ? 'Shuttle Bus Detail':this.state.rute, style: {color: '#fff'}}}
                 />
                 <LoaderModal
                     loading={this.state.loading}/>
@@ -331,12 +326,33 @@ export default class ShuttleBusDetail extends Component {
                                                       subtitle={<Text>Jadwal Bus Pada Jam 7 Pagi, 9 Pagi, dan 1 Siang
                                                           WIB</Text>}
                                             ></ListItem> :
-                                            <View>
-                                                <FlatList
-                                                    renderItem={this.renderRow}
-                                                    keyExtractor={(item, index) => index.toString()}
-                                                    data={this.state.dataSource}/>
-                                            </View>
+                                            <ScrollView>
+                                                <ListItem
+                                                    onPress={() => {
+                                                        this.setModalVisible(true);
+                                                    }}
+                                                    title={<Text>Informasi Penumpang</Text>}
+                                                    subtitle={<Text style={{color: 'gray'}}>Detail</Text>}
+                                                    chevron
+                                                    bottomDivider
+                                                ></ListItem>
+                                                <ListItem
+                                                    onPress={() => {
+                                                        this.setModalVisiblePeta(true);
+                                                    }}
+                                                    title={<Text>Informasi Peta</Text>}
+                                                    subtitle={<Text style={{color: 'gray'}}>Detail</Text>}
+                                                    chevron
+                                                    bottomDivider
+                                                ></ListItem>
+                                                <View>
+                                                    <FlatList
+                                                        renderItem={this.renderRow}
+                                                        keyExtractor={(item, index) => index.toString()}
+                                                        data={this.state.dataSource}/>
+                                                </View>
+
+                                            </ScrollView>
                                     }</View>
                                 : <View>
                                     <ListItem title={<Text>Tidak ada Jadwal Bus Pada Jam Ini</Text>}
@@ -347,6 +363,57 @@ export default class ShuttleBusDetail extends Component {
                         }
                     </View>}
 
+                <Modal
+                    onSwipeComplete={() => {
+                        this.setModalUnvisible(!this.state.modalVisible);
+                    }}
+                    scrollHorizontal
+                    propagateSwipe
+                    swipeDirection={['down']}
+                    swipearea={50}
+                    onRequestClose={() => {
+                        this.setModalUnvisible(!this.state.modalVisible);
+                    }}
+                    animationType="slide"
+                    visible={this.state.modalVisible}
+                >
+                    <ListItem
+                        title={this.state.rute}
+                        subtitle={this.state.ruteJam
+                        }
+                        bottomDivider
+                    >
+                    </ListItem>
+
+                        <FlatList
+                            renderItem={this.renderRowDetail}
+                            keyExtractor={(item, index) => index.toString()}
+                            data={this.state.dataPenumpang}/>
+
+                </Modal>
+
+                <Modal
+                    onSwipeComplete={() => {
+                        this.setModalUnvisiblePeta(!this.state.modalVisiblePeta);
+                    }}
+                    scrollHorizontal
+                    propagateSwipe
+                    swipeDirection={['down']}
+                    swipearea={50}
+                    onRequestClose={() => {
+                        this.setModalUnvisiblePeta(!this.state.modalVisiblePeta);
+                    }}
+                    animationType="slide"
+                    visible={this.state.modalVisiblePeta}
+                >
+                    <ListItem
+                        title={this.state.namaPasien}
+                        subtitle={moment(this.state.tanggalKunjungan).format('LLLL')
+                        }
+                    >
+                    </ListItem>
+
+                </Modal>
 
             </View>
         );

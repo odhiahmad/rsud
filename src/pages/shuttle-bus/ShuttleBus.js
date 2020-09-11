@@ -64,9 +64,10 @@ export default class index extends Component {
 
     renderRow = ({item, index}) => {
         return (
-            <ListItem  onPress={() =>
+            <Ripple onPress={() =>
                 Actions.shuttlebusdetail({id: item.id})
-            }
+            }>
+            <ListItem
 
                       title={<Text>{item.nama}</Text>}
                       leftAvatar={{
@@ -74,6 +75,7 @@ export default class index extends Component {
                       }}
                       chevron
             />
+            </Ripple>
         );
     };
 

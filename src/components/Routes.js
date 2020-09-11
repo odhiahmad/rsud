@@ -42,6 +42,7 @@ import PenilaianRawatInap from '../pages/penilaian/PenilaianRawatInap';
 import PenilaianRawatJalan from '../pages/penilaian/PenilaianRawatJalan';
 import { createStackNavigator } from 'react-navigation-stack';
 import DetailPenumpang from '../pages/shuttle-bus/DetailPenumpang';
+import Ripple from 'react-native-material-ripple';
 
 let {width, height} = Dimensions.get('window');
 var backButtonPressedOnceToExit = false;
@@ -62,11 +63,13 @@ class TabIcon extends Component {
         }
 
         return (
+
             <Icon
                 name={icon}
                 type='font-awesome'
                 color={this.props.focused ? '#24d10d' : '#1da30b'}
             />
+
 
         );
     }

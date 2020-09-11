@@ -1,10 +1,10 @@
-const BASE_URL = "http://192.168.0.104/api";
-const BASE_URL_SERVER = "http://rsud.padangpanjang.go.id/ws/mobile/";
-const BASE_FOTO_URL = "http://192.168.0.104/img/";
-
-// const BASE_URL = "https://rsud.padangpanjang.go.id/apktesting/public/api";
+// const BASE_URL = "http://192.168.0.104/api";
 // const BASE_URL_SERVER = "http://rsud.padangpanjang.go.id/ws/mobile/";
-// const BASE_FOTO_URL = "https://rsud.padangpanjang.go.id/apktesting/public/img/";
+// const BASE_FOTO_URL = "http://192.168.0.104/img/";
+
+const BASE_URL = "https://rsud.padangpanjang.go.id/apktesting/public/api";
+const BASE_URL_SERVER = "http://rsud.padangpanjang.go.id/ws/mobile/";
+const BASE_FOTO_URL = "https://rsud.padangpanjang.go.id/apktesting/public/img/";
 
 export const baseApi = BASE_URL
 export const baseApiBpjs = BASE_URL_SERVER
