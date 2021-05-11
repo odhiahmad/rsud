@@ -1012,6 +1012,11 @@
   resolved "https://registry.yarnpkg.com/@monterosa/react-native-parallax-scroll/-/react-native-parallax-scroll-1.8.0.tgz#04339a772c02818b229582a8b903aca4f9106005"
   integrity sha512-fFzJvMNN77d78haErRrZ/X64H0Vjz+5CvXSHBqxjlRQmhUB/R7BnqHwO3WFKGv2/Hv30LpL+0MSfHZeukglvDA==
 
+"@paraboly/react-native-card-button@0.0.16":
+  version "0.0.16"
+  resolved "https://registry.yarnpkg.com/@paraboly/react-native-card-button/-/react-native-card-button-0.0.16.tgz#b52ab6c369a5bbf0be1e3acf7ec8ffd11c077e93"
+  integrity sha512-Edsyu0kQPY8FyteXl831IFWzKAF3UJFcNP6VWYZldzAuemNJxEf4SSiUJ8peEWvmKxJ6K+0w1l9OwR+osSynzg==
+
 "@react-native-community/art@^1.2.0":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@react-native-community/art/-/art-1.2.0.tgz#386d95393f6042d9006f9d4bc6063fb898794460"
@@ -3779,9 +3784,9 @@ home-or-tmp@^2.0.0:
     os-tmpdir "^1.0.1"
 
 hosted-git-info@^2.1.4:
-  version "2.8.8"
-  resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-2.8.8.tgz#7539bd4bc1e0e0a895815a2e0262420b12858488"
-  integrity sha512-f/wzC2QaWBs7t9IYqB4T3sR1xviIViXJRJTWBlx2Gf3g0Xi5vI7Yy4koXQ1c9OYDGHN9sBy1DQ2AB8fqZBWhUg==
+  version "2.8.9"
+  resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-2.8.9.tgz#dffc0bf9a21c02209090f2aa69429e1414daf3f9"
+  integrity sha512-mxIDAb9Lsm6DoOJ7xH+5+X4y1LU/4Hi50L9C5sIswK3JzULS4bwk1FvjdBgvYR4bzT4tuUQiC15FE2f5HbLvYw==
 
 html-encoding-sniffer@^1.0.2:
   version "1.0.2"
@@ -6458,6 +6463,11 @@ react-native-drawer@2.5.1:
     prop-types "^15.5.8"
     tween-functions "^1.0.1"
 
+react-native-dynamic-vector-icons@^1.0.0:
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/react-native-dynamic-vector-icons/-/react-native-dynamic-vector-icons-1.1.4.tgz#a6dffbe0b71e4b26b34fd61e906e8a1d050f22ed"
+  integrity sha512-c+uxIphgMlJnjluleJw3nzww3UGVg/STUoRBmbFEFzy/LwQXOJHYJXsdsLRu4I1FcV7jK4A/8BMZBO4fFqFPTw==
+
 react-native-easy-grid@0.2.2:
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/react-native-easy-grid/-/react-native-easy-grid-0.2.2.tgz#f0be33620be1ebe2d2295918eb58b0a27e8272ab"
@@ -6608,10 +6618,22 @@ react-native-keyboard-aware-scroll-view@0.9.1:
     prop-types "^15.6.2"
     react-native-iphone-x-helper "^1.0.3"
 
+react-native-linear-gradient@^2.5.6:
+  version "2.5.6"
+  resolved "https://registry.yarnpkg.com/react-native-linear-gradient/-/react-native-linear-gradient-2.5.6.tgz#96215cbc5ec7a01247a20890888aa75b834d44a0"
+  integrity sha512-HDwEaXcQIuXXCV70O+bK1rizFong3wj+5Q/jSyifKFLg0VWF95xh8XQgfzXwtq0NggL9vNjPKXa016KuFu+VFg==
+
 react-native-maps@0.27.1:
   version "0.27.1"
   resolved "https://registry.yarnpkg.com/react-native-maps/-/react-native-maps-0.27.1.tgz#2f10cd417bb2fd938c9e015b1c9b6d9b1a44b97f"
   integrity sha512-HygBkZBecTnIVRYrSiLRAvu4OmXOYso/A7c6Cy73HkOh9CgGV8Ap5eBea24tvmFGptjj5Hg8AJ94/YbmWK1Okw==
+
+react-native-material-ripple@^0.9.1:
+  version "0.9.1"
+  resolved "https://registry.yarnpkg.com/react-native-material-ripple/-/react-native-material-ripple-0.9.1.tgz#db1ad9dd7cf97011e4cd8475ae2041ade0f891cb"
+  integrity sha512-dHjARdKoGD3LXwPh2TkURabywM5BfdpKc/AHplJTfBMalhVZ2bc7iJoJmNhNnmT/TZ+B3szL6uV1mO7Pv8zNeA==
+  dependencies:
+    prop-types "^15.5.10"
 
 react-native-material-textfield@^0.12.0:
   version "0.12.0"
